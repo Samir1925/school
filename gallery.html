@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery – G Star English Boarding School</title>
+  <link rel="icon" href="assets/logos/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    /* Lightbox styles (also used by gallery.js) */
+    .lightbox {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      cursor: pointer;
+    }
+    .lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 12px;
+      box-shadow: 0 0 40px rgba(255,255,255,0.2);
+    }
+    /* Gallery grid */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 60px 0;
+    }
+    .gallery-item {
+      overflow: hidden;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      height: 250px;
+    }
+    .gallery-item:hover {
+      transform: scale(1.02);
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .gallery-filters {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      padding-top: 40px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 8px 20px;
+      border: 1px solid var(--primary);
+      background: transparent;
+      color: var(--primary);
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header class="glass-nav">
+    <div class="container nav-container">
+      <a href="index.html" class="logo">
+        <img src="assets/logos/logo.png" alt="G Star School Logo" width="48">
+        <span class="school-name">G STAR ENGLISH BOARDING SCHOOL</span>
+      </a>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="academics.html">Academics</a></li>
+          <li><a href="admissions.html">Admissions</a></li>
+          <li><a href="gallery.html" class="active">Gallery</a></li>
+          <li><a href="news.html">News</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-toggle"><span></span><span></span><span></span></div>
+    </div>
+  </header>
+
+  <section class="page-hero" style="background: linear-gradient(rgba(10,35,66,0.8),rgba(10,35,66,0.9)), url('assets/images/gallery-hero.jpg'); height: 50vh; display: flex; align-items: center; justify-content: center; color: white;">
+    <h1>Our Gallery</h1>
+  </section>
+
+  <div class="container">
+    <div class="gallery-filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="campus">Campus</button>
+      <button class="filter-btn" data-filter="events">Events</button>
+      <button class="filter-btn" data-filter="sports">Sports</button>
+      <button class="filter-btn" data-filter="classroom">Classroom</button>
+    </div>
+
+    <div class="gallery-grid" id="galleryGrid">
+      <!-- Images will be populated by JavaScript or you can hardcode -->
+    </div>
+  </div>
+
+  <footer>
+    <div class="container footer-content">
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p>📍 Gaur-5, Nepal</p>
+        <p>📞 xxxx-xxxxxx</p>
+        <p>✉️ xxxx@xxxxx.edu.np</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="admissions.html">Admission</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Follow Us</h4>
+        <div class="social-links">
+          <a href="#">FB</a>
+          <a href="#">IG</a>
+          <a href="#">YT</a>
+        </div>
+      </div>
+    </div>
+    <p class="copyright">© G STAR ENGLISH BOARDING SCHOOL. All rights reserved.</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/gallery.js"></script>
+  <script>
+    // Gallery data (replace with real image paths)
+    const images = [
+      { src: "https://placehold.co/600x400?text=Campus+1", alt: "Campus", category: "campus" },
+      { src: "https://placehold.co/600x400?text=Event+1", alt: "Annual Day", category: "events" },
+      { src: "https://placehold.co/600x400?text=Sports+1", alt: "Football Match", category: "sports" },
+      { src: "https://placehold.co/600x400?text=Classroom", alt: "Modern Classroom", category: "classroom" },
+      { src: "https://placehold.co/600x400?text=Campus+2", alt: "Library", category: "campus" },
+      { src: "https://placehold.co/600x400?text=Event+2", alt: "Science Fair", category: "events" },
+      { src: "https://placehold.co/600x400?text=Sports+2", alt: "Basketball", category: "sports" },
+      { src: "https://placehold.co/600x400?text=Classroom+2", alt: "Lab", category: "classroom" }
+    ];
+
+    function renderGallery(filter = 'all') {
+      const grid = document.getElementById('galleryGrid');
+      const filtered = filter === 'all' ? images : images.filter(img => img.category === filter);
+      grid.innerHTML = filtered.map(img => `
+        <div class="gallery-item" data-category="${img.category}">
+          <img src="${img.src}" alt="${img.alt}" loading="lazy">
+        </div>
+      `).join('');
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderGallery(btn.dataset.filter);
+      });
+    });
+
+    renderGallery();
+  </script>
+</body>
+</html>

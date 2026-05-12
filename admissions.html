@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admissions – G Star</title>
+  <link rel="icon" href="assets/logos/logo.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header>... same nav ...</header>
+  <section class="page-hero"><h1>Admissions Open</h1></section>
+  <main class="container" style="padding: 60px 20px;">
+    <h2>How to Apply</h2>
+    <ol><li>xxxx</li><li>xxxx</li><li>xxxx</li></ol>
+    <h3>Fee Structure</h3>
+    <table class="data-table"><tr><th>Grade</th><th>Annual Tuition</th></tr><tr><td>Nursery</td><td>xxxx</td></tr></table>
+    <h3>Online Application Form</h3>
+    <form id="admissionForm">
+      <input type="text" placeholder="Student Name" required>
+      <input type="text" placeholder="Parent Name" required>
+      <button type="submit" class="cta-btn">Submit</button>
+    </form>
+  </main>
+  <footer>...</footer>
+  <script>
+    document.getElementById('admissionForm').addEventListener('submit', e => {
+      e.preventDefault();
+      alert('Application submitted! (demo)');
+    });
+  </script>
+</body>
+</html>

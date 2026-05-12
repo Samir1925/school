@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel – G Star</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+  <!-- Login Section -->
+  <div id="loginSection" class="login-container">
+    <div class="login-box">
+      <h2>Admin Login</h2>
+      <input type="email" id="loginEmail" placeholder="Email" value="admin@school.edu.np"><br><br>
+      <input type="password" id="loginPassword" placeholder="Password" value="admin123"><br><br>
+      <button class="btn btn-primary" onclick="login()">Login</button>
+    </div>
+  </div>
+
+  <!-- Dashboard Section (hidden initially) -->
+  <div id="dashboardSection" style="display:none;">
+    <div class="sidebar" id="sidebar">
+      <h2>G Star Admin</h2>
+      <nav>
+        <a href="#" class="active" data-page="dashboard">Dashboard</a>
+        <a href="#" data-page="notices">Notices</a>
+        <a href="#" data-page="students">Students</a>
+        <a href="#" data-page="teachers">Teachers</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </nav>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <button class="toggle-sidebar" onclick="document.getElementById('sidebar').classList.toggle('collapsed'); document.getElementById('mainContent').classList.toggle('expanded')">☰</button>
+        <span>Welcome, Admin</span>
+      </div>
+      <div id="pageContent">
+        <div class="dashboard-cards">
+          <div class="card"><h3>Students</h3><p id="studentCount">...</p></div>
+          <div class="card"><h3>Teachers</h3><p id="teacherCount">...</p></div>
+          <div class="card"><h3>Notices</h3><p>3</p></div>
+        </div>
+        <h2>Recent Notices</h2>
+        <div id="noticesList">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
