@@ -1,0 +1,49 @@
+/* Mobile-first responsive overrides */
+@media (max-width: 768px) {
+  .main-nav ul {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(10,35,66,0.95);
+    backdrop-filter: blur(20px);
+    flex-direction: column;
+    padding: 2rem;
+    gap: 1.5rem;
+  }
+  .main-nav.active ul {
+    display: flex;
+  }
+  .mobile-toggle {
+    display: flex;
+  }
+  .hero-title {
+    font-size: 2.2rem;
+  }
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  .stats-grid {
+    gap: 15px;
+  }
+  .stat-number {
+    font-size: 2.2rem;
+  }
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  .footer-content {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    height: 70vh;
+  }
+  .cta-btn {
+    padding: 12px 30px;
+    font-size: 1rem;
+  }
+}
