@@ -1,10 +1,17 @@
-name = "g-star-school"
-main = "functions/api.js"
-compatibility_date = "2025-01-01"
+# wrangler.toml – for Cloudflare Pages Functions
+# Only used to define bindings (D1, R2) and env vars.
+# The "pages_build_output_dir" is optional.
 
-[site]
-bucket = "./"
+[[d1_databases]]
+binding = "DB"
+database_name = "gstar-db"
+database_id = "xxxx-your-d1-id-xxxx"
 
-[env.production]
-workers_dev = false
-route = "example.com/*"
+[[r2_buckets]]
+binding = "GALLERY"
+bucket_name = "gstar-gallery"
+
+[vars]
+JWT_SECRET = "use-a-long-random-string-here"
+ADMIN_EMAIL = "admin@school.edu.np"
+ADMIN_PASSWORD = "yourSecurePassword123"
