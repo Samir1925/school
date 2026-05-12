@@ -1,0 +1,10 @@
+name = "g-star-school"
+main = "functions/api.js"
+compatibility_date = "2025-01-01"
+
+[site]
+bucket = "./"
+
+[env.production]
+workers_dev = false
+route = "example.com/*"
