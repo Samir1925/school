@@ -1,4 +1,4 @@
-name = "school"
+name = "school-api"
 main = "api.js"
 compatibility_date = "2024-10-01"
 
