@@ -1,49 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Admin Dashboard | Springdale</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | Springdale Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="/assets/css/admin.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* Smooth sidebar hover effects */
+    .sidebar-link {
+      transition: background 0.2s, padding-left 0.2s;
+    }
+    .sidebar-link:hover {
+      background: rgba(255,255,255,0.1);
+      padding-left: 1.2rem;
+    }
+  </style>
 </head>
-<body class="bg-gray-100">
-  <div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-indigo-900 text-white flex flex-col">
-      <div class="p-6 text-center border-b border-indigo-700">
-        <h2 class="text-2xl font-bold">Admin Panel</h2>
+<body class="bg-gray-100 font-sans antialiased">
+
+  <!-- Main layout: Sidebar + Content -->
+  <div class="flex h-screen overflow-hidden">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="w-64 bg-indigo-900 text-white flex flex-col shadow-2xl">
+      <!-- Brand -->
+      <div class="p-6 border-b border-indigo-700">
+        <h2 class="text-2xl font-bold flex items-center gap-2">
+          <i class="fas fa-graduation-cap"></i> Springdale
+        </h2>
+        <p class="text-indigo-300 text-xs mt-1">Admin Panel</p>
       </div>
-      <nav class="flex-1 p-4 space-y-2">
-        <a href="dashboard.html" class="flex items-center gap-3 p-3 rounded-lg bg-indigo-800"><i class="fas fa-home"></i> Dashboard</a>
-        <a href="settings.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-800"><i class="fas fa-cog"></i> Settings</a>
-        <a href="notices.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-800"><i class="fas fa-bullhorn"></i> Notices</a>
-        <a href="students.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-800"><i class="fas fa-user-graduate"></i> Students</a>
-        <a href="teachers.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-800"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
-        <a href="results.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-800"><i class="fas fa-chart-bar"></i> Results</a>
-        <a href="admissions.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-800"><i class="fas fa-file-alt"></i> Applications</a>
-        <a href="media.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-800"><i class="fas fa-images"></i> Media</a>
-        <a href="users.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-800"><i class="fas fa-users-cog"></i> Users</a>
-        <a href="#" onclick="logout()" class="flex items-center gap-3 p-3 rounded-lg hover:bg-red-700 mt-8"><i class="fas fa-sign-out-alt"></i> Logout</a>
+
+      <!-- Navigation -->
+      <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+        <a href="dashboard.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg bg-indigo-800">
+          <i class="fas fa-th-large w-5"></i> Dashboard
+        </a>
+        <a href="settings.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-cog w-5"></i> Site Settings
+        </a>
+        <a href="notices.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-bullhorn w-5"></i> Notices
+        </a>
+        <a href="students.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-user-graduate w-5"></i> Students
+        </a>
+        <a href="teachers.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-chalkboard-teacher w-5"></i> Teachers
+        </a>
+        <a href="admissions.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-file-alt w-5"></i> Applications
+        </a>
+        <a href="media.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-images w-5"></i> Media
+        </a>
       </nav>
+
+      <!-- Logout -->
+      <div class="p-4 border-t border-indigo-700">
+        <button id="logoutBtn" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-red-300 w-full">
+          <i class="fas fa-sign-out-alt w-5"></i> Logout
+        </button>
+      </div>
     </aside>
-    <!-- Content -->
-    <main class="flex-1 p-8 overflow-y-auto">
-      <h1 class="text-3xl font-bold text-gray-900 mb-8">Dashboard Overview</h1>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white p-6 rounded-xl shadow"><p class="text-gray-500">Total Students</p><p class="text-3xl font-bold">1,200</p></div>
-        <div class="bg-white p-6 rounded-xl shadow"><p class="text-gray-500">Teachers</p><p class="text-3xl font-bold">80</p></div>
-        <div class="bg-white p-6 rounded-xl shadow"><p class="text-gray-500">Pending Applications</p><p class="text-3xl font-bold">23</p></div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="flex-1 overflow-y-auto p-8">
+
+      <!-- Top bar with user info -->
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
+          <p class="text-gray-500 mt-1">Welcome back, <span id="userEmail">admin</span></p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-full text-sm font-semibold">
+            <i class="fas fa-circle text-green-500 text-xs mr-1"></i> Online
+          </span>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Total Students</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1" id="studentCount">—</p>
+            </div>
+            <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-user-graduate text-indigo-600 text-xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Teachers</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1" id="teacherCount">—</p>
+            </div>
+            <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-chalkboard-teacher text-emerald-600 text-xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Pending Applications</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1" id="appCount">—</p>
+            </div>
+            <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-clock text-amber-600 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Placeholder for future charts / quick actions -->
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <a href="settings.html" class="p-4 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition text-center">
+            <i class="fas fa-cog text-2xl text-indigo-600 mb-2"></i>
+            <p class="text-sm font-medium text-gray-700">Settings</p>
+          </a>
+          <a href="notices.html" class="p-4 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition text-center">
+            <i class="fas fa-plus-circle text-2xl text-indigo-600 mb-2"></i>
+            <p class="text-sm font-medium text-gray-700">Add Notice</p>
+          </a>
+          <a href="students.html" class="p-4 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition text-center">
+            <i class="fas fa-user-plus text-2xl text-indigo-600 mb-2"></i>
+            <p class="text-sm font-medium text-gray-700">Add Student</p>
+          </a>
+          <a href="media.html" class="p-4 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition text-center">
+            <i class="fas fa-upload text-2xl text-indigo-600 mb-2"></i>
+            <p class="text-sm font-medium text-gray-700">Upload Media</p>
+          </a>
+        </div>
       </div>
     </main>
   </div>
-  <script src="/assets/js/auth.js"></script>
-  <script>
-    if (!getToken()) window.location.href = '/admin/index.html';
-    function logout() {
-      localStorage.removeItem('token');
-      window.location.href = '/admin/index.html';
+
+  <!-- Firebase Auth + Data Loading -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // 🔥 REPLACE with your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIza...",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abc123"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ---------- Auth Guard ----------
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        // Not logged in
+        window.location.href = '/admin/index.html';
+        return;
+      }
+
+      // Show user email
+      document.getElementById('userEmail').textContent = user.email || 'User';
+
+      // Optional: verify admin privilege (check /admins/{uid})
+      // You can uncomment below after creating the admins collection
+      /*
+      import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      const adminRef = doc(db, 'admins', user.uid);
+      const adminSnap = await getDoc(adminRef);
+      if (!adminSnap.exists()) {
+        await signOut(auth);
+        window.location.href = '/admin/index.html';
+        return;
+      }
+      */
+
+      // Load dashboard stats
+      loadStats();
+    });
+
+    // Load counts from Firestore
+    async function loadStats() {
+      try {
+        const studentsSnap = await getDocs(collection(db, 'students'));
+        document.getElementById('studentCount').textContent = studentsSnap.size;
+
+        const teachersSnap = await getDocs(collection(db, 'teachers'));
+        document.getElementById('teacherCount').textContent = teachersSnap.size;
+
+        const appsSnap = await getDocs(collection(db, 'admission_applications'));
+        document.getElementById('appCount').textContent = appsSnap.size;
+      } catch (err) {
+        console.error('Error loading stats:', err);
+        document.getElementById('studentCount').textContent = '!';
+        document.getElementById('teacherCount').textContent = '!';
+        document.getElementById('appCount').textContent = '!';
+      }
     }
+
+    // ---------- Logout ----------
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/admin/index.html';
+    });
   </script>
 </body>
 </html>
