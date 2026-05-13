@@ -62,68 +62,59 @@
     </main>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-    import { requireAdmin } from "/assets/js/admin-guard.js";
+<script type="module">
+  import { auth, db } from "/assets/js/firebase-config.js";
+  import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { requireAdmin } from "/assets/js/admin-guard.js";
 
-    const firebaseConfig = { /* REPLACE */ };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+  const mainArea = document.querySelector('main');
+  const user = await requireAdmin();
+  if (!user) {
+    mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2></div>`;
+    throw new Error('Not admin');
+  }
 
-    try {
-      await requireAdmin(auth, db);
-      loadMedia();
-    } catch (e) {}
+  function showToast(msg, isError = false) {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+    toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
 
-    async function loadMedia() {
-      const gallery = document.getElementById('gallery');
-      gallery.innerHTML = '';
-      const snap = await getDocs(collection(db, 'media'));
-      snap.forEach(docSnap => {
-        const m = docSnap.data();
-        const div = document.createElement('div');
-        div.className = 'relative group bg-white rounded-xl overflow-hidden shadow';
-        div.innerHTML = `
-          <img src="${m.url}" class="w-full h-32 object-cover" />
-          <button class="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition delete-media" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
-        `;
-        gallery.appendChild(div);
-      });
-      document.querySelectorAll('.delete-media').forEach(b => b.addEventListener('click', async (e) => {
-        if (confirm('Delete?')) {
-          await deleteDoc(doc(db, 'media', e.currentTarget.dataset.id));
-          // Optionally delete from storage using m.storagePath
-          loadMedia();
-        }
-      }));
-    }
-
-    document.getElementById('fileInput').addEventListener('change', async (e) => {
-      const files = e.target.files;
-      for (const file of files) {
-        const storageRef = ref(storage, `media/${Date.now()}_${file.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, file);
-        uploadTask.on('state_changed',
-          null,
-          null,
-          async () => {
-            const url = await getDownloadURL(uploadTask.snapshot.ref);
-            await addDoc(collection(db, 'media'), { url, storagePath: uploadTask.snapshot.ref.fullPath, createdAt: new Date() });
-            loadMedia();
-          }
-        );
-      }
+  async function loadApplications() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    const snap = await getDocs(collection(db, 'admission_applications'));
+    snap.forEach(docSnap => {
+      const a = docSnap.data();
+      const row = document.createElement('tr');
+      row.className = 'border-t';
+      row.innerHTML = `
+        <td class="p-4">${a.studentName || a.name || '—'}</td>
+        <td class="p-4">${a.grade || '—'}</td>
+        <td class="p-4">${a.parentName || a.parent_name || '—'}</td>
+        <td class="p-4">${a.email || '—'}</td>
+        <td class="p-4">${a.submittedAt?.toDate ? new Date(a.submittedAt.toDate()).toLocaleDateString() : '—'}</td>
+        <td class="p-4">
+          <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
+        </td>`;
+      tbody.appendChild(row);
     });
+    document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', async (e) => {
+      if (!confirm('Delete this application?')) return;
+      await deleteDoc(doc(db, 'admission_applications', e.currentTarget.dataset.id));
+      loadApplications();
+      showToast('Application deleted');
+    }));
+  }
+  loadApplications();
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.href = '/admin/index.html';
-    });
-  </script>
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = '/admin/index.html';
+  });
+</script>
 </body>
 </html>

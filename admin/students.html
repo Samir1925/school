@@ -94,93 +94,103 @@
       </form>
     </div>
   </div>
+<script type="module">
+  import { auth, db } from "/assets/js/firebase-config.js";
+  import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { requireAdmin } from "/assets/js/admin-guard.js";
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { requireAdmin } from "/assets/js/admin-guard.js";
+  const mainArea = document.querySelector('main');
+  const user = await requireAdmin();
+  if (!user) {
+    mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2></div>`;
+    throw new Error('Not admin');
+  }
 
-    const firebaseConfig = { /* REPLACE */ };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  function showToast(msg, isError = false) {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+    toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
 
-    try {
-      await requireAdmin(auth, db);
-      loadStudents();
-    } catch (e) {}
+  async function loadStudents() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    const snap = await getDocs(collection(db, 'students'));
+    snap.forEach(docSnap => {
+      const s = docSnap.data();
+      const row = document.createElement('tr');
+      row.className = 'border-t';
+      row.innerHTML = `
+        <td class="p-4">${s.name}</td>
+        <td class="p-4">${s.grade}</td>
+        <td class="p-4">${s.parent_name || '—'}</td>
+        <td class="p-4">${s.email || '—'}</td>
+        <td class="p-4 flex gap-2">
+          <button class="text-indigo-600 edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
+          <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
+        </td>`;
+      tbody.appendChild(row);
+    });
+    document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
+    document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteStudent));
+  }
+  loadStudents();
 
-    async function loadStudents() {
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = '';
-      const snap = await getDocs(collection(db, 'students'));
-      snap.forEach(docSnap => {
-        const s = docSnap.data();
-        const row = document.createElement('tr');
-        row.className = 'border-t';
-        row.innerHTML = `
-          <td class="p-4">${s.name}</td>
-          <td class="p-4">${s.grade}</td>
-          <td class="p-4">${s.parent_name || '—'}</td>
-          <td class="p-4">${s.email || '—'}</td>
-          <td class="p-4 flex gap-2">
-            <button class="text-indigo-600 edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
-            <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
-          </td>`;
-        tbody.appendChild(row);
-      });
-      document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
-      document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteStudent));
-    }
+  window.openModal = () => {
+    document.getElementById('modalTitle').textContent = 'Add Student';
+    document.getElementById('studentForm').reset();
+    document.getElementById('studentId').value = '';
+    document.getElementById('studentModal').classList.remove('hidden');
+  };
+  window.closeModal = () => document.getElementById('studentModal').classList.add('hidden');
 
-    window.openModal = () => {
-      document.getElementById('modalTitle').textContent = 'Add Student';
-      document.getElementById('studentForm').reset();
-      document.getElementById('studentId').value = '';
-      document.getElementById('studentModal').classList.remove('hidden');
+  async function openEdit(e) {
+    const id = e.currentTarget.dataset.id;
+    const snap = await getDoc(doc(db, 'students', id));
+    if (!snap.exists()) return;
+    const s = snap.data();
+    document.getElementById('studentId').value = id;
+    document.getElementById('name').value = s.name;
+    document.getElementById('grade').value = s.grade;
+    document.getElementById('parent').value = s.parent_name || '';
+    document.getElementById('email').value = s.email || '';
+    document.getElementById('modalTitle').textContent = 'Edit Student';
+    document.getElementById('studentModal').classList.remove('hidden');
+  }
+
+  async function deleteStudent(e) {
+    if (!confirm('Delete this student?')) return;
+    await deleteDoc(doc(db, 'students', e.currentTarget.dataset.id));
+    loadStudents();
+  }
+
+  document.getElementById('studentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('studentId').value;
+    const data = {
+      name: document.getElementById('name').value,
+      grade: document.getElementById('grade').value,
+      parent_name: document.getElementById('parent').value,
+      email: document.getElementById('email').value
     };
-    window.closeModal = () => document.getElementById('studentModal').classList.add('hidden');
-
-    async function openEdit(e) {
-      const id = e.currentTarget.dataset.id;
-      const snap = await getDoc(doc(db, 'students', id));
-      if (!snap.exists()) return;
-      const s = snap.data();
-      document.getElementById('studentId').value = id;
-      document.getElementById('name').value = s.name;
-      document.getElementById('grade').value = s.grade;
-      document.getElementById('parent').value = s.parent_name || '';
-      document.getElementById('email').value = s.email || '';
-      document.getElementById('modalTitle').textContent = 'Edit Student';
-      document.getElementById('studentModal').classList.remove('hidden');
-    }
-
-    async function deleteStudent(e) {
-      if (!confirm('Delete this student?')) return;
-      await deleteDoc(doc(db, 'students', e.currentTarget.dataset.id));
-      loadStudents();
-    }
-
-    document.getElementById('studentForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('studentId').value;
-      const data = {
-        name: document.getElementById('name').value,
-        grade: document.getElementById('grade').value,
-        parent_name: document.getElementById('parent').value,
-        email: document.getElementById('email').value
-      };
+    try {
       if (id) await updateDoc(doc(db, 'students', id), data);
       else await addDoc(collection(db, 'students'), data);
       closeModal();
       loadStudents();
-    });
+      showToast('Student saved!');
+    } catch (err) {
+      showToast('Error saving student: ' + err.message, true);
+    }
+  });
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.href = '/admin/index.html';
-    });
-  </script>
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = '/admin/index.html';
+  });
+</script>
 </body>
 </html>

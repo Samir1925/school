@@ -118,44 +118,37 @@
     </main>
   </div>
 
- <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+<script type="module">
+  import { auth, db, storage } from "/assets/js/firebase-config.js";
+  import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
   import { requireAdmin } from "/assets/js/admin-guard.js";
 
- const firebaseConfig = {
-      apiKey: "AIzaSyCbTfB_VxZosV15LUdgyoUrHL6-dz6FohM",
-      authDomain: "school-cf387.firebaseapp.com",
-      projectId: "school-cf387",
-      storageBucket: "school-cf387.firebasestorage.app",
-      messagingSenderId: "594859618434",
-      appId: "1:594859618434:web:065c17831015ca0073049b"
-    };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-
-  // Admin guard
-  try {
-    await requireAdmin(auth, db);
-  } catch (e) {
-    // Already redirected in guard
-    throw e;
+  const mainArea = document.querySelector('main');
+  const user = await requireAdmin();
+  if (!user) {
+    mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2><p>You must be an admin to view this page.</p></div>`;
+    throw new Error('Not admin');
   }
 
-  // Load existing settings
+  // Toast helper
+  function showToast(msg, isError = false) {
+    const toast = document.getElementById('toast');
+    toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+    toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 4000);
+  }
+
   async function loadSettings() {
     const snap = await getDoc(doc(db, 'site_settings', 'singleton'));
     if (snap.exists()) {
       const data = snap.data();
-      Object.keys(data).forEach(key => {
+      for (const [key, value] of Object.entries(data)) {
         const field = document.querySelector(`[name="${key}"]`);
-        if (field) field.value = data[key];
-      });
+        if (field) field.value = value;
+      }
       if (data.logo_url) {
         document.getElementById('logoPreview').src = data.logo_url;
         document.getElementById('logoPreview').classList.remove('hidden');
@@ -164,29 +157,34 @@
   }
   loadSettings();
 
-  // Save settings
   document.getElementById('settingsForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const settings = Object.fromEntries(formData.entries());
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-    const logoFile = document.getElementById('logoFile').files[0];
-    if (logoFile) {
-      const storageRef = ref(storage, `logos/${Date.now()}_${logoFile.name}`);
-      await uploadBytes(storageRef, logoFile);
-      const url = await getDownloadURL(storageRef);
-      settings.logo_url = url;
+    try {
+      const formData = new FormData(e.target);
+      const settings = Object.fromEntries(formData.entries());
+
+      const logoFile = document.getElementById('logoFile').files[0];
+      if (logoFile) {
+        const storageRef = ref(storage, `logos/${Date.now()}_${logoFile.name}`);
+        await uploadBytes(storageRef, logoFile);
+        settings.logo_url = await getDownloadURL(storageRef);
+      }
+
+      await setDoc(doc(db, 'site_settings', 'singleton'), settings, { merge: true });
+      showToast('Settings saved!');
+    } catch (error) {
+      console.error('Save failed:', error);
+      showToast('Failed to save: ' + error.message, true);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
     }
-
-    await setDoc(doc(db, 'site_settings', 'singleton'), settings, { merge: true });
-    showToast();
   });
-
-  function showToast() {
-    const t = document.getElementById('toast');
-    t.classList.remove('hidden');
-    setTimeout(() => t.classList.add('hidden'), 2500);
-  }
 
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     await signOut(auth);

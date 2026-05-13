@@ -145,28 +145,20 @@
     </main>
   </div>
 
-  <!-- Firebase Auth + Data Loading -->
- <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<script type="module">
+  import { auth, db } from "/assets/js/firebase-config.js";
+  import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { requireAdmin } from "/assets/js/admin-guard.js";
-
-  // 🔥 your config
-  const firebaseConfig = { /* … */ };
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
 
   const mainArea = document.querySelector('main');
   mainArea.innerHTML += `<div id="guardOverlay" class="absolute inset-0 bg-white/80 flex items-center justify-center z-50"><i class="fas fa-spinner fa-spin text-4xl text-indigo-600"></i></div>`;
 
-  const user = await requireAdmin(auth, db);
+  const user = await requireAdmin();
   const overlay = document.getElementById('guardOverlay');
   if (overlay) overlay.remove();
 
   if (!user) {
-    // Show a clear message
     mainArea.innerHTML = `
       <div class="flex flex-col items-center justify-center h-full text-center p-8">
         <i class="fas fa-shield-haltered text-6xl text-red-400 mb-4"></i>
@@ -180,7 +172,18 @@
   }
 
   async function loadStats() {
-    // … your stats loading code
+    try {
+      const studentsSnap = await getDocs(collection(db, 'students'));
+      document.getElementById('studentCount').textContent = studentsSnap.size;
+
+      const teachersSnap = await getDocs(collection(db, 'teachers'));
+      document.getElementById('teacherCount').textContent = teachersSnap.size;
+
+      const appsSnap = await getDocs(collection(db, 'admission_applications'));
+      document.getElementById('appCount').textContent = appsSnap.size;
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
   }
 
   document.getElementById('logoutBtn').addEventListener('click', async () => {

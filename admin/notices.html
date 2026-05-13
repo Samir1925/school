@@ -96,91 +96,101 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { requireAdmin } from "/assets/js/admin-guard.js";
+  import { auth, db } from "/assets/js/firebase-config.js";
+  import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { requireAdmin } from "/assets/js/admin-guard.js";
 
-    const firebaseConfig = { /* REPLACE with your config */ };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  const mainArea = document.querySelector('main');
+  const user = await requireAdmin();
+  if (!user) {
+    mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2></div>`;
+    throw new Error('Not admin');
+  }
 
-    try {
-      await requireAdmin(auth, db);
-      loadNotices();
-    } catch (e) {
-      // redirected
-    }
+  function showToast(msg, isError = false) {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+    toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
 
-    async function loadNotices() {
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = '';
-      const snap = await getDocs(collection(db, 'notices'));
-      snap.forEach(docSnap => {
-        const n = docSnap.data();
-        const row = document.createElement('tr');
-        row.className = 'border-t';
-        row.innerHTML = `
-          <td class="p-4 font-medium">${n.title}</td>
-          <td class="p-4">${n.date}</td>
-          <td class="p-4">${n.description?.substring(0, 80)}…</td>
-          <td class="p-4 flex gap-2">
-            <button class="text-indigo-600 edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
-            <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
-          </td>`;
-        tbody.appendChild(row);
-      });
-      document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
-      document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteNotice));
-    }
+  async function loadNotices() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    const snap = await getDocs(collection(db, 'notices'));
+    snap.forEach(docSnap => {
+      const n = docSnap.data();
+      const row = document.createElement('tr');
+      row.className = 'border-t';
+      row.innerHTML = `
+        <td class="p-4 font-medium">${n.title}</td>
+        <td class="p-4">${n.date}</td>
+        <td class="p-4">${(n.description || '').substring(0, 80)}…</td>
+        <td class="p-4 flex gap-2">
+          <button class="text-indigo-600 edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
+          <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
+        </td>`;
+      tbody.appendChild(row);
+    });
+    document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
+    document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteNotice));
+  }
+  loadNotices();
 
-    window.openModal = () => {
-      document.getElementById('modalTitle').textContent = 'Add Notice';
-      document.getElementById('noticeForm').reset();
-      document.getElementById('noticeId').value = '';
-      document.getElementById('noticeModal').classList.remove('hidden');
+  window.openModal = () => {
+    document.getElementById('modalTitle').textContent = 'Add Notice';
+    document.getElementById('noticeForm').reset();
+    document.getElementById('noticeId').value = '';
+    document.getElementById('noticeModal').classList.remove('hidden');
+  };
+  window.closeModal = () => document.getElementById('noticeModal').classList.add('hidden');
+
+  async function openEdit(e) {
+    const id = e.currentTarget.dataset.id;
+    const snap = await getDoc(doc(db, 'notices', id));
+    if (!snap.exists()) return;
+    const n = snap.data();
+    document.getElementById('noticeId').value = id;
+    document.getElementById('title').value = n.title;
+    document.getElementById('date').value = n.date;
+    document.getElementById('desc').value = n.description || '';
+    document.getElementById('modalTitle').textContent = 'Edit Notice';
+    document.getElementById('noticeModal').classList.remove('hidden');
+  }
+
+  async function deleteNotice(e) {
+    if (!confirm('Delete this notice?')) return;
+    await deleteDoc(doc(db, 'notices', e.currentTarget.dataset.id));
+    loadNotices();
+  }
+
+  document.getElementById('noticeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('noticeId').value;
+    const data = {
+      title: document.getElementById('title').value,
+      date: document.getElementById('date').value,
+      description: document.getElementById('desc').value,
+      created_at: serverTimestamp()
     };
-    window.closeModal = () => document.getElementById('noticeModal').classList.add('hidden');
-
-    async function openEdit(e) {
-      const id = e.currentTarget.dataset.id;
-      const snap = await getDoc(doc(db, 'notices', id));
-      if (!snap.exists()) return;
-      const n = snap.data();
-      document.getElementById('noticeId').value = id;
-      document.getElementById('title').value = n.title;
-      document.getElementById('date').value = n.date;
-      document.getElementById('desc').value = n.description;
-      document.getElementById('modalTitle').textContent = 'Edit Notice';
-      document.getElementById('noticeModal').classList.remove('hidden');
-    }
-
-    async function deleteNotice(e) {
-      if (!confirm('Delete this notice?')) return;
-      await deleteDoc(doc(db, 'notices', e.currentTarget.dataset.id));
-      loadNotices();
-    }
-
-    document.getElementById('noticeForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('noticeId').value;
-      const data = {
-        title: document.getElementById('title').value,
-        date: document.getElementById('date').value,
-        description: document.getElementById('desc').value,
-        created_at: serverTimestamp()
-      };
+    try {
       if (id) await updateDoc(doc(db, 'notices', id), data);
       else await addDoc(collection(db, 'notices'), data);
       closeModal();
       loadNotices();
-    });
+      showToast('Notice saved!');
+    } catch (err) {
+      console.error(err);
+      showToast('Error saving notice: ' + err.message, true);
+    }
+  });
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.href = '/admin/index.html';
-    });
-  </script>
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = '/admin/index.html';
+  });
+</script>
 </body>
 </html>

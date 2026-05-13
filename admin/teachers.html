@@ -90,92 +90,104 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { requireAdmin } from "/assets/js/admin-guard.js";
+ <script type="module">
+  import { auth, db } from "/assets/js/firebase-config.js";
+  import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { requireAdmin } from "/assets/js/admin-guard.js";
 
-    const firebaseConfig = { /* REPLACE */ };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  const mainArea = document.querySelector('main');
+  const user = await requireAdmin();
+  if (!user) {
+    mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2></div>`;
+    throw new Error('Not admin');
+  }
 
-    try {
-      await requireAdmin(auth, db);
-      loadTeachers();
-    } catch (e) {}
+  function showToast(msg, isError = false) {
+    // same toast as above
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+    toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
 
-    async function loadTeachers() {
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = '';
-      const snap = await getDocs(collection(db, 'teachers'));
-      snap.forEach(docSnap => {
-        const t = docSnap.data();
-        const row = document.createElement('tr');
-        row.className = 'border-t';
-        row.innerHTML = `
-          <td class="p-4">${t.name}</td>
-          <td class="p-4">${t.subject}</td>
-          <td class="p-4">${t.email || '—'}</td>
-          <td class="p-4">${t.bio?.substring(0, 50) || '—'}</td>
-          <td class="p-4 flex gap-2">
-            <button class="text-indigo-600 edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
-            <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
-          </td>`;
-        tbody.appendChild(row);
-      });
-      document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
-      document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteTeacher));
-    }
+  async function loadTeachers() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    const snap = await getDocs(collection(db, 'teachers'));
+    snap.forEach(docSnap => {
+      const t = docSnap.data();
+      const row = document.createElement('tr');
+      row.className = 'border-t';
+      row.innerHTML = `
+        <td class="p-4">${t.name}</td>
+        <td class="p-4">${t.subject}</td>
+        <td class="p-4">${t.email || '—'}</td>
+        <td class="p-4">${(t.bio || '').substring(0, 50)}…</td>
+        <td class="p-4 flex gap-2">
+          <button class="text-indigo-600 edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
+          <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
+        </td>`;
+      tbody.appendChild(row);
+    });
+    document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
+    document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteTeacher));
+  }
+  loadTeachers();
 
-    window.openModal = () => {
-      document.getElementById('modalTitle').textContent = 'Add Teacher';
-      document.getElementById('teacherForm').reset();
-      document.getElementById('teacherId').value = '';
-      document.getElementById('teacherModal').classList.remove('hidden');
+  window.openModal = () => {
+    document.getElementById('modalTitle').textContent = 'Add Teacher';
+    document.getElementById('teacherForm').reset();
+    document.getElementById('teacherId').value = '';
+    document.getElementById('teacherModal').classList.remove('hidden');
+  };
+  window.closeModal = () => document.getElementById('teacherModal').classList.add('hidden');
+
+  async function openEdit(e) {
+    const id = e.currentTarget.dataset.id;
+    const snap = await getDoc(doc(db, 'teachers', id));
+    if (!snap.exists()) return;
+    const t = snap.data();
+    document.getElementById('teacherId').value = id;
+    document.getElementById('name').value = t.name;
+    document.getElementById('subject').value = t.subject;
+    document.getElementById('email').value = t.email || '';
+    document.getElementById('bio').value = t.bio || '';
+    document.getElementById('modalTitle').textContent = 'Edit Teacher';
+    document.getElementById('teacherModal').classList.remove('hidden');
+  }
+
+  async function deleteTeacher(e) {
+    if (!confirm('Delete this teacher?')) return;
+    await deleteDoc(doc(db, 'teachers', e.currentTarget.dataset.id));
+    loadTeachers();
+  }
+
+  document.getElementById('teacherForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('teacherId').value;
+    const data = {
+      name: document.getElementById('name').value,
+      subject: document.getElementById('subject').value,
+      email: document.getElementById('email').value,
+      bio: document.getElementById('bio').value
     };
-    window.closeModal = () => document.getElementById('teacherModal').classList.add('hidden');
-
-    async function openEdit(e) {
-      const id = e.currentTarget.dataset.id;
-      const snap = await getDoc(doc(db, 'teachers', id));
-      if (!snap.exists()) return;
-      const t = snap.data();
-      document.getElementById('teacherId').value = id;
-      document.getElementById('name').value = t.name;
-      document.getElementById('subject').value = t.subject;
-      document.getElementById('email').value = t.email || '';
-      document.getElementById('bio').value = t.bio || '';
-      document.getElementById('modalTitle').textContent = 'Edit Teacher';
-      document.getElementById('teacherModal').classList.remove('hidden');
-    }
-
-    async function deleteTeacher(e) {
-      if (!confirm('Delete this teacher?')) return;
-      await deleteDoc(doc(db, 'teachers', e.currentTarget.dataset.id));
-      loadTeachers();
-    }
-
-    document.getElementById('teacherForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('teacherId').value;
-      const data = {
-        name: document.getElementById('name').value,
-        subject: document.getElementById('subject').value,
-        email: document.getElementById('email').value,
-        bio: document.getElementById('bio').value
-      };
+    try {
       if (id) await updateDoc(doc(db, 'teachers', id), data);
       else await addDoc(collection(db, 'teachers'), data);
       closeModal();
       loadTeachers();
-    });
+      showToast('Teacher saved!');
+    } catch (err) {
+      showToast('Error saving teacher: ' + err.message, true);
+    }
+  });
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.href = '/admin/index.html';
-    });
-  </script>
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = '/admin/index.html';
+  });
+</script>
 </body>
 </html>
