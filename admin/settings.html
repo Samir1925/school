@@ -6,12 +6,14 @@
   <title>Site Settings | Springdale Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .sidebar-link { transition: background 0.2s, padding-left 0.2s; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.1); padding-left: 1.2rem; }
+  </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
-
-  <!-- Layout: Sidebar + Content -->
   <div class="flex h-screen overflow-hidden">
-    <!-- Sidebar (same as dashboard) -->
+    <!-- Sidebar (same as other admin pages) -->
     <aside class="w-64 bg-indigo-900 text-white flex flex-col shadow-2xl">
       <div class="p-6 border-b border-indigo-700">
         <h2 class="text-2xl font-bold flex items-center gap-2"><i class="fas fa-graduation-cap"></i> Springdale</h2>
@@ -39,6 +41,9 @@
         <a href="media.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
           <i class="fas fa-images w-5"></i> Media
         </a>
+        <a href="users.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-users-cog w-5"></i> Users
+        </a>
       </nav>
       <div class="p-4 border-t border-indigo-700">
         <button id="logoutBtn" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-red-300 w-full">
@@ -52,59 +57,77 @@
       <h1 class="text-3xl font-bold text-gray-900 mb-8">⚙️ Site Settings</h1>
 
       <div id="toast" class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-2 z-50">
-        <i class="fas fa-check-circle"></i> Settings saved!
+        <i class="fas fa-check-circle"></i> <span id="toastMsg">Settings saved!</span>
       </div>
 
       <form id="settingsForm" class="space-y-8">
-        <!-- General Info -->
+
+        <!-- School Info -->
         <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h2 class="text-xl font-semibold text-gray-900 mb-4">School Information</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">School Name</label>
-              <input type="text" name="school_name" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Tagline</label>
-              <input type="text" name="tagline" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Primary Color</label>
-              <input type="color" name="primary_color" class="mt-1 h-10 w-16 rounded-lg border border-gray-200 cursor-pointer" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Secondary Color</label>
-              <input type="color" name="secondary_color" class="mt-1 h-10 w-16 rounded-lg border border-gray-200 cursor-pointer" />
-            </div>
-            <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700">Address</label>
-              <input type="text" name="address" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Phone</label>
-              <input type="text" name="phone" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Email</label>
-              <input type="email" name="email" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
-            </div>
-            <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700">Principal Name</label>
-              <input type="text" name="principal_name" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
-            </div>
-            <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700">Principal Message</label>
-              <textarea name="principal_message" rows="3" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400"></textarea>
-            </div>
+            <div><label class="block text-sm font-medium text-gray-700">School Name</label><input type="text" name="school_name" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium text-gray-700">Tagline</label><input type="text" name="tagline" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium text-gray-700">Hero Title</label><input type="text" name="hero_title" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium text-gray-700">Hero Subtitle</label><input type="text" name="hero_subtitle" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium text-gray-700">CTA Button Text</label><input type="text" name="cta_text" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium text-gray-700">About Text</label><textarea name="about_text" rows="4" class="w-full p-2 border rounded-xl"></textarea></div>
           </div>
         </section>
 
-        <!-- Logo Upload -->
+        <!-- Statistics (simple number inputs) -->
         <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Logo</h2>
-          <div class="flex items-center gap-4">
-            <img id="logoPreview" src="" alt="Logo" class="h-16 rounded-lg bg-gray-100 hidden" />
-            <input type="file" id="logoFile" accept="image/*" class="text-sm" />
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Statistics</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label class="block text-sm font-medium">Students Number</label><input type="number" name="students_count" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium">Students Label</label><input type="text" name="students_label" value="Students" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium">Teachers Number</label><input type="number" name="teachers_count" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium">Teachers Label</label><input type="text" name="teachers_label" value="Teachers" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium">Pass Rate (%)</label><input type="number" name="passrate_count" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium">Pass Rate Label</label><input type="text" name="passrate_label" value="Pass Rate" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium">Facilities Number</label><input type="number" name="facilities_count" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium">Facilities Label</label><input type="text" name="facilities_label" value="Facilities" class="w-full p-2 border rounded-xl" /></div>
+          </div>
+        </section>
+
+        <!-- Features (Why Choose Us) – JSON editing -->
+        <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Features (Why Choose Us)</h2>
+          <p class="text-sm text-gray-500 mb-2">Enter as JSON array. Each item: {"icon":"fas fa-laptop-code","title":"Title","description":"Description"}</p>
+          <textarea name="features_json" rows="6" class="w-full p-2 border rounded-xl font-mono text-sm"></textarea>
+        </section>
+
+        <!-- Testimonials – JSON editing -->
+        <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Testimonials</h2>
+          <p class="text-sm text-gray-500 mb-2">JSON array. Each item: {"quote":"...","name":"...","role":"...","image":"https://..."}</p>
+          <textarea name="testimonials_json" rows="6" class="w-full p-2 border rounded-xl font-mono text-sm"></textarea>
+        </section>
+
+        <!-- Footer & Social -->
+        <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Footer & Social Media</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label class="block text-sm font-medium">Address</label><input type="text" name="address" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium">Phone</label><input type="text" name="phone" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium">Email</label><input type="email" name="email" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium">Facebook URL</label><input type="url" name="facebook" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium">Instagram URL</label><input type="url" name="instagram" class="w-full p-2 border rounded-xl" /></div>
+            <div><label class="block text-sm font-medium">YouTube URL</label><input type="url" name="youtube" class="w-full p-2 border rounded-xl" /></div>
+          </div>
+        </section>
+
+        <!-- Logo & Colors -->
+        <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Logo & Colors</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium">Logo</label>
+              <img id="logoPreview" src="" class="h-12 mb-2 hidden" />
+              <input type="file" id="logoFile" accept="image/*" class="w-full text-sm" />
+            </div>
+            <div><label class="block text-sm font-medium">Primary Color</label><input type="color" name="primary_color" class="h-10 w-16" /></div>
+            <div><label class="block text-sm font-medium">Secondary Color</label><input type="color" name="secondary_color" class="h-10 w-16" /></div>
           </div>
         </section>
 
@@ -118,90 +141,133 @@
     </main>
   </div>
 
-<script type="module">
-  import { auth, db, storage } from "/assets/js/firebase-config.js";
-  import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-  import { requireAdmin } from "/assets/js/admin-guard.js";
-// Inside the settings save handler, logo upload section
-const logoFile = document.getElementById('logoFile').files[0];
-if (logoFile) {
-  const formData = new FormData();
-  formData.append('image', logoFile);
-  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-    method: 'POST',
-    body: formData
-  });
-  const result = await res.json();
-  if (!result.success) throw new Error('Logo upload failed');
-  settings.logo_url = result.data.url;
-}
-  const mainArea = document.querySelector('main');
-  const user = await requireAdmin();
-  if (!user) {
-    mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2><p>You must be an admin to view this page.</p></div>`;
-    throw new Error('Not admin');
-  }
+  <!-- Scripts -->
+  <script type="module">
+    import { auth, db } from "/assets/js/firebase-config.js";
+    import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { requireAdmin } from "/assets/js/admin-guard.js";
 
-  // Toast helper
-  function showToast(msg, isError = false) {
-    const toast = document.getElementById('toast');
-    toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
-    toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
-    toast.classList.remove('hidden');
-    setTimeout(() => toast.classList.add('hidden'), 4000);
-  }
+    const IMGBB_API_KEY = "YOUR_IMGBB_API_KEY"; // 🔥 Replace
 
-  async function loadSettings() {
-    const snap = await getDoc(doc(db, 'site_settings', 'singleton'));
-    if (snap.exists()) {
-      const data = snap.data();
-      for (const [key, value] of Object.entries(data)) {
+    const mainArea = document.querySelector('main');
+    const user = await requireAdmin();
+    if (!user) {
+      mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2></div>`;
+      throw new Error('Not admin');
+    }
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 4000);
+    }
+
+    // Load settings
+    async function loadSettings() {
+      const snap = await getDoc(doc(db, 'site_settings', 'singleton'));
+      if (!snap.exists()) return;
+      const s = snap.data();
+
+      // Fill simple fields
+      for (const [key, value] of Object.entries(s)) {
+        if (key === 'features') continue; // will handle separately
+        if (key === 'testimonials') continue;
         const field = document.querySelector(`[name="${key}"]`);
         if (field) field.value = value;
       }
-      if (data.logo_url) {
-        document.getElementById('logoPreview').src = data.logo_url;
+
+      // Convert features array to JSON textarea
+      if (s.features && Array.isArray(s.features)) {
+        document.querySelector('[name="features_json"]').value = JSON.stringify(s.features, null, 2);
+      }
+      if (s.testimonials && Array.isArray(s.testimonials)) {
+        document.querySelector('[name="testimonials_json"]').value = JSON.stringify(s.testimonials, null, 2);
+      }
+
+      // Logo preview
+      if (s.logo_url) {
+        document.getElementById('logoPreview').src = s.logo_url;
         document.getElementById('logoPreview').classList.remove('hidden');
       }
     }
-  }
-  loadSettings();
+    loadSettings();
 
-  document.getElementById('settingsForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    // Save
+    document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      const origText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-    try {
-      const formData = new FormData(e.target);
-      const settings = Object.fromEntries(formData.entries());
+      try {
+        const formData = new FormData(e.target);
+        const settings = Object.fromEntries(formData.entries());
 
-      const logoFile = document.getElementById('logoFile').files[0];
-      if (logoFile) {
-        const storageRef = ref(storage, `logos/${Date.now()}_${logoFile.name}`);
-        await uploadBytes(storageRef, logoFile);
-        settings.logo_url = await getDownloadURL(storageRef);
+        // Parse JSON fields
+        if (settings.features_json) {
+          try {
+            settings.features = JSON.parse(settings.features_json);
+          } catch { showToast('Invalid Features JSON', true); return; }
+        }
+        if (settings.testimonials_json) {
+          try {
+            settings.testimonials = JSON.parse(settings.testimonials_json);
+          } catch { showToast('Invalid Testimonials JSON', true); return; }
+        }
+        // Remove raw JSON fields (keep arrays only)
+        delete settings.features_json;
+        delete settings.testimonials_json;
+
+        // Rename stat fields into an array for easier consumption
+        settings.stats = [
+          { icon: "fas fa-user-graduate", value: parseInt(settings.students_count) || 0, label: settings.students_label || "Students" },
+          { icon: "fas fa-chalkboard-teacher", value: parseInt(settings.teachers_count) || 0, label: settings.teachers_label || "Teachers" },
+          { icon: "fas fa-trophy", value: parseInt(settings.passrate_count) || 0, label: settings.passrate_label || "Pass Rate" },
+          { icon: "fas fa-building", value: parseInt(settings.facilities_count) || 0, label: settings.facilities_label || "Facilities" }
+        ];
+        // Remove individual stat fields
+        delete settings.students_count; delete settings.students_label;
+        delete settings.teachers_count; delete settings.teachers_label;
+        delete settings.passrate_count; delete settings.passrate_label;
+        delete settings.facilities_count; delete settings.facilities_label;
+
+        // Logo upload via imgbb
+        const logoFile = document.getElementById('logoFile').files[0];
+        if (logoFile) {
+          const imgForm = new FormData();
+          imgForm.append('image', logoFile);
+          const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: imgForm });
+          const result = await res.json();
+          if (!result.success) throw new Error('Logo upload failed');
+          settings.logo_url = result.data.url;
+        } else {
+          const current = await getDoc(doc(db, 'site_settings', 'singleton'));
+          if (current.exists() && current.data().logo_url) {
+            settings.logo_url = current.data().logo_url;
+          }
+        }
+
+        // Overwrite document
+        await setDoc(doc(db, 'site_settings', 'singleton'), settings);
+        showToast('All settings saved!');
+      } catch (err) {
+        console.error(err);
+        showToast('Error: ' + err.message, true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origText;
       }
+    });
 
-      await setDoc(doc(db, 'site_settings', 'singleton'), settings, { merge: true });
-      showToast('Settings saved!');
-    } catch (error) {
-      console.error('Save failed:', error);
-      showToast('Failed to save: ' + error.message, true);
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-    }
-  });
-
-  document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await signOut(auth);
-    window.location.href = '/admin/index.html';
-  });
-</script>
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/admin/index.html';
+    });
+  </script>
 </body>
 </html>
