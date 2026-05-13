@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Students | Springdale Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .sidebar-link { transition: background 0.2s, padding-left 0.2s; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.1); padding-left: 1.2rem; }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar (same as above, with students.html active) -->
+    <aside class="w-64 bg-indigo-900 text-white flex flex-col shadow-2xl">
+      <div class="p-6 border-b border-indigo-700">
+        <h2 class="text-2xl font-bold flex items-center gap-2"><i class="fas fa-graduation-cap"></i> Springdale</h2>
+        <p class="text-indigo-300 text-xs mt-1">Admin Panel</p>
+      </div>
+      <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+        <a href="dashboard.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-th-large w-5"></i> Dashboard
+        </a>
+        <a href="settings.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-cog w-5"></i> Site Settings
+        </a>
+        <a href="notices.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-bullhorn w-5"></i> Notices
+        </a>
+        <a href="students.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg bg-indigo-800">
+          <i class="fas fa-user-graduate w-5"></i> Students
+        </a>
+        <a href="teachers.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-chalkboard-teacher w-5"></i> Teachers
+        </a>
+        <a href="admissions.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-file-alt w-5"></i> Applications
+        </a>
+        <a href="media.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-images w-5"></i> Media
+        </a>
+        <a href="users.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-users-cog w-5"></i> Users
+        </a>
+      </nav>
+      <div class="p-4 border-t border-indigo-700">
+        <button id="logoutBtn" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-red-300 w-full">
+          <i class="fas fa-sign-out-alt w-5"></i> Logout
+        </button>
+      </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto p-8">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">👩‍🎓 Students</h1>
+        <button onclick="openModal()" class="px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl shadow hover:bg-indigo-700 transition">
+          <i class="fas fa-plus mr-2"></i> Add Student
+        </button>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="p-4">Name</th>
+              <th class="p-4">Grade</th>
+              <th class="p-4">Parent</th>
+              <th class="p-4">Email</th>
+              <th class="p-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="studentModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+      <h2 class="text-xl font-bold mb-4" id="modalTitle">Add Student</h2>
+      <form id="studentForm" class="space-y-4">
+        <input type="hidden" id="studentId" />
+        <div><label>Name</label><input type="text" id="name" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" required /></div>
+        <div><label>Grade</label><input type="text" id="grade" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" required /></div>
+        <div><label>Parent Name</label><input type="text" id="parent" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" /></div>
+        <div><label>Email</label><input type="email" id="email" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" /></div>
+        <div class="flex gap-3 justify-end mt-6">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl text-gray-600 hover:bg-gray-100">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { requireAdmin } from "/assets/js/admin-guard.js";
+
+    const firebaseConfig = { /* REPLACE */ };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    try {
+      await requireAdmin(auth, db);
+      loadStudents();
+    } catch (e) {}
+
+    async function loadStudents() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      const snap = await getDocs(collection(db, 'students'));
+      snap.forEach(docSnap => {
+        const s = docSnap.data();
+        const row = document.createElement('tr');
+        row.className = 'border-t';
+        row.innerHTML = `
+          <td class="p-4">${s.name}</td>
+          <td class="p-4">${s.grade}</td>
+          <td class="p-4">${s.parent_name || '—'}</td>
+          <td class="p-4">${s.email || '—'}</td>
+          <td class="p-4 flex gap-2">
+            <button class="text-indigo-600 edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
+            <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
+          </td>`;
+        tbody.appendChild(row);
+      });
+      document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
+      document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteStudent));
+    }
+
+    window.openModal = () => {
+      document.getElementById('modalTitle').textContent = 'Add Student';
+      document.getElementById('studentForm').reset();
+      document.getElementById('studentId').value = '';
+      document.getElementById('studentModal').classList.remove('hidden');
+    };
+    window.closeModal = () => document.getElementById('studentModal').classList.add('hidden');
+
+    async function openEdit(e) {
+      const id = e.currentTarget.dataset.id;
+      const snap = await getDoc(doc(db, 'students', id));
+      if (!snap.exists()) return;
+      const s = snap.data();
+      document.getElementById('studentId').value = id;
+      document.getElementById('name').value = s.name;
+      document.getElementById('grade').value = s.grade;
+      document.getElementById('parent').value = s.parent_name || '';
+      document.getElementById('email').value = s.email || '';
+      document.getElementById('modalTitle').textContent = 'Edit Student';
+      document.getElementById('studentModal').classList.remove('hidden');
+    }
+
+    async function deleteStudent(e) {
+      if (!confirm('Delete this student?')) return;
+      await deleteDoc(doc(db, 'students', e.currentTarget.dataset.id));
+      loadStudents();
+    }
+
+    document.getElementById('studentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('studentId').value;
+      const data = {
+        name: document.getElementById('name').value,
+        grade: document.getElementById('grade').value,
+        parent_name: document.getElementById('parent').value,
+        email: document.getElementById('email').value
+      };
+      if (id) await updateDoc(doc(db, 'students', id), data);
+      else await addDoc(collection(db, 'students'), data);
+      closeModal();
+      loadStudents();
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/admin/index.html';
+    });
+  </script>
+</body>
+</html>

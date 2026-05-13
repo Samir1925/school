@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notices | Springdale Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .sidebar-link { transition: background 0.2s, padding-left 0.2s; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.1); padding-left: 1.2rem; }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-indigo-900 text-white flex flex-col shadow-2xl">
+      <div class="p-6 border-b border-indigo-700">
+        <h2 class="text-2xl font-bold flex items-center gap-2"><i class="fas fa-graduation-cap"></i> Springdale</h2>
+        <p class="text-indigo-300 text-xs mt-1">Admin Panel</p>
+      </div>
+      <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+        <a href="dashboard.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-th-large w-5"></i> Dashboard
+        </a>
+        <a href="settings.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-cog w-5"></i> Site Settings
+        </a>
+        <a href="notices.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg bg-indigo-800">
+          <i class="fas fa-bullhorn w-5"></i> Notices
+        </a>
+        <a href="students.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-user-graduate w-5"></i> Students
+        </a>
+        <a href="teachers.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-chalkboard-teacher w-5"></i> Teachers
+        </a>
+        <a href="admissions.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-file-alt w-5"></i> Applications
+        </a>
+        <a href="media.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-images w-5"></i> Media
+        </a>
+        <a href="users.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-users-cog w-5"></i> Users
+        </a>
+      </nav>
+      <div class="p-4 border-t border-indigo-700">
+        <button id="logoutBtn" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-red-300 w-full">
+          <i class="fas fa-sign-out-alt w-5"></i> Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">📢 Notices</h1>
+        <button onclick="openModal()" class="px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl shadow hover:bg-indigo-700 transition">
+          <i class="fas fa-plus mr-2"></i> Add Notice
+        </button>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="p-4">Title</th>
+              <th class="p-4">Date</th>
+              <th class="p-4">Description</th>
+              <th class="p-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="noticeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+      <h2 class="text-xl font-bold mb-4" id="modalTitle">Add Notice</h2>
+      <form id="noticeForm" class="space-y-4">
+        <input type="hidden" id="noticeId" />
+        <div><label>Title</label><input type="text" id="title" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" required /></div>
+        <div><label>Date</label><input type="date" id="date" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" required /></div>
+        <div><label>Description</label><textarea id="desc" rows="3" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" required></textarea></div>
+        <div class="flex gap-3 justify-end mt-6">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl text-gray-600 hover:bg-gray-100">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { requireAdmin } from "/assets/js/admin-guard.js";
+
+    const firebaseConfig = { /* REPLACE with your config */ };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    try {
+      await requireAdmin(auth, db);
+      loadNotices();
+    } catch (e) {
+      // redirected
+    }
+
+    async function loadNotices() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      const snap = await getDocs(collection(db, 'notices'));
+      snap.forEach(docSnap => {
+        const n = docSnap.data();
+        const row = document.createElement('tr');
+        row.className = 'border-t';
+        row.innerHTML = `
+          <td class="p-4 font-medium">${n.title}</td>
+          <td class="p-4">${n.date}</td>
+          <td class="p-4">${n.description?.substring(0, 80)}…</td>
+          <td class="p-4 flex gap-2">
+            <button class="text-indigo-600 edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
+            <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
+          </td>`;
+        tbody.appendChild(row);
+      });
+      document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
+      document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteNotice));
+    }
+
+    window.openModal = () => {
+      document.getElementById('modalTitle').textContent = 'Add Notice';
+      document.getElementById('noticeForm').reset();
+      document.getElementById('noticeId').value = '';
+      document.getElementById('noticeModal').classList.remove('hidden');
+    };
+    window.closeModal = () => document.getElementById('noticeModal').classList.add('hidden');
+
+    async function openEdit(e) {
+      const id = e.currentTarget.dataset.id;
+      const snap = await getDoc(doc(db, 'notices', id));
+      if (!snap.exists()) return;
+      const n = snap.data();
+      document.getElementById('noticeId').value = id;
+      document.getElementById('title').value = n.title;
+      document.getElementById('date').value = n.date;
+      document.getElementById('desc').value = n.description;
+      document.getElementById('modalTitle').textContent = 'Edit Notice';
+      document.getElementById('noticeModal').classList.remove('hidden');
+    }
+
+    async function deleteNotice(e) {
+      if (!confirm('Delete this notice?')) return;
+      await deleteDoc(doc(db, 'notices', e.currentTarget.dataset.id));
+      loadNotices();
+    }
+
+    document.getElementById('noticeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('noticeId').value;
+      const data = {
+        title: document.getElementById('title').value,
+        date: document.getElementById('date').value,
+        description: document.getElementById('desc').value,
+        created_at: serverTimestamp()
+      };
+      if (id) await updateDoc(doc(db, 'notices', id), data);
+      else await addDoc(collection(db, 'notices'), data);
+      closeModal();
+      loadNotices();
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/admin/index.html';
+    });
+  </script>
+</body>
+</html>

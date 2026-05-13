@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Life | Springdale International Academy</title>
+  <meta name="description" content="Discover clubs, sports, and activities at Springdale." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+</head>
+<body class="bg-white font-sans antialiased">
+
+  <!-- Navbar -->
+  <nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 shadow-sm" id="navbar">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
+      <a href="/" class="flex items-center gap-2">
+        <img src="/assets/images/logo.png" alt="Logo" class="h-10" />
+        <span class="text-xl font-bold text-gray-900">Springdale</span>
+      </a>
+      <div class="hidden md:flex space-x-8">
+        <a href="/about.html" class="text-gray-700 hover:text-indigo-600 font-medium">About</a>
+        <a href="/academics.html" class="text-gray-700 hover:text-indigo-600 font-medium">Academics</a>
+        <a href="/admission.html" class="text-gray-700 hover:text-indigo-600 font-medium">Admission</a>
+        <a href="/student-life.html" class="text-indigo-600 font-medium">Student Life</a>
+        <a href="/gallery.html" class="text-gray-700 hover:text-indigo-600 font-medium">Gallery</a>
+        <a href="/contact.html" class="text-gray-700 hover:text-indigo-600 font-medium">Contact</a>
+      </div>
+      <div class="md:hidden">
+        <button id="menu-toggle" class="text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <a href="/about.html" class="block px-6 py-3 hover:bg-gray-50">About</a>
+      <a href="/academics.html" class="block px-6 py-3 hover:bg-gray-50">Academics</a>
+      <a href="/admission.html" class="block px-6 py-3 hover:bg-gray-50">Admission</a>
+      <a href="/student-life.html" class="block px-6 py-3 text-indigo-600 font-semibold">Student Life</a>
+      <a href="/gallery.html" class="block px-6 py-3 hover:bg-gray-50">Gallery</a>
+      <a href="/contact.html" class="block px-6 py-3 hover:bg-gray-50">Contact</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="pt-28 pb-16 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <h1 class="text-5xl font-bold mb-6">Student Life</h1>
+      <p class="text-xl opacity-90">Beyond academics, discover a vibrant community where passions come alive.</p>
+    </div>
+  </section>
+
+  <!-- Clubs -->
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+      <h2 class="text-4xl font-bold text-center text-gray-900 mb-16">Clubs & Activities</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="fade-up p-8 rounded-2xl shadow-lg hover:shadow-xl transition border border-gray-100">
+          <i class="fas fa-robot text-5xl text-indigo-600 mb-6"></i>
+          <h3 class="text-2xl font-semibold mb-4">Robotics Club</h3>
+          <p class="text-gray-600">Design, build, and program robots for national competitions.</p>
+        </div>
+        <div class="fade-up p-8 rounded-2xl shadow-lg hover:shadow-xl transition border border-gray-100">
+          <i class="fas fa-paint-brush text-5xl text-indigo-600 mb-6"></i>
+          <h3 class="text-2xl font-semibold mb-4">Art & Design</h3>
+          <p class="text-gray-600">Unleash creativity through painting, sculpture, and digital art.</p>
+        </div>
+        <div class="fade-up p-8 rounded-2xl shadow-lg hover:shadow-xl transition border border-gray-100">
+          <i class="fas fa-music text-5xl text-indigo-600 mb-6"></i>
+          <h3 class="text-2xl font-semibold mb-4">Music Ensemble</h3>
+          <p class="text-gray-600">Orchestra, choir, and band for all skill levels.</p>
+        </div>
+        <div class="fade-up p-8 rounded-2xl shadow-lg hover:shadow-xl transition border border-gray-100">
+          <i class="fas fa-globe-americas text-5xl text-indigo-600 mb-6"></i>
+          <h3 class="text-2xl font-semibold mb-4">Model UN</h3>
+          <p class="text-gray-600">Debate global issues and develop diplomacy skills.</p>
+        </div>
+        <div class="fade-up p-8 rounded-2xl shadow-lg hover:shadow-xl transition border border-gray-100">
+          <i class="fas fa-leaf text-5xl text-indigo-600 mb-6"></i>
+          <h3 class="text-2xl font-semibold mb-4">Eco Club</h3>
+          <p class="text-gray-600">Sustainable projects, campus garden, and recycling initiatives.</p>
+        </div>
+        <div class="fade-up p-8 rounded-2xl shadow-lg hover:shadow-xl transition border border-gray-100">
+          <i class="fas fa-code text-5xl text-indigo-600 mb-6"></i>
+          <h3 class="text-2xl font-semibold mb-4">Coding Club</h3>
+          <p class="text-gray-600">Learn web development, app creation, and competitive programming.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sports -->
+  <section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <h2 class="text-4xl font-bold text-gray-900 mb-16">Sports & Athletics</h2>
+      <div class="grid md:grid-cols-4 gap-4">
+        <div class="fade-up bg-white p-6 rounded-xl shadow"><i class="fas fa-futbol text-4xl text-indigo-600 mb-3"></i><p class="font-semibold">Soccer</p></div>
+        <div class="fade-up bg-white p-6 rounded-xl shadow"><i class="fas fa-basketball-ball text-4xl text-indigo-600 mb-3"></i><p class="font-semibold">Basketball</p></div>
+        <div class="fade-up bg-white p-6 rounded-xl shadow"><i class="fas fa-swimmer text-4xl text-indigo-600 mb-3"></i><p class="font-semibold">Swimming</p></div>
+        <div class="fade-up bg-white p-6 rounded-xl shadow"><i class="fas fa-running text-4xl text-indigo-600 mb-3"></i><p class="font-semibold">Track & Field</p></div>
+        <div class="fade-up bg-white p-6 rounded-xl shadow"><i class="fas fa-table-tennis text-4xl text-indigo-600 mb-3"></i><p class="font-semibold">Table Tennis</p></div>
+        <div class="fade-up bg-white p-6 rounded-xl shadow"><i class="fas fa-volleyball-ball text-4xl text-indigo-600 mb-3"></i><p class="font-semibold">Volleyball</p></div>
+        <div class="fade-up bg-white p-6 rounded-xl shadow"><i class="fas fa-chess text-4xl text-indigo-600 mb-3"></i><p class="font-semibold">Chess</p></div>
+        <div class="fade-up bg-white p-6 rounded-xl shadow"><i class="fas fa-dumbbell text-4xl text-indigo-600 mb-3"></i><p class="font-semibold">Gym</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- House System -->
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <h2 class="text-4xl font-bold text-gray-900 mb-16">House System</h2>
+      <div class="grid md:grid-cols-4 gap-6">
+        <div class="fade-up p-8 rounded-2xl bg-red-50 text-red-900">
+          <h3 class="text-2xl font-bold mb-2">Red Hawks</h3>
+          <p class="opacity-75">Courage and strength</p>
+        </div>
+        <div class="fade-up p-8 rounded-2xl bg-blue-50 text-blue-900">
+          <h3 class="text-2xl font-bold mb-2">Blue Eagles</h3>
+          <p class="opacity-75">Vision and wisdom</p>
+        </div>
+        <div class="fade-up p-8 rounded-2xl bg-green-50 text-green-900">
+          <h3 class="text-2xl font-bold mb-2">Green Tigers</h3>
+          <p class="opacity-75">Determination and growth</p>
+        </div>
+        <div class="fade-up p-8 rounded-2xl bg-yellow-50 text-yellow-900">
+          <h3 class="text-2xl font-bold mb-2">Yellow Lions</h3>
+          <p class="opacity-75">Leadership and pride</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Student Council -->
+  <section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <h2 class="text-4xl font-bold text-center text-gray-900 mb-16">Student Council</h2>
+      <div class="grid md:grid-cols-3 gap-8 text-center">
+        <div class="fade-up">
+          <img src="https://randomuser.me/api/portraits/women/45.jpg" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover" />
+          <h3 class="text-xl font-semibold">Emily Davis</h3>
+          <p class="text-indigo-600 font-medium">Head Girl</p>
+        </div>
+        <div class="fade-up">
+          <img src="https://randomuser.me/api/portraits/men/46.jpg" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover" />
+          <h3 class="text-xl font-semibold">James Wilson</h3>
+          <p class="text-indigo-600 font-medium">Head Boy</p>
+        </div>
+        <div class="fade-up">
+          <img src="https://randomuser.me/api/portraits/women/47.jpg" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover" />
+          <h3 class="text-xl font-semibold">Sophia Lee</h3>
+          <p class="text-indigo-600 font-medium">Cultural Secretary</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+      <div>
+        <h3 class="text-2xl font-bold mb-4">Springdale Academy</h3>
+        <p class="text-gray-400">123 Learning Lane, Knowledge City</p>
+        <p class="text-gray-400">+1 (555) 000-0000</p>
+        <p class="text-gray-400">info@school.edu</p>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Quick Links</h4>
+        <ul class="space-y-2">
+          <li><a href="/about.html" class="text-gray-400 hover:text-white">About</a></li>
+          <li><a href="/academics.html" class="text-gray-400 hover:text-white">Academics</a></li>
+          <li><a href="/admission.html" class="text-gray-400 hover:text-white">Admission</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Follow Us</h4>
+        <div class="flex space-x-4 text-2xl">
+          <a href="#" class="hover:text-indigo-400"><i class="fab fa-facebook"></i></a>
+          <a href="#" class="hover:text-indigo-400"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="hover:text-indigo-400"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500 text-sm">
+      &copy; 2025 Springdale International Academy.
+    </div>
+  </footer>
+
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/animations.js"></script>
+</body>
+</html>
