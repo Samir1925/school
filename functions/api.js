@@ -140,22 +140,13 @@ export async function onRequest(context) {
       const { results } = await db.prepare(`SELECT * FROM gallery ORDER BY created_at DESC`).all();
       return new Response(JSON.stringify(results), { headers });
     }
-    if (method === 'POST') {
-      const formData = await request.formData();
-      const file = formData.get('file');
-      if (!file) return new Response(JSON.stringify({ error: 'No file' }), { status: 400, headers });
-      const alt = formData.get('alt') || '';
-      const category = formData.get('category') || 'campus';
-      const key = `${uid()}-${file.name}`;
-      await bucket.put(key, file.stream(), {
-        httpMetadata: { contentType: file.type },
-      });
-      const url = `/gallery/${key}`; // or use custom domain for R2
-      const id = uid();
-      await db.prepare(`INSERT INTO gallery (id, url, alt, category) VALUES (?,?,?,?)`).bind(id, url, alt, category).run();
-      return new Response(JSON.stringify({ id, url, alt, category }), { status: 201, headers });
-    }
-  }
+   // Inside /gallery POST
+if (method === 'POST') {
+  const { url, alt, category } = await request.json();
+  const id = uid();
+  await db.prepare(`INSERT INTO gallery (id, url, alt, category) VALUES (?,?,?,?)`).bind(id, url, alt, category).run();
+  return new Response(JSON.stringify({ id, url, alt, category }), { status: 201, headers });
+}
   if (path.startsWith('/gallery/') && method === 'DELETE') {
     const id = path.split('/')[2];
     const row = await db.prepare(`SELECT url FROM gallery WHERE id=?`).bind(id).first();
