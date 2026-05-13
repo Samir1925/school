@@ -1,6 +1,5 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-// Utility: generate unique id
 function uid() {
   return crypto.randomUUID();
 }
@@ -20,7 +19,6 @@ export default {
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     };
 
-    // Handle preflight
     if (method === 'OPTIONS') {
       return new Response(null, { status: 204, headers });
     }
@@ -63,7 +61,7 @@ export default {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers });
     }
 
-    const db = env.DB;  // D1 binding
+    const db = env.DB;   // D1 binding
 
     // ---------- DASHBOARD ----------
     if (path === '/dashboard' && method === 'GET') {
@@ -114,13 +112,24 @@ export default {
       if (method === 'POST') {
         const { title, summary, content, date, image } = await request.json();
         const id = uid();
-        await db.prepare(`INSERT INTO news (id, title, summary, content, date, image) VALUES (?,?,?,?,?,?)`).bind(id, title, summary, content, date, image || '').run();
+        await db.prepare(`INSERT INTO news (id, title, summary, content, date, image) VALUES (?,?,?,?,?,?)`)
+          .bind(id, title, summary, content, date, image || '').run();
         return new Response(JSON.stringify({ id }), { status: 201, headers });
       }
-      // PUT and DELETE similar...
+      if (method === 'PUT') {
+        const { id, title, summary, content, date, image } = await request.json();
+        await db.prepare(`UPDATE news SET title=?, summary=?, content=?, date=?, image=? WHERE id=?`)
+          .bind(title, summary, content, date, image, id).run();
+        return new Response(JSON.stringify({ ok: true }), { headers });
+      }
+    }
+    if (path.startsWith('/news/') && method === 'DELETE') {
+      const id = path.split('/')[2];
+      await db.prepare(`DELETE FROM news WHERE id=?`).bind(id).run();
+      return new Response(JSON.stringify({ ok: true }), { headers });
     }
 
-    // ---------- GALLERY (image metadata only, upload done by imgBB from frontend) ----------
+    // ---------- GALLERY ----------
     if (path === '/gallery') {
       if (method === 'GET') {
         const { results } = await db.prepare(`SELECT * FROM gallery ORDER BY created_at DESC`).all();
@@ -129,7 +138,8 @@ export default {
       if (method === 'POST') {
         const { url, alt, category } = await request.json();
         const id = uid();
-        await db.prepare(`INSERT INTO gallery (id, url, alt, category) VALUES (?,?,?,?)`).bind(id, url, alt, category).run();
+        await db.prepare(`INSERT INTO gallery (id, url, alt, category) VALUES (?,?,?,?)`)
+          .bind(id, url, alt, category).run();
         return new Response(JSON.stringify({ id, url, alt, category }), { status: 201, headers });
       }
     }
@@ -139,9 +149,58 @@ export default {
       return new Response(JSON.stringify({ ok: true }), { headers });
     }
 
-    // ---------- TEACHERS / STUDENTS (same pattern) ----------
-    // ... (implement GET/POST/PUT/DELETE for teachers and students)
+    // ---------- TEACHERS ----------
+    if (path === '/teachers') {
+      if (method === 'GET') {
+        const { results } = await db.prepare(`SELECT * FROM teachers ORDER BY name`).all();
+        return new Response(JSON.stringify(results), { headers });
+      }
+      if (method === 'POST') {
+        const { name, subject, email } = await request.json();
+        const id = uid();
+        await db.prepare(`INSERT INTO teachers (id, name, subject, email) VALUES (?,?,?,?)`)
+          .bind(id, name, subject, email).run();
+        return new Response(JSON.stringify({ id }), { status: 201, headers });
+      }
+      // PUT and DELETE similar...
+    }
 
+    // ---------- STUDENTS ----------
+    if (path === '/students') {
+      if (method === 'GET') {
+        const { results } = await db.prepare(`SELECT * FROM students ORDER BY name`).all();
+        return new Response(JSON.stringify(results), { headers });
+      }
+      if (method === 'POST') {
+        const { name, grade, parent_name } = await request.json();
+        const id = uid();
+        await db.prepare(`INSERT INTO students (id, name, grade, parent_name) VALUES (?,?,?,?)`)
+          .bind(id, name, grade, parent_name).run();
+        return new Response(JSON.stringify({ id }), { status: 201, headers });
+      }
+    }
+
+    // ---------- ADMISSIONS ----------
+    if (path === '/admissions') {
+      if (method === 'GET') {
+        const { results } = await db.prepare(`SELECT * FROM admissions ORDER BY submitted_at DESC`).all();
+        return new Response(JSON.stringify(results), { headers });
+      }
+      if (method === 'POST') {
+        const { student_name, parent_name, grade, email } = await request.json();
+        const id = uid();
+        await db.prepare(`INSERT INTO admissions (id, student_name, parent_name, grade, email) VALUES (?,?,?,?,?)`)
+          .bind(id, student_name, parent_name, grade, email).run();
+        return new Response(JSON.stringify({ id }), { status: 201, headers });
+      }
+    }
+    if (path.startsWith('/admissions/') && method === 'DELETE') {
+      const id = path.split('/')[2];
+      await db.prepare(`DELETE FROM admissions WHERE id=?`).bind(id).run();
+      return new Response(JSON.stringify({ ok: true }), { headers });
+    }
+
+    // Fallback
     return new Response(JSON.stringify({ error: 'Not found' }), { status: 404, headers });
   }
 };
