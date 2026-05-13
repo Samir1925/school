@@ -185,76 +185,92 @@
 
   <!-- Dynamic Settings Loader + News -->
   <script type="module">
-    import { loadSiteSettings } from "/assets/js/site-settings.js";
-    import { db } from "/assets/js/firebase-config.js";
-    import { collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { loadSiteSettings } from "/assets/js/site-settings.js";
+  import { db } from "/assets/js/firebase-config.js";
+  import { collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // Expose counter init globally so site-settings can call it after building stats
-    window.initCounters = function() {
-      gsap.utils.toArray('.counter').forEach(counter => {
-        const target = +counter.getAttribute('data-target');
-        gsap.to(counter, {
-          innerText: target,
-          duration: 2,
-          snap: { innerText: 1 },
-          scrollTrigger: {
-            trigger: counter,
-            start: 'top 80%',
-            toggleActions: 'play none none none'
-          },
-          onUpdate: function() {
-            counter.innerText = Math.ceil(counter.innerText);
+  // ---------- Animation observer (runs after dynamic content is inserted) ----------
+  window.refreshAnimations = function () {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
           }
         });
+      },
+      { threshold: 0.15 }
+    );
+
+    document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
+  };
+
+  // Counter animation (called by site-settings after building stats)
+  window.initCounters = function () {
+    gsap.utils.toArray('.counter').forEach((counter) => {
+      const target = +counter.getAttribute('data-target');
+      gsap.to(counter, {
+        innerText: target,
+        duration: 2,
+        snap: { innerText: 1 },
+        scrollTrigger: {
+          trigger: counter,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+        onUpdate: function () {
+          counter.innerText = Math.ceil(counter.innerText);
+        },
       });
-    };
+    });
+  };
 
-    // Hide the global loader after everything is done (or after a timeout to be safe)
-    function hideLoader() {
-      const loader = document.getElementById('global-loader');
-      if (loader) {
-        loader.classList.add('hidden');
-        // Remove completely after fade
-        setTimeout(() => loader.remove(), 600);
-      }
+  // ---------- Load everything ----------
+  const loader = document.getElementById('global-loader');
+  const safetyTimer = setTimeout(() => loader?.classList.add('hidden'), 10000);
+
+  try {
+    // 1. Apply branding and build dynamic sections (stats, features, testimonials, etc.)
+    await loadSiteSettings();
+
+    // 2. Now that the sections are in the DOM, make them visible
+    window.refreshAnimations();
+
+    // 3. Load latest notices
+    await loadNews();
+  } catch (err) {
+    console.error('Error loading page data:', err);
+  } finally {
+    clearTimeout(safetyTimer);
+    if (loader) {
+      loader.classList.add('hidden');
+      setTimeout(() => loader.remove(), 600);
     }
+  }
 
-    // Safety timeout – hide loader after 10 seconds even if something fails
-    const safetyTimer = setTimeout(hideLoader, 10000);
-
+  async function loadNews() {
+    const container = document.getElementById('news-container');
     try {
-      // Load dynamic branding & build sections
-      await loadSiteSettings();
-
-      // Load latest notices
-      await loadNews();
+      const q = query(collection(db, 'notices'), orderBy('created_at', 'desc'), limit(3));
+      const snapshot = await getDocs(q);
+      container.innerHTML = '';
+      snapshot.forEach((doc) => {
+        const n = doc.data();
+        container.innerHTML += `
+          <div class="bg-white p-6 rounded-2xl shadow-lg fade-up">
+            <p class="text-indigo-600 font-semibold">${n.date || '—'}</p>
+            <h3 class="text-xl font-bold mt-2">${n.title}</h3>
+            <p class="text-gray-600 mt-3">${(n.description || '').substring(0, 100)}…</p>
+          </div>`;
+      });
+      if (snapshot.empty) container.innerHTML = '<p class="col-span-3 text-center text-gray-500">No news yet.</p>';
+      // Make newly added news cards visible too
+      window.refreshAnimations();
     } catch (err) {
-      console.error('Error loading page data:', err);
-    } finally {
-      clearTimeout(safetyTimer);
-      hideLoader();
+      container.innerHTML = '<p class="col-span-3 text-center text-red-500">Unable to load news.</p>';
     }
-
-    async function loadNews() {
-      const container = document.getElementById('news-container');
-      try {
-        const q = query(collection(db, 'notices'), orderBy('created_at', 'desc'), limit(3));
-        const snapshot = await getDocs(q);
-        container.innerHTML = '';
-        snapshot.forEach(doc => {
-          const n = doc.data();
-          container.innerHTML += `
-            <div class="bg-white p-6 rounded-2xl shadow-lg fade-up">
-              <p class="text-indigo-600 font-semibold">${n.date || '—'}</p>
-              <h3 class="text-xl font-bold mt-2">${n.title}</h3>
-              <p class="text-gray-600 mt-3">${(n.description || '').substring(0, 100)}…</p>
-            </div>`;
-        });
-        if (snapshot.empty) container.innerHTML = '<p class="col-span-3 text-center text-gray-500">No news yet.</p>';
-      } catch (err) {
-        container.innerHTML = '<p class="col-span-3 text-center text-red-500">Unable to load news.</p>';
-      }
-    }
-  </script>
+  }
+</script>
 </body>
 </html>
