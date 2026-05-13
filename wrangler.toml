@@ -1,0 +1,12 @@
+# wrangler.toml – for Cloudflare Pages
+# This file defines the bindings that the Functions need.
+# The Worker settings (main, compatibility_date) are IGNORED in Pages.
+
+[[d1_databases]]
+binding = "DB"
+database_name = "gstar-db"
+database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # replace with your real ID
+
+[[r2_buckets]]
+binding = "GALLERY"
+bucket_name = "gstar-gallery"
