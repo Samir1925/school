@@ -1,16 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Admission | Springdale</title>
+  <meta charset="UTF-8" />
+  <title>Admission | <span data-setting="school_name">Springdale</span></title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
-  <div id="navbar-container"></div>
+
+  <!-- NAVBAR (admission active) -->
+  <nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
+      <a href="/" class="flex items-center gap-2">
+        <img src="/assets/images/logo.png" alt="Logo" class="h-10 site-logo" data-setting="logo_url" />
+        <span class="text-xl font-bold text-gray-900" data-setting="school_name">Springdale</span>
+      </a>
+      <div class="hidden md:flex space-x-8">
+        <a href="/about.html" class="text-gray-700 hover:text-indigo-600 font-medium">About</a>
+        <a href="/academics.html" class="text-gray-700 hover:text-indigo-600 font-medium">Academics</a>
+        <a href="/admission.html" class="text-indigo-600 font-medium">Admission</a>
+        <a href="/student-life.html" class="text-gray-700 hover:text-indigo-600 font-medium">Student Life</a>
+        <a href="/gallery.html" class="text-gray-700 hover:text-indigo-600 font-medium">Gallery</a>
+        <a href="/contact.html" class="text-gray-700 hover:text-indigo-600 font-medium">Contact</a>
+      </div>
+      <div class="md:hidden">
+        <button id="menu-toggle" class="text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <a href="/about.html" class="block px-6 py-3 hover:bg-gray-50">About</a>
+      <a href="/academics.html" class="block px-6 py-3 hover:bg-gray-50">Academics</a>
+      <a href="/admission.html" class="block px-6 py-3 text-indigo-600 font-semibold">Admission</a>
+      <a href="/student-life.html" class="block px-6 py-3 hover:bg-gray-50">Student Life</a>
+      <a href="/gallery.html" class="block px-6 py-3 hover:bg-gray-50">Gallery</a>
+      <a href="/contact.html" class="block px-6 py-3 hover:bg-gray-50">Contact</a>
+    </div>
+  </nav>
+
   <section class="pt-28 pb-20 bg-gradient-to-br from-indigo-50 to-white">
     <div class="max-w-4xl mx-auto px-4">
       <h1 class="text-5xl font-bold text-center mb-8">Admission Process</h1>
+      <!-- steps ... -->
       <div class="space-y-8">
         <div class="flex gap-4 items-start">
           <span class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">1</span>
@@ -23,7 +53,7 @@
           <span class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">2</span>
           <div>
             <h3 class="text-xl font-semibold">Entrance Assessment</h3>
-            <p class="text-gray-600">Students take a diagnostic test in English and Math (dates announced quarterly).</p>
+            <p class="text-gray-600">Students take a diagnostic test in English and Math.</p>
           </div>
         </div>
         <div class="flex gap-4 items-start">
@@ -44,31 +74,83 @@
 
       <div class="mt-16 bg-white p-8 rounded-2xl shadow-xl">
         <h2 class="text-3xl font-bold mb-6">Online Application</h2>
-        <form class="space-y-6" id="admissionForm">
+        <form id="admissionForm" class="space-y-6">
           <div class="grid md:grid-cols-2 gap-6">
-            <input placeholder="Student Name" class="p-3 border rounded-xl" required />
-            <input type="date" placeholder="Date of Birth" class="p-3 border rounded-xl" required />
-            <input placeholder="Grade Applying For" class="p-3 border rounded-xl" required />
-            <input placeholder="Parent Name" class="p-3 border rounded-xl" required />
+            <input type="text" id="studentName" placeholder="Student Name" class="p-3 border rounded-xl" required />
+            <input type="date" id="dob" placeholder="Date of Birth" class="p-3 border rounded-xl" required />
+            <input type="text" id="grade" placeholder="Grade Applying For" class="p-3 border rounded-xl" required />
+            <input type="text" id="parentName" placeholder="Parent Name" class="p-3 border rounded-xl" required />
           </div>
-          <input type="email" placeholder="Email" class="w-full p-3 border rounded-xl" required />
-          <textarea rows="3" placeholder="Any additional information" class="w-full p-3 border rounded-xl"></textarea>
+          <input type="email" id="email" placeholder="Email" class="w-full p-3 border rounded-xl" required />
+          <textarea id="additional" rows="3" placeholder="Any additional information" class="w-full p-3 border rounded-xl"></textarea>
           <button type="submit" class="px-10 py-3 bg-indigo-600 text-white font-bold rounded-full hover:bg-indigo-700">Submit Application</button>
         </form>
+        <p id="formStatus" class="text-center mt-4 text-sm hidden"></p>
       </div>
     </div>
   </section>
-  <div id="footer-container"></div>
+
+  <!-- FOOTER (same) -->
+  <footer class="bg-gray-900 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+      <div>
+        <h3 class="text-2xl font-bold mb-4" data-setting="school_name">Springdale Academy</h3>
+        <p data-setting="address">123 Learning Lane, Knowledge City</p>
+        <p><a data-setting="phone" href="tel:+15550000000">+1 (555) 000-0000</a></p>
+        <p><a data-setting="email" href="mailto:info@school.edu">info@school.edu</a></p>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Quick Links</h4>
+        <ul class="space-y-2">
+          <li><a href="/about.html" class="text-gray-400 hover:text-white">About</a></li>
+          <li><a href="/academics.html" class="text-gray-400 hover:text-white">Academics</a></li>
+          <li><a href="/admission.html" class="text-gray-400 hover:text-white">Admission</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Follow Us</h4>
+        <div class="flex space-x-4 text-2xl">
+          <a href="#" class="hover:text-indigo-400"><i class="fab fa-facebook"></i></a>
+          <a href="#" class="hover:text-indigo-400"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="hover:text-indigo-400"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500 text-sm">
+      &copy; <span data-setting="school_name">Springdale International Academy</span>. All rights reserved.
+    </div>
+  </footer>
+
   <script src="/assets/js/main.js"></script>
-  <script>
-    fetch('/assets/components/navbar.html').then(r=>r.text()).then(h=>document.getElementById('navbar-container').innerHTML=h);
-    fetch('/assets/components/footer.html').then(r=>r.text()).then(h=>document.getElementById('footer-container').innerHTML=h);
+  <script type="module">
+    import { loadSiteSettings } from "/assets/js/site-settings.js";
+    import { db } from "/assets/js/firebase-config.js";
+    import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    loadSiteSettings();
+
     document.getElementById('admissionForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const formData = new FormData(e.target);
-      const res = await fetch('/api/admissions', { method: 'POST', body: JSON.stringify(Object.fromEntries(formData)), headers: {'Content-Type':'application/json'} });
-      if (res.ok) alert('Application submitted!');
-      else alert('Error submitting.');
+      const status = document.getElementById('formStatus');
+      try {
+        await addDoc(collection(db, 'admission_applications'), {
+          studentName: document.getElementById('studentName').value,
+          dob: document.getElementById('dob').value,
+          grade: document.getElementById('grade').value,
+          parentName: document.getElementById('parentName').value,
+          email: document.getElementById('email').value,
+          additional: document.getElementById('additional').value,
+          submittedAt: serverTimestamp()
+        });
+        status.textContent = '✅ Application submitted!';
+        status.className = 'text-green-600 text-center mt-4 text-sm';
+        status.classList.remove('hidden');
+        e.target.reset();
+      } catch (err) {
+        status.textContent = '❌ Submission failed. Please try again.';
+        status.className = 'text-red-600 text-center mt-4 text-sm';
+        status.classList.remove('hidden');
+      }
     });
   </script>
 </body>
