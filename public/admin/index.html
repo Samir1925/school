@@ -80,7 +80,7 @@
       try {
         await signInWithEmailAndPassword(auth, email, password);
         // Successful login -> redirect to dashboard
-        window.location.href = '/admin/dashboard.html';
+        window.location.href = 'admin/dashboard.html';
       } catch (err) {
         console.error(err.code);
         errorEl.classList.remove('hidden');
