@@ -124,7 +124,19 @@
   import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
   import { requireAdmin } from "/assets/js/admin-guard.js";
-
+// Inside the settings save handler, logo upload section
+const logoFile = document.getElementById('logoFile').files[0];
+if (logoFile) {
+  const formData = new FormData();
+  formData.append('image', logoFile);
+  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+    method: 'POST',
+    body: formData
+  });
+  const result = await res.json();
+  if (!result.success) throw new Error('Logo upload failed');
+  settings.logo_url = result.data.url;
+}
   const mainArea = document.querySelector('main');
   const user = await requireAdmin();
   if (!user) {
