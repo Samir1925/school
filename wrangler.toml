@@ -1,21 +1,14 @@
-# wrangler.toml – for Cloudflare Pages Functions
-# This file ONLY defines bindings and environment variables.
-# It should NOT contain a Worker section (name / main / compatibility_date).
-#
-# The Pages CI automatically deploys static assets and Functions,
-# and injects these bindings into your function code.
+name = "school"             # Your Worker name
+main = "api.js"              # or "api.js"
+compatibility_date = "2024-10-01"
 
-# --- D1 Database binding ----------------------------------------------------
 [[d1_databases]]
-binding = "DB"                # This is the variable name you use in code (env.DB)
-database_name = "gstar-db"    # Name of your D1 database
-database_id = "8caafde5-1e25-4f17-8cd8-f2dbcb466ff8"   # ← Replace with your real ID
+binding = "DB"
+database_name = "gstar-db"
+database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"   # Replace with your real D1 ID
 
-# --- Environment variables (INSECURE – use dashboard for secrets) -------------
-# These are visible in your repo. For sensitive data (JWT_SECRET, passwords),
-# we strongly recommend using the Cloudflare Pages Dashboard instead.
-# Here only as a fallback – delete after setting them in the dashboard.
 [vars]
-JWT_SECRET = "change-me-in-dashboard"
-ADMIN_EMAIL = "admin@school.edu.np"
-ADMIN_PASSWORD = "change-me-in-dashboard"
+# Never commit real secrets; set them in the dashboard instead.
+# JWT_SECRET = "set-in-dashboard"
+# ADMIN_EMAIL = "set-in-dashboard"
+# ADMIN_PASSWORD = "set-in-dashboard"
