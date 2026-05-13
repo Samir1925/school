@@ -4,7 +4,7 @@
 
 // ------------------ CONFIG ------------------
 const IMG_BB_API_KEY = '7fc4e70ff7c285b2e7c0ae7d1d60c4db';   // <-- REPLACE with your key from imgbb.com
-const API_URL = '/api';
+const API_URL = 'https://school.shrivastavsamir25.workers.dev';
 let token = localStorage.getItem('adminToken') || '';
 
 // ------------------ AUTH ------------------
