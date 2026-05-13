@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Site Settings | Springdale Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+  <!-- Layout: Sidebar + Content -->
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar (same as dashboard) -->
+    <aside class="w-64 bg-indigo-900 text-white flex flex-col shadow-2xl">
+      <div class="p-6 border-b border-indigo-700">
+        <h2 class="text-2xl font-bold flex items-center gap-2"><i class="fas fa-graduation-cap"></i> Springdale</h2>
+        <p class="text-indigo-300 text-xs mt-1">Admin Panel</p>
+      </div>
+      <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+        <a href="dashboard.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-th-large w-5"></i> Dashboard
+        </a>
+        <a href="settings.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg bg-indigo-800">
+          <i class="fas fa-cog w-5"></i> Site Settings
+        </a>
+        <a href="notices.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-bullhorn w-5"></i> Notices
+        </a>
+        <a href="students.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-user-graduate w-5"></i> Students
+        </a>
+        <a href="teachers.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-chalkboard-teacher w-5"></i> Teachers
+        </a>
+        <a href="admissions.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-file-alt w-5"></i> Applications
+        </a>
+        <a href="media.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-images w-5"></i> Media
+        </a>
+      </nav>
+      <div class="p-4 border-t border-indigo-700">
+        <button id="logoutBtn" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-red-300 w-full">
+          <i class="fas fa-sign-out-alt w-5"></i> Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-8">⚙️ Site Settings</h1>
+
+      <div id="toast" class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-2 z-50">
+        <i class="fas fa-check-circle"></i> Settings saved!
+      </div>
+
+      <form id="settingsForm" class="space-y-8">
+        <!-- General Info -->
+        <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">School Information</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">School Name</label>
+              <input type="text" name="school_name" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Tagline</label>
+              <input type="text" name="tagline" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Primary Color</label>
+              <input type="color" name="primary_color" class="mt-1 h-10 w-16 rounded-lg border border-gray-200 cursor-pointer" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Secondary Color</label>
+              <input type="color" name="secondary_color" class="mt-1 h-10 w-16 rounded-lg border border-gray-200 cursor-pointer" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700">Address</label>
+              <input type="text" name="address" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Phone</label>
+              <input type="text" name="phone" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Email</label>
+              <input type="email" name="email" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700">Principal Name</label>
+              <input type="text" name="principal_name" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700">Principal Message</label>
+              <textarea name="principal_message" rows="3" class="mt-1 w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-400"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- Logo Upload -->
+        <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Logo</h2>
+          <div class="flex items-center gap-4">
+            <img id="logoPreview" src="" alt="Logo" class="h-16 rounded-lg bg-gray-100 hidden" />
+            <input type="file" id="logoFile" accept="image/*" class="text-sm" />
+          </div>
+        </section>
+
+        <!-- Save Button -->
+        <div class="flex gap-4">
+          <button type="submit" class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-xl shadow hover:bg-indigo-700 transition">
+            <i class="fas fa-save mr-2"></i> Save All Settings
+          </button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    // 🔥 REPLACE with your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIza...",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abc123"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // Auth guard
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = '/admin/index.html'; return; }
+      loadSettings();
+    });
+
+    // Load existing settings
+    async function loadSettings() {
+      const snap = await getDoc(doc(db, 'site_settings', 'singleton'));
+      if (snap.exists()) {
+        const data = snap.data();
+        Object.keys(data).forEach(key => {
+          const field = document.querySelector(`[name="${key}"]`);
+          if (field) field.value = data[key];
+        });
+        if (data.logo_url) {
+          document.getElementById('logoPreview').src = data.logo_url;
+          document.getElementById('logoPreview').classList.remove('hidden');
+        }
+      }
+    }
+
+    // Save settings
+    document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const settings = Object.fromEntries(formData.entries());
+
+      // Upload logo if chosen
+      const logoFile = document.getElementById('logoFile').files[0];
+      if (logoFile) {
+        const storageRef = ref(storage, `logos/${Date.now()}_${logoFile.name}`);
+        await uploadBytes(storageRef, logoFile);
+        const url = await getDownloadURL(storageRef);
+        settings.logo_url = url;
+      }
+
+      await setDoc(doc(db, 'site_settings', 'singleton'), settings, { merge: true });
+      showToast();
+    });
+
+    function showToast() {
+      const t = document.getElementById('toast');
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 2500);
+    }
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/admin/index.html';
+    });
+  </script>
+</body>
+</html>
