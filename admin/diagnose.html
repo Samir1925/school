@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Access Diagnostic</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full">
+    <h1 class="text-2xl font-bold mb-4">🔍 Admin Access Diagnostic</h1>
+    <div id="results" class="space-y-3 font-mono text-sm"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // 🔥 Paste your Firebase config here
+    const firebaseConfig = {
+      apiKey: "AIza...",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abc123"
+    };
+
+    let app, auth, db;
+    const resultsDiv = document.getElementById('results');
+    function log(msg, pass = true) {
+      const div = document.createElement('div');
+      div.className = `p-2 rounded ${pass ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+      div.textContent = (pass ? '✅ ' : '❌ ') + msg;
+      resultsDiv.appendChild(div);
+    }
+
+    try {
+      app = initializeApp(firebaseConfig);
+      log('Firebase initialized', true);
+    } catch (e) {
+      log('Firebase init failed: ' + e.message, false);
+      return;
+    }
+
+    auth = getAuth(app);
+    db = getFirestore(app);
+
+    // Wait for auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        log('No user logged in. Please login first.', false);
+        log('Action: Go to /admin/index.html and login, then come back here.', false);
+        return;
+      }
+      log('User logged in: ' + user.email, true);
+      log('User UID: ' + user.uid, true);
+
+      // Try reading the admin document
+      try {
+        const adminRef = doc(db, 'admins', user.uid);
+        const snap = await getDoc(adminRef);
+        if (snap.exists()) {
+          log('Admin document found in Firestore!', true);
+          log('You SHOULD have admin access.', true);
+          log('If you still cannot access dashboard, check:', false);
+          log(' - admin-guard.js file not loading (Network 404)', false);
+          log(' - guard code has old redirect logic', false);
+        } else {
+          log('No admin document for this UID in Firestore.', false);
+          log('Your UID: ' + user.uid, false);
+          log('Check the "admins" collection: document ID must exactly match this UID.', false);
+          log('Go to Firebase Console → Firestore → admins → add document with this UID as the Document ID, field role: admin.', false);
+        }
+      } catch (err) {
+        log('Firestore read failed: ' + err.message, false);
+        if (err.message.includes('permission')) {
+          log('This means Firestore rules are blocking the read of /admins/{uid}.', false);
+          log('Action: Go to Firestore Rules, ensure this rule exists:', false);
+          log('match /admins/{userId} { allow read: if request.auth != null && request.auth.uid == userId; }', false);
+        } else {
+          log('Unexpected error – maybe Firestore not set up?', false);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
