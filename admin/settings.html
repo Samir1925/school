@@ -125,7 +125,15 @@
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
   import { requireAdmin } from "/assets/js/admin-guard.js";
 
-  const firebaseConfig = { /* same as above */ };
+ const firebaseConfig = {
+      apiKey: "AIzaSyCbTfB_VxZosV15LUdgyoUrHL6-dz6FohM",
+      authDomain: "school-cf387.firebaseapp.com",
+      projectId: "school-cf387",
+      storageBucket: "school-cf387.firebasestorage.app",
+      messagingSenderId: "594859618434",
+      appId: "1:594859618434:web:065c17831015ca0073049b"
+    };
+
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
