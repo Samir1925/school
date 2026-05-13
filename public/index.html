@@ -6,40 +6,79 @@
   <title>Springdale International Academy – Home</title>
   <meta name="description" content="Springdale International Academy – nurturing future leaders with a world-class education." />
   <link rel="icon" href="/assets/images/favicon.ico" />
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/assets/css/style.css" />
-  <!-- GSAP -->
+  <!-- GSAP + ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+
+  <style>
+    /* Additional inline fixes if needed */
+    .fade-up { opacity: 0; transform: translateY(30px); transition: all 0.8s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+  </style>
 </head>
 <body class="font-sans antialiased">
 
-  <!-- Navbar (loaded via JS or keep inline) -->
-  <div id="navbar-container"></div>
+  <!-- ===== NAVBAR ===== -->
+  <nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 shadow-sm" id="navbar">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
+      <a href="/" class="flex items-center gap-2">
+        <img src="/assets/images/logo.png" alt="Logo" class="h-10" />
+        <span class="text-xl font-bold text-gray-900">Springdale</span>
+      </a>
+      <div class="hidden md:flex space-x-8">
+        <a href="/about.html" class="text-gray-700 hover:text-indigo-600 font-medium">About</a>
+        <a href="/academics.html" class="text-gray-700 hover:text-indigo-600 font-medium">Academics</a>
+        <a href="/admission.html" class="text-gray-700 hover:text-indigo-600 font-medium">Admission</a>
+        <a href="/student-life.html" class="text-gray-700 hover:text-indigo-600 font-medium">Student Life</a>
+        <a href="/gallery.html" class="text-gray-700 hover:text-indigo-600 font-medium">Gallery</a>
+        <a href="/contact.html" class="text-gray-700 hover:text-indigo-600 font-medium">Contact</a>
+      </div>
+      <div class="md:hidden">
+        <button id="menu-toggle" class="text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <a href="/about.html" class="block px-6 py-3 hover:bg-gray-50">About</a>
+      <a href="/academics.html" class="block px-6 py-3 hover:bg-gray-50">Academics</a>
+      <a href="/admission.html" class="block px-6 py-3 hover:bg-gray-50">Admission</a>
+      <a href="/student-life.html" class="block px-6 py-3 hover:bg-gray-50">Student Life</a>
+      <a href="/gallery.html" class="block px-6 py-3 hover:bg-gray-50">Gallery</a>
+      <a href="/contact.html" class="block px-6 py-3 hover:bg-gray-50">Contact</a>
+    </div>
+  </nav>
 
-  <!-- Hero Section -->
+  <!-- ===== HERO ===== -->
   <section class="relative h-screen flex items-center justify-center overflow-hidden">
     <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/80 via-indigo-800/70 to-purple-900/60 z-10"></div>
-    <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0" poster="/assets/images/hero-bg.jpg">
-      <source src="https://cdn.coverr.co/videos/coverr-students-walking-1584/1080p.mp4" type="video/mp4" />
-    </video>
-    <div class="relative z-20 text-center text-white max-w-4xl px-4" id="hero-content">
+    <!-- Video background (replace with your own) -->
+    <div class="absolute inset-0 w-full h-full z-0">
+      <video autoplay muted loop playsinline class="w-full h-full object-cover" poster="https://images.unsplash.com/photo-1523050854058-8df90910e4f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80">
+        <source src="https://cdn.coverr.co/videos/coverr-students-walking-1584/1080p.mp4" type="video/mp4" />
+        <!-- Fallback image if video fails -->
+        <img src="https://images.unsplash.com/photo-1523050854058-8df90910e4f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="School campus" class="w-full h-full object-cover" />
+      </video>
+    </div>
+    <div class="relative z-20 text-center text-white max-w-4xl px-4">
       <h1 class="text-5xl md:text-7xl font-bold mb-6 opacity-0" id="hero-title">Where Excellence Meets Innovation</h1>
       <p class="text-xl md:text-2xl mb-10 opacity-0" id="hero-subtitle">Join a community dedicated to shaping tomorrow's leaders.</p>
-      <a href="/admission.html" class="inline-block px-10 py-4 bg-white text-indigo-900 font-bold rounded-full shadow-2xl hover:bg-indigo-100 transition-opacity opacity-0" id="hero-cta">Apply Now</a>
+      <a href="/admission.html" class="inline-block px-10 py-4 bg-white text-indigo-900 font-bold rounded-full shadow-2xl hover:bg-indigo-100 transition opacity-0" id="hero-cta">Apply Now</a>
     </div>
     <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 text-white animate-bounce">
       <i class="fas fa-chevron-down text-2xl"></i>
     </div>
   </section>
 
-  <!-- Statistics -->
+  <!-- ===== STATISTICS ===== -->
   <section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center" id="stats-counter">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
       <div class="p-6">
         <i class="fas fa-user-graduate text-5xl text-indigo-600 mb-4"></i>
         <p class="text-4xl font-bold text-gray-900"><span class="counter" data-target="1200">0</span>+</p>
@@ -63,36 +102,36 @@
     </div>
   </section>
 
-  <!-- About snippet -->
+  <!-- ===== ABOUT SNIPPET ===== -->
   <section class="py-20 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-      <div>
+      <div class="fade-up">
         <h2 class="text-4xl font-bold text-gray-900 mb-6">Welcome to Springdale</h2>
         <p class="text-lg text-gray-600 mb-6">Founded in 1995, we provide a holistic education that balances academic excellence with character development. Our state-of-the-art campus and dedicated faculty create an environment where every student thrives.</p>
         <a href="/about.html" class="text-indigo-600 font-semibold hover:underline">Learn More →</a>
       </div>
-      <div class="relative">
-        <img src="https://images.unsplash.com/photo-1523050854058-8df90910e4f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Campus" class="rounded-2xl shadow-2xl" />
+      <div class="fade-up">
+        <img src="https://images.unsplash.com/photo-1541339907198-e1689bb996bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Campus" class="rounded-2xl shadow-2xl w-full" />
       </div>
     </div>
   </section>
 
-  <!-- Features / why choose us -->
+  <!-- ===== FEATURES ===== -->
   <section class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4">
       <h2 class="text-4xl font-bold text-center text-gray-900 mb-16">Why Choose Springdale?</h2>
       <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition">
+        <div class="fade-up bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition">
           <i class="fas fa-laptop-code text-5xl text-indigo-600 mb-6"></i>
           <h3 class="text-2xl font-semibold mb-4">Cutting-Edge Technology</h3>
           <p class="text-gray-600">Smart classrooms, robotics labs, and 1:1 device program.</p>
         </div>
-        <div class="bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition">
+        <div class="fade-up bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition">
           <i class="fas fa-futbol text-5xl text-indigo-600 mb-6"></i>
           <h3 class="text-2xl font-semibold mb-4">Sports & Arts</h3>
           <p class="text-gray-600">Olympic-size pool, theater, and 20+ sports teams.</p>
         </div>
-        <div class="bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition">
+        <div class="fade-up bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition">
           <i class="fas fa-globe-asia text-5xl text-indigo-600 mb-6"></i>
           <h3 class="text-2xl font-semibold mb-4">Global Perspective</h3>
           <p class="text-gray-600">Exchange programs, Model UN, and international curriculum.</p>
@@ -101,12 +140,12 @@
     </div>
   </section>
 
-  <!-- Testimonials -->
+  <!-- ===== TESTIMONIALS ===== -->
   <section class="py-20 bg-indigo-900 text-white">
     <div class="max-w-7xl mx-auto px-4">
       <h2 class="text-4xl font-bold text-center mb-12">What Parents Say</h2>
-      <div class="grid md:grid-cols-2 gap-8" id="testimonial-slider">
-        <div class="bg-white/10 backdrop-blur p-8 rounded-2xl">
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="fade-up bg-white/10 backdrop-blur p-8 rounded-2xl">
           <p class="italic mb-6">"Springdale transformed my child's confidence. The teachers are phenomenal."</p>
           <div class="flex items-center gap-4">
             <img src="https://randomuser.me/api/portraits/women/44.jpg" class="w-12 h-12 rounded-full" alt="Parent" />
@@ -116,7 +155,7 @@
             </div>
           </div>
         </div>
-        <div class="bg-white/10 backdrop-blur p-8 rounded-2xl">
+        <div class="fade-up bg-white/10 backdrop-blur p-8 rounded-2xl">
           <p class="italic mb-6">"The facilities are world-class and the curriculum prepares students for the future."</p>
           <div class="flex items-center gap-4">
             <img src="https://randomuser.me/api/portraits/men/32.jpg" class="w-12 h-12 rounded-full" alt="Parent" />
@@ -130,12 +169,27 @@
     </div>
   </section>
 
-  <!-- Latest News -->
+  <!-- ===== LATEST NEWS ===== -->
   <section class="py-20 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4">
       <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">Latest News & Events</h2>
       <div class="grid md:grid-cols-3 gap-8" id="news-container">
-        <!-- Dynamically filled by JS -->
+        <!-- Populated by JS (or static fallback below) -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+          <p class="text-indigo-600 font-semibold">March 20, 2025</p>
+          <h3 class="text-xl font-bold mt-2">Annual Sports Day</h3>
+          <p class="text-gray-600 mt-3">All students are invited to participate in the inter-house sports competition.</p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+          <p class="text-indigo-600 font-semibold">March 15, 2025</p>
+          <h3 class="text-xl font-bold mt-2">Science Fair Winners</h3>
+          <p class="text-gray-600 mt-3">Our students won the regional science fair for the fourth consecutive year.</p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+          <p class="text-indigo-600 font-semibold">March 10, 2025</p>
+          <h3 class="text-xl font-bold mt-2">New STEM Lab Inauguration</h3>
+          <p class="text-gray-600 mt-3">State-of-the-art facility opens to enhance tech learning.</p>
+        </div>
       </div>
       <div class="text-center mt-10">
         <a href="/news.html" class="inline-block px-8 py-3 border-2 border-indigo-600 text-indigo-600 font-semibold rounded-full hover:bg-indigo-600 hover:text-white transition">View All News</a>
@@ -143,36 +197,91 @@
     </div>
   </section>
 
-  <!-- Footer -->
-  <div id="footer-container"></div>
+  <!-- ===== FOOTER ===== -->
+  <footer class="bg-gray-900 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+      <div>
+        <h3 class="text-2xl font-bold mb-4">Springdale Academy</h3>
+        <p class="text-gray-400">123 Learning Lane, Knowledge City</p>
+        <p class="text-gray-400">+1 (555) 000-0000</p>
+        <p class="text-gray-400">info@school.edu</p>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Quick Links</h4>
+        <ul class="space-y-2">
+          <li><a href="/about.html" class="text-gray-400 hover:text-white">About</a></li>
+          <li><a href="/academics.html" class="text-gray-400 hover:text-white">Academics</a></li>
+          <li><a href="/admission.html" class="text-gray-400 hover:text-white">Admission</a></li>
+          <li><a href="/contact.html" class="text-gray-400 hover:text-white">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Follow Us</h4>
+        <div class="flex space-x-4 text-2xl">
+          <a href="#" class="hover:text-indigo-400"><i class="fab fa-facebook"></i></a>
+          <a href="#" class="hover:text-indigo-400"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="hover:text-indigo-400"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500 text-sm">
+      &copy; 2025 Springdale International Academy. All rights reserved.
+    </div>
+  </footer>
 
-  <!-- Scripts -->
-  <script src="/assets/js/main.js"></script>
-  <script src="/assets/js/animations.js"></script>
+  <!-- ===== SCRIPTS ===== -->
   <script>
-    // Load navbar and footer dynamically
-    document.addEventListener('DOMContentLoaded', () => {
-      fetch('/assets/components/navbar.html')
-        .then(res => res.text())
-        .then(html => document.getElementById('navbar-container').innerHTML = html);
-      fetch('/assets/components/footer.html')
-        .then(res => res.text())
-        .then(html => document.getElementById('footer-container').innerHTML = html);
-      // Load news
-      fetch('/api/notices?limit=3')
-        .then(res => res.json())
-        .then(data => {
-          const container = document.getElementById('news-container');
-          data.forEach(item => {
-            container.innerHTML += `
-              <div class="bg-white p-6 rounded-2xl shadow-lg">
-                <p class="text-indigo-600 font-semibold">${item.date}</p>
-                <h3 class="text-xl font-bold mt-2">${item.title}</h3>
-                <p class="text-gray-600 mt-3">${item.description.substring(0,100)}...</p>
-              </div>`;
-          });
-        })
-        .catch(() => container.innerHTML = '<p class="text-center col-span-3">No news available.</p>');
+    // Mobile menu toggle
+    document.getElementById('menu-toggle').addEventListener('click', function () {
+      document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+
+    // Navbar shadow on scroll
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('navbar');
+      if (window.scrollY > 50) nav.classList.add('shadow-lg');
+      else nav.classList.remove('shadow-lg');
+    });
+
+    // GSAP animations
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero entrance
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    tl.to("#hero-title", { opacity: 1, y: 0, duration: 1 })
+      .to("#hero-subtitle", { opacity: 1, y: 0, duration: 0.8 }, "-=0.5")
+      .to("#hero-cta", { opacity: 1, scale: 1, duration: 0.5 }, "-=0.3");
+
+    // Counter animation
+    document.querySelectorAll('.counter').forEach(counter => {
+      const target = +counter.getAttribute('data-target');
+      gsap.to(counter, {
+        innerText: target,
+        duration: 2,
+        snap: { innerText: 1 },
+        scrollTrigger: {
+          trigger: counter,
+          start: 'top 80%',
+          toggleActions: 'play none none none'
+        },
+        onUpdate: function() {
+          counter.innerText = Math.ceil(counter.innerText);
+        }
+      });
+    });
+
+    // Fade-up elements on scroll
+    gsap.utils.toArray('.fade-up').forEach(el => {
+      gsap.from(el, {
+        y: 40,
+        opacity: 0,
+        duration: 1,
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 85%',
+          toggleActions: 'play none none none'
+        }
+      });
     });
   </script>
 </body>
