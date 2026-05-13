@@ -118,79 +118,72 @@
     </main>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+  import { requireAdmin } from "/assets/js/admin-guard.js";
 
-    // 🔥 REPLACE with your Firebase config
-    const firebaseConfig = {
-      apiKey: "AIza...",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "123456789",
-      appId: "1:123456789:web:abc123"
-    };
+  const firebaseConfig = { /* same as above */ };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+  // Admin guard
+  try {
+    await requireAdmin(auth, db);
+  } catch (e) {
+    // Already redirected in guard
+    throw e;
+  }
 
-    // Auth guard
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) { window.location.href = '/admin/index.html'; return; }
-      loadSettings();
-    });
-
-    // Load existing settings
-    async function loadSettings() {
-      const snap = await getDoc(doc(db, 'site_settings', 'singleton'));
-      if (snap.exists()) {
-        const data = snap.data();
-        Object.keys(data).forEach(key => {
-          const field = document.querySelector(`[name="${key}"]`);
-          if (field) field.value = data[key];
-        });
-        if (data.logo_url) {
-          document.getElementById('logoPreview').src = data.logo_url;
-          document.getElementById('logoPreview').classList.remove('hidden');
-        }
+  // Load existing settings
+  async function loadSettings() {
+    const snap = await getDoc(doc(db, 'site_settings', 'singleton'));
+    if (snap.exists()) {
+      const data = snap.data();
+      Object.keys(data).forEach(key => {
+        const field = document.querySelector(`[name="${key}"]`);
+        if (field) field.value = data[key];
+      });
+      if (data.logo_url) {
+        document.getElementById('logoPreview').src = data.logo_url;
+        document.getElementById('logoPreview').classList.remove('hidden');
       }
     }
+  }
+  loadSettings();
 
-    // Save settings
-    document.getElementById('settingsForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const settings = Object.fromEntries(formData.entries());
+  // Save settings
+  document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const settings = Object.fromEntries(formData.entries());
 
-      // Upload logo if chosen
-      const logoFile = document.getElementById('logoFile').files[0];
-      if (logoFile) {
-        const storageRef = ref(storage, `logos/${Date.now()}_${logoFile.name}`);
-        await uploadBytes(storageRef, logoFile);
-        const url = await getDownloadURL(storageRef);
-        settings.logo_url = url;
-      }
-
-      await setDoc(doc(db, 'site_settings', 'singleton'), settings, { merge: true });
-      showToast();
-    });
-
-    function showToast() {
-      const t = document.getElementById('toast');
-      t.classList.remove('hidden');
-      setTimeout(() => t.classList.add('hidden'), 2500);
+    const logoFile = document.getElementById('logoFile').files[0];
+    if (logoFile) {
+      const storageRef = ref(storage, `logos/${Date.now()}_${logoFile.name}`);
+      await uploadBytes(storageRef, logoFile);
+      const url = await getDownloadURL(storageRef);
+      settings.logo_url = url;
     }
 
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.href = '/admin/index.html';
-    });
-  </script>
+    await setDoc(doc(db, 'site_settings', 'singleton'), settings, { merge: true });
+    showToast();
+  });
+
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.remove('hidden');
+    setTimeout(() => t.classList.add('hidden'), 2500);
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = '/admin/index.html';
+  });
+</script>
 </body>
 </html>

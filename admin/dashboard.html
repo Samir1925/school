@@ -147,12 +147,13 @@
 
   <!-- Firebase Auth + Data Loading -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { requireAdmin } from "/assets/js/admin-guard.js";
 
-    // 🔥 REPLACE with your Firebase config
-    const firebaseConfig = {
+  // 🔥 Replace with your Firebase config
+  const firebaseConfig = {
       apiKey: "AIzaSyCbTfB_VxZosV15LUdgyoUrHL6-dz6FohM",
       authDomain: "school-cf387.firebaseapp.com",
       projectId: "school-cf387",
@@ -161,62 +162,36 @@
       appId: "1:594859618434:web:065c17831015ca0073049b"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    // ---------- Auth Guard ----------
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        // Not logged in
-        window.location.href = '/admin/index.html';
-        return;
-      }
+  // Wait for admin verification
+  try {
+    const user = await requireAdmin(auth, db);
+    console.log('Admin access granted:', user.email);
+    // Load dashboard data
+    loadStats();
+  } catch (e) {
+    console.warn('Admin check failed:', e);
+  }
 
-      // Show user email
-      document.getElementById('userEmail').textContent = user.email || 'User';
+  async function loadStats() {
+    // ... (same stats loading code as before)
+    const studentsSnap = await getDocs(collection(db, 'students'));
+    document.getElementById('studentCount').textContent = studentsSnap.size;
+    const teachersSnap = await getDocs(collection(db, 'teachers'));
+    document.getElementById('teacherCount').textContent = teachersSnap.size;
+    const appsSnap = await getDocs(collection(db, 'admission_applications'));
+    document.getElementById('appCount').textContent = appsSnap.size;
+    document.getElementById('userEmail').textContent = auth.currentUser?.email || 'Admin';
+  }
 
-      // Optional: verify admin privilege (check /admins/{uid})
-      // You can uncomment below after creating the admins collection
-      /*
-      import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-      const adminRef = doc(db, 'admins', user.uid);
-      const adminSnap = await getDoc(adminRef);
-      if (!adminSnap.exists()) {
-        await signOut(auth);
-        window.location.href = '/admin/index.html';
-        return;
-      }
-      */
-
-      // Load dashboard stats
-      loadStats();
-    });
-
-    // Load counts from Firestore
-    async function loadStats() {
-      try {
-        const studentsSnap = await getDocs(collection(db, 'students'));
-        document.getElementById('studentCount').textContent = studentsSnap.size;
-
-        const teachersSnap = await getDocs(collection(db, 'teachers'));
-        document.getElementById('teacherCount').textContent = teachersSnap.size;
-
-        const appsSnap = await getDocs(collection(db, 'admission_applications'));
-        document.getElementById('appCount').textContent = appsSnap.size;
-      } catch (err) {
-        console.error('Error loading stats:', err);
-        document.getElementById('studentCount').textContent = '!';
-        document.getElementById('teacherCount').textContent = '!';
-        document.getElementById('appCount').textContent = '!';
-      }
-    }
-
-    // ---------- Logout ----------
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.href = '/admin/index.html';
-    });
-  </script>
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = '/admin/index.html';
+  });
+</script>
 </body>
 </html>
