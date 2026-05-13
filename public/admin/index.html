@@ -4,30 +4,45 @@
   <meta charset="UTF-8"/>
   <title>Admin Login | Springdale</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body class="bg-gradient-to-br from-indigo-500 to-purple-600 min-h-screen flex items-center justify-center">
   <div class="bg-white/20 backdrop-blur-lg p-10 rounded-3xl shadow-2xl w-full max-w-md">
     <h1 class="text-3xl font-bold text-white text-center mb-8">Admin Login</h1>
     <form id="loginForm" class="space-y-6">
-      <input type="email" placeholder="Email" class="w-full p-3 rounded-xl outline-none" required />
-      <input type="password" placeholder="Password" class="w-full p-3 rounded-xl outline-none" required />
+      <input type="email" id="email" placeholder="Email" class="w-full p-3 rounded-xl outline-none" required />
+      <input type="password" id="password" placeholder="Password" class="w-full p-3 rounded-xl outline-none" required />
       <button type="submit" class="w-full py-3 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition">Sign In</button>
     </form>
+    <p id="error" class="text-red-200 text-sm mt-4 text-center hidden">Invalid credentials.</p>
   </div>
-  <script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "...",
+      appId: "..."
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = e.target[0].value, password = e.target[1].value;
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await res.json();
-      if (data.token) {
-        localStorage.setItem('token', data.token);
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
         window.location.href = '/admin/dashboard.html';
-      } else alert('Invalid credentials');
+      } catch (error) {
+        document.getElementById('error').classList.remove('hidden');
+      }
     });
   </script>
 </body>
