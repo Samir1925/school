@@ -13,14 +13,28 @@ export async function loadSiteSettings() {
     }
 
     // 2. Update simple data-setting elements (school_name, tagline, address, etc.)
-    document.querySelectorAll("[data-setting]").forEach(el => {
-      const key = el.getAttribute("data-setting");
-      if (s[key] !== undefined) {
-        if (el.tagName === "IMG") el.src = s[key];
-        else if (el.tagName === "A" && el.hasAttribute("href")) el.href = s[key];
-        else el.textContent = s[key];
+document.querySelectorAll("[data-setting]").forEach(el => {
+  const key = el.getAttribute("data-setting");
+  if (s[key] !== undefined) {
+    if (el.tagName === "IMG") {
+      el.src = s[key];
+    } else if (el.tagName === "A") {
+      // For anchors, update href AND text content
+      if (key === "phone") {
+        el.href = `tel:${s.phone}`;
+        el.textContent = s.phone;
+      } else if (key === "email") {
+        el.href = `mailto:${s.email}`;
+        el.textContent = s.email;
+      } else {
+        el.href = s[key];
+        el.textContent = s[key];  // also update visible text
       }
-    });
+    } else {
+      el.textContent = s[key];
+    }
+  }
+});
 
     // 3. Update logo images with class .site-logo
     if (s.logo_url) {
