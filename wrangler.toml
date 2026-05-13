@@ -1,14 +1,14 @@
-name = "school"             # Your Worker name
-main = "api.js"              # or "api.js"
+name = "school"
+main = "api.js"
 compatibility_date = "2024-10-01"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "gstar-db"
-database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"   # Replace with your real D1 ID
+database_id = "8caafde5-1e25-4f17-8cd8-f2dbcb466ff8"
 
+# Set these in the Cloudflare Dashboard, not here
 [vars]
-# Never commit real secrets; set them in the dashboard instead.
-# JWT_SECRET = "set-in-dashboard"
-# ADMIN_EMAIL = "set-in-dashboard"
-# ADMIN_PASSWORD = "set-in-dashboard"
+JWT_SECRET = "set-in-dashboard"
+ADMIN_EMAIL = "set-in-dashboard"
+ADMIN_PASSWORD = "set-in-dashboard"
