@@ -152,47 +152,37 @@
   import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { requireAdmin } from "/assets/js/admin-guard.js";
 
-  // 🔥 Replace with your Firebase config
-  const firebaseConfig = {
-    apiKey: "AIza...",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abc123"
-  };
-
+  // 🔥 your config
+  const firebaseConfig = { /* … */ };
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Show loading state
-  const mainContent = document.querySelector('main');
-  mainContent.innerHTML += `<div id="loadingOverlay" class="absolute inset-0 bg-white/80 flex items-center justify-center"><i class="fas fa-spinner fa-spin text-4xl text-indigo-600"></i></div>`;
+  const mainArea = document.querySelector('main');
+  mainArea.innerHTML += `<div id="guardOverlay" class="absolute inset-0 bg-white/80 flex items-center justify-center z-50"><i class="fas fa-spinner fa-spin text-4xl text-indigo-600"></i></div>`;
 
-  try {
-    const user = await requireAdmin(auth, db);
+  const user = await requireAdmin(auth, db);
+  const overlay = document.getElementById('guardOverlay');
+  if (overlay) overlay.remove();
+
+  if (!user) {
+    // Show a clear message
+    mainArea.innerHTML = `
+      <div class="flex flex-col items-center justify-center h-full text-center p-8">
+        <i class="fas fa-shield-haltered text-6xl text-red-400 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Access Denied</h2>
+        <p class="text-gray-600 mb-4">You are not logged in or your account does not have admin rights.</p>
+        <button onclick="window.location.href='/admin/index.html'" class="px-6 py-2 bg-indigo-600 text-white rounded-xl">Go to Login</button>
+      </div>`;
+  } else {
     document.getElementById('userEmail').textContent = user.email || 'Admin';
     loadStats();
-  } catch (e) {
-    console.warn('Admin check failed:', e.message);
-    // The guard already redirects if needed, but as a fallback:
-    if (e.message === 'Not an admin' || e.message === 'Not logged in') {
-      // redirect already happened; do nothing
-    } else {
-      // Some other error – show message
-      mainContent.innerHTML = `<div class="p-8 text-center text-red-600"><i class="fas fa-exclamation-triangle text-3xl"></i><p class="mt-4">Unable to verify admin rights. Please try logging out and back in.</p><button onclick="window.location.href='/admin/index.html'" class="mt-6 px-6 py-2 bg-indigo-600 text-white rounded-xl">Go to Login</button></div>`;
-    }
-  } finally {
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) overlay.remove();
   }
 
   async function loadStats() {
-    // ... same stats loading as before ...
+    // … your stats loading code
   }
 
-  // Logout
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     await signOut(auth);
     window.location.href = '/admin/index.html';
