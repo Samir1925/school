@@ -14,17 +14,45 @@
       transform: translateY(-4px);
       box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
     }
+    /* Loading overlay */
+    #global-loader {
+      position: fixed;
+      inset: 0;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    #global-loader.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
+  <!-- ===== LOADING OVERLAY ===== -->
+  <div id="global-loader">
+    <div class="text-center">
+      <i class="fas fa-spinner fa-spin text-5xl text-indigo-600 mb-4"></i>
+      <p class="text-gray-600 text-lg">Loading your dashboard…</p>
+    </div>
+  </div>
+
   <!-- Navbar -->
   <nav class="bg-white shadow-md">
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-      <h1 class="text-xl font-bold text-indigo-700" data-setting="school_name">Student Portal</h1>
+      <div class="flex items-center gap-3">
+        <a href="/" class="text-gray-500 hover:text-indigo-600">
+          <i class="fas fa-home"></i>
+        </a>
+        <h1 class="text-xl font-bold text-indigo-700">Student Portal</h1>
+      </div>
       <div class="flex items-center gap-4">
         <span id="studentName" class="text-gray-700 font-medium"></span>
-        <button id="logoutBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+        <button id="logoutBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm">
           <i class="fas fa-sign-out-alt mr-1"></i> Logout
         </button>
       </div>
@@ -35,15 +63,15 @@
   <main class="max-w-7xl mx-auto p-6">
     
     <!-- Welcome & Quick Info -->
-    <div class="grid md:grid-cols-3 gap-6 mb-8">
+    <div class="grid md:grid-cols-4 gap-6 mb-8">
       <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-            <i class="fas fa-graduation-cap text-indigo-600 text-xl"></i>
+            <i class="fas fa-id-card text-indigo-600 text-xl"></i>
           </div>
           <div>
-            <p class="text-gray-500 text-sm">Grade</p>
-            <p class="text-xl font-bold" id="studentGrade">—</p>
+            <p class="text-gray-500 text-sm">School ID</p>
+            <p class="text-lg font-bold font-mono" id="studentSchoolId">—</p>
           </div>
         </div>
       </div>
@@ -51,11 +79,11 @@
       <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-            <i class="fas fa-wallet text-green-600 text-xl"></i>
+            <i class="fas fa-graduation-cap text-green-600 text-xl"></i>
           </div>
           <div>
-            <p class="text-gray-500 text-sm">Fee Status</p>
-            <p class="text-xl font-bold" id="feeStatus">—</p>
+            <p class="text-gray-500 text-sm">Grade</p>
+            <p class="text-lg font-bold" id="studentGrade">—</p>
           </div>
         </div>
       </div>
@@ -63,24 +91,36 @@
       <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-            <i class="fas fa-star text-amber-600 text-xl"></i>
+            <i class="fas fa-layer-group text-amber-600 text-xl"></i>
           </div>
           <div>
-            <p class="text-gray-500 text-sm">Attendance</p>
-            <p class="text-xl font-bold" id="attendance">—</p>
+            <p class="text-gray-500 text-sm">Section</p>
+            <p class="text-lg font-bold" id="studentSection">—</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+            <i class="fas fa-wallet text-purple-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Fee Status</p>
+            <p class="text-lg font-bold" id="feeStatus">—</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Notices & Quick Links -->
-    <div class="grid md:grid-cols-2 gap-6">
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
       <!-- Recent Notices -->
       <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <h2 class="text-lg font-bold text-gray-900 mb-4">
           <i class="fas fa-bullhorn text-indigo-600 mr-2"></i> Recent Notices
         </h2>
-        <div id="noticesList" class="space-y-3">
+        <div id="noticesList" class="space-y-3 max-h-60 overflow-y-auto">
           <p class="text-gray-500">Loading...</p>
         </div>
       </div>
@@ -91,9 +131,9 @@
           <i class="fas fa-link text-indigo-600 mr-2"></i> Quick Links
         </h2>
         <div class="grid grid-cols-2 gap-4">
-          <a href="#" class="p-4 bg-indigo-50 rounded-xl text-center hover:bg-indigo-100 transition">
+          <a href="#notesSection" class="p-4 bg-indigo-50 rounded-xl text-center hover:bg-indigo-100 transition">
             <i class="fas fa-book text-2xl text-indigo-600 mb-2"></i>
-            <p class="text-sm font-medium">Notes</p>
+            <p class="text-sm font-medium">My Notes</p>
           </a>
           <a href="#" class="p-4 bg-green-50 rounded-xl text-center hover:bg-green-100 transition">
             <i class="fas fa-chart-bar text-2xl text-green-600 mb-2"></i>
@@ -110,62 +150,215 @@
         </div>
       </div>
     </div>
+
+    <!-- ===== STUDY NOTES SECTION ===== -->
+    <div id="notesSection" class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-gray-900">
+          <i class="fas fa-book-open text-indigo-600 mr-2"></i> My Study Notes
+        </h2>
+        <span class="text-xs text-gray-500" id="notesInfo"></span>
+      </div>
+      
+      <!-- Search within notes -->
+      <div class="mb-4">
+        <input type="text" id="notesSearch" placeholder="Search notes..." 
+          class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400 text-sm" />
+      </div>
+
+      <div id="notesList" class="space-y-3 max-h-96 overflow-y-auto">
+        <p class="text-gray-500 text-center py-8">Loading your notes...</p>
+      </div>
+    </div>
+
   </main>
 
   <!-- Scripts -->
-<script type="module">
-  import { auth, db } from "/assets/js/firebase-config.js";
-  import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { doc, getDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <script type="module">
+    import { auth, db } from "/assets/js/firebase-config.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, getDoc, collection, query, orderBy, limit, getDocs, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Auth guard
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = '/student-login.html';
-      return;
+    // Hide loader
+    function hideLoader() {
+      const loader = document.getElementById('global-loader');
+      if (loader) {
+        loader.classList.add('hidden');
+        setTimeout(() => loader.remove(), 600);
+      }
     }
 
-    // Extract School ID from email
-    const schoolId = user.email?.split('@')[0];
-    document.getElementById('studentName').textContent = user.displayName || schoolId || 'Student';
+    // Student data
+    let studentData = null;
+    let allNotes = [];
 
-    // Load student data from Firestore
-    const studentSnap = await getDoc(doc(db, 'students', user.uid));
-    if (studentSnap.exists()) {
-      const data = studentSnap.data();
-      document.getElementById('studentGrade').textContent = data.grade || '—';
-      document.getElementById('feeStatus').textContent = data.feeStatus || 'N/A';
-      document.getElementById('attendance').textContent = data.attendancePercentage || '—';
+    // Auth guard
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = '/student-login.html';
+        return;
+      }
+
+      // Extract School ID from email
+      const schoolId = user.email?.split('@')[0];
+      document.getElementById('studentName').textContent = user.displayName || schoolId || 'Student';
+      document.getElementById('studentSchoolId').textContent = schoolId || '—';
+
+      // Load student data from Firestore
+      const studentSnap = await getDoc(doc(db, 'students', user.uid));
+      if (studentSnap.exists()) {
+        studentData = studentSnap.data();
+        
+        document.getElementById('studentGrade').textContent = studentData.grade || '—';
+        document.getElementById('studentSection').textContent = studentData.section || '—';
+        document.getElementById('feeStatus').textContent = studentData.feeStatus || 'N/A';
+        document.getElementById('notesInfo').textContent = 
+          `Showing notes for Grade ${studentData.grade}${studentData.section && studentData.section !== 'all' ? ' - Section ' + studentData.section : ''}`;
+
+        // ✅ Load notes ONLY for this student's grade & section
+        loadNotesForStudent(studentData.grade, studentData.section || 'A');
+      } else {
+        document.getElementById('studentGrade').textContent = 'Not assigned';
+        document.getElementById('studentSection').textContent = '—';
+      }
+
+      // Load recent notices
+      loadNotices();
+      
+      // Hide loader after everything
+      hideLoader();
+    });
+
+    // ========== LOAD NOTES FOR STUDENT'S CLASS ==========
+    async function loadNotesForStudent(grade, section) {
+      const container = document.getElementById('notesList');
+      
+      try {
+        // Query notes for this grade AND (this section OR 'all' sections)
+        // Firestore doesn't support OR queries directly, so we do two queries
+        
+        // 1. Notes for this grade + this specific section
+        const q1 = query(
+          collection(db, 'notes'),
+          where('grade', '==', grade),
+          where('section', '==', section),
+          orderBy('uploadedAt', 'desc')
+        );
+        
+        // 2. Notes for this grade + all sections
+        const q2 = query(
+          collection(db, 'notes'),
+          where('grade', '==', grade),
+          where('section', '==', 'all'),
+          orderBy('uploadedAt', 'desc')
+        );
+
+        const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+        
+        // Merge results
+        allNotes = [];
+        snap1.forEach(doc => allNotes.push({ id: doc.id, ...doc.data() }));
+        snap2.forEach(doc => {
+          // Avoid duplicates
+          if (!allNotes.find(n => n.id === doc.id)) {
+            allNotes.push({ id: doc.id, ...doc.data() });
+          }
+        });
+
+        // Sort by date (newest first)
+        allNotes.sort((a, b) => {
+          const dateA = a.uploadedAt?.seconds || 0;
+          const dateB = b.uploadedAt?.seconds || 0;
+          return dateB - dateA;
+        });
+
+        renderNotes(allNotes);
+        
+      } catch (err) {
+        console.error('Error loading notes:', err);
+        container.innerHTML = '<p class="text-red-500 text-center py-4">Failed to load notes. Please try again.</p>';
+      }
     }
 
-    // Load recent notices
-    loadNotices();
-  });
-
-  async function loadNotices() {
-    const container = document.getElementById('noticesList');
-    try {
-      const q = query(collection(db, 'notices'), orderBy('created_at', 'desc'), limit(5));
-      const snap = await getDocs(q);
-      container.innerHTML = '';
-      snap.forEach(doc => {
-        const n = doc.data();
-        container.innerHTML += `
-          <div class="border-l-4 border-indigo-500 pl-3 py-2">
-            <p class="font-semibold text-sm">${n.title}</p>
-            <p class="text-xs text-gray-500">${n.date || ''}</p>
+    // ========== RENDER NOTES ==========
+    function renderNotes(notes) {
+      const container = document.getElementById('notesList');
+      
+      if (notes.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8">
+            <i class="fas fa-book-open text-4xl text-gray-300 mb-3"></i>
+            <p class="text-gray-500">No notes available for your class yet.</p>
+            <p class="text-xs text-gray-400 mt-1">Check back later or contact your teacher.</p>
           </div>`;
-      });
-      if (snap.empty) container.innerHTML = '<p class="text-gray-400">No notices yet.</p>';
-    } catch (e) {
-      container.innerHTML = '<p class="text-red-500">Failed to load notices.</p>';
-    }
-  }
+        return;
+      }
 
-  document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await signOut(auth);
-    window.location.href = '/student-login.html';
-  });
-</script>
+      container.innerHTML = notes.map(n => `
+        <div class="border border-gray-200 rounded-xl p-4 hover:border-indigo-300 transition note-item" data-title="${n.title?.toLowerCase()}" data-subject="${n.subject?.toLowerCase()}">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold uppercase">${n.fileType || 'file'}</span>
+                <span class="text-xs text-gray-500">${n.subject}</span>
+                ${n.section !== 'all' ? `<span class="text-xs text-gray-400">• Section ${n.section}</span>` : ''}
+              </div>
+              <h3 class="font-semibold text-gray-900">${n.title}</h3>
+              ${n.description ? `<p class="text-sm text-gray-600 mt-1">${n.description}</p>` : ''}
+              <p class="text-xs text-gray-400 mt-2">
+                <i class="far fa-calendar-alt mr-1"></i>
+                ${n.uploadedAt?.toDate ? n.uploadedAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown date'}
+              </p>
+            </div>
+            <a href="${n.fileUrl}" target="_blank" 
+              class="ml-4 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition whitespace-nowrap">
+              <i class="fas fa-download mr-1"></i> Download
+            </a>
+          </div>
+        </div>
+      `).join('');
+
+      // Search functionality
+      document.getElementById('notesSearch').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        document.querySelectorAll('.note-item').forEach(item => {
+          const title = item.getAttribute('data-title') || '';
+          const subject = item.getAttribute('data-subject') || '';
+          if (title.includes(searchTerm) || subject.includes(searchTerm)) {
+            item.style.display = '';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    // ========== LOAD NOTICES ==========
+    async function loadNotices() {
+      const container = document.getElementById('noticesList');
+      try {
+        const q = query(collection(db, 'notices'), orderBy('created_at', 'desc'), limit(5));
+        const snap = await getDocs(q);
+        container.innerHTML = '';
+        snap.forEach(doc => {
+          const n = doc.data();
+          container.innerHTML += `
+            <div class="border-l-4 border-indigo-500 pl-3 py-2">
+              <p class="font-semibold text-sm">${n.title}</p>
+              <p class="text-xs text-gray-500">${n.date || ''}</p>
+              ${n.description ? `<p class="text-xs text-gray-600 mt-1">${n.description.substring(0, 80)}...</p>` : ''}
+            </div>`;
+        });
+        if (snap.empty) container.innerHTML = '<p class="text-gray-400 text-sm">No notices yet.</p>';
+      } catch (e) {
+        container.innerHTML = '<p class="text-red-500 text-sm">Failed to load notices.</p>';
+      }
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/student-login.html';
+    });
+  </script>
 </body>
 </html>
