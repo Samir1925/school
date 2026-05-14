@@ -190,15 +190,12 @@
       </form>
     </div>
   </div>
-
-  <script type="module">
-  import { auth, db } from "/assets/js/firebase-config.js";
+<script type="module">
+  import { auth, db, storage } from "/assets/js/firebase-config.js";
   import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { collection, getDocs, addDoc, deleteDoc, doc, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
   import { requireAdmin } from "/assets/js/admin-guard.js";
-
-  // 🔥 Replace with your imgbb API key
-  const IMGBB_API_KEY = "7fc4e70ff7c285b2e7c0ae7d1d60c4db";
 
   const mainArea = document.querySelector('main');
   const adminUser = await requireAdmin();
@@ -215,42 +212,28 @@
     setTimeout(() => toast.remove(), 3000);
   }
 
-  // ========== FILE UPLOAD FUNCTION ==========
-  async function uploadFile(file) {
-    const fileType = file.name.split('.').pop().toLowerCase();
-    
-    // For images → imgbb
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType)) {
-      const formData = new FormData();
-      formData.append('image', file);
+  // ========== UPLOAD TO FIREBASE STORAGE ==========
+  function uploadFile(file) {
+    return new Promise((resolve, reject) => {
+      const fileType = file.name.split('.').pop().toLowerCase();
+      const storageRef = ref(storage, `notes/${Date.now()}_${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
       
-      const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-        method: 'POST',
-        body: formData
-      });
-      
-      const result = await res.json();
-      if (!result.success) throw new Error(result.error?.message || 'Image upload failed');
-      return { url: result.data.url, type: fileType };
-    }
-    
-    // For PDFs and other files → tmpfiles.org
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    const res = await fetch('https://tmpfiles.org/api/v1/upload', {
-      method: 'POST',
-      body: formData
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          showToast(`Uploading: ${Math.round(progress)}%`);
+        },
+        (error) => {
+          console.error('Upload error:', error);
+          reject(error);
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve({ url: downloadURL, type: fileType });
+        }
+      );
     });
-    
-    if (!res.ok) throw new Error('Upload failed: HTTP ' + res.status);
-    
-    const result = await res.json();
-    
-    // Convert to direct download URL
-    const downloadUrl = result.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
-    
-    return { url: downloadUrl, type: fileType };
   }
 
   // ========== LOAD NOTES ==========
@@ -305,8 +288,6 @@
 
   window.openModal = () => {
     document.getElementById('noteForm').reset();
-    const fileNameDisplay = document.getElementById('fileName');
-    if (fileNameDisplay) fileNameDisplay.classList.add('hidden');
     document.getElementById('noteModal').classList.remove('hidden');
   };
   window.closeModal = () => document.getElementById('noteModal').classList.add('hidden');
@@ -318,7 +299,7 @@
     showToast('Note deleted');
   }
 
-  // ========== UPLOAD HANDLER ==========
+  // ========== HANDLE UPLOAD ==========
   document.getElementById('noteForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button[type="submit"]');
@@ -336,20 +317,11 @@
       return;
     }
 
-    // Check file size (32MB max)
-    if (file.size > 32 * 1024 * 1024) {
-      showToast('File too large (max 32MB)', true);
-      btn.disabled = false;
-      btn.innerHTML = originalText;
-      return;
-    }
-
     try {
-      // Upload the file
-      showToast('Uploading file...');
+      // Upload to Firebase Storage
       const { url, type } = await uploadFile(file);
 
-      // Save metadata to Firestore
+      // Save to Firestore
       await addDoc(collection(db, 'notes'), {
         title: document.getElementById('title').value.trim(),
         subject: document.getElementById('subject').value.trim(),
@@ -365,10 +337,10 @@
 
       closeModal();
       loadNotes();
-      showToast('✅ Note uploaded successfully!');
+      showToast('✅ Note uploaded!');
     } catch (err) {
-      console.error('Upload error:', err);
-      showToast('Upload failed: ' + err.message, true);
+      console.error('Error:', err);
+      showToast('Error: ' + err.message, true);
     } finally {
       btn.disabled = false;
       btn.innerHTML = originalText;
