@@ -175,190 +175,53 @@
 
   <!-- Scripts -->
   <script type="module">
-    import { auth, db } from "/assets/js/firebase-config.js";
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { doc, getDoc, collection, query, orderBy, limit, getDocs, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { auth, db } from "/assets/js/firebase-config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { doc, getDoc, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // Hide loader
-    function hideLoader() {
-      const loader = document.getElementById('global-loader');
-      if (loader) {
-        loader.classList.add('hidden');
-        setTimeout(() => loader.remove(), 600);
-      }
-    }
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return window.location.href = '/student-login.html';
 
-    // Student data
-    let studentData = null;
-    let allNotes = [];
+  // Fetch everything in parallel
+  const [studentSnap, settingsSnap] = await Promise.all([
+    getDoc(doc(db, 'students', user.uid)),
+    getDoc(doc(db, 'site_settings', 'singleton'))
+  ]);
 
-    // Auth guard
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = '/student-login.html';
-        return;
-      }
+  const studentData = studentSnap.exists() ? studentSnap.data() : null;
+  const settings = settingsSnap.exists() ? settingsSnap.data() : null;
 
-      // Extract School ID from email
-      const schoolId = user.email?.split('@')[0];
-      document.getElementById('studentName').textContent = user.displayName || schoolId || 'Student';
-      document.getElementById('studentSchoolId').textContent = schoolId || '—';
+  if (!studentData) {
+    console.error('Student record not found');
+    return;
+  }
 
-      // Load student data from Firestore
-      const studentSnap = await getDoc(doc(db, 'students', user.uid));
-      if (studentSnap.exists()) {
-        studentData = studentSnap.data();
-        
-        document.getElementById('studentGrade').textContent = studentData.grade || '—';
-        document.getElementById('studentSection').textContent = studentData.section || '—';
-        document.getElementById('feeStatus').textContent = studentData.feeStatus || 'N/A';
-        document.getElementById('notesInfo').textContent = 
-          `Showing notes for Grade ${studentData.grade}${studentData.section && studentData.section !== 'all' ? ' - Section ' + studentData.section : ''}`;
+  // Fetch notes, notices, results in parallel
+  const grade = studentData.grade;
+  const section = studentData.section || 'A';
 
-        // ✅ Load notes ONLY for this student's grade & section
-        loadNotesForStudent(studentData.grade, studentData.section || 'A');
-      } else {
-        document.getElementById('studentGrade').textContent = 'Not assigned';
-        document.getElementById('studentSection').textContent = '—';
-      }
+  const [notesSnap1, notesSnap2, noticesSnap, resultsSnap, feesSnap] = await Promise.all([
+    getDocs(query(collection(db, 'notes'), where('grade', '==', grade), where('section', '==', section), orderBy('uploadedAt', 'desc'))),
+    getDocs(query(collection(db, 'notes'), where('grade', '==', grade), where('section', '==', 'all'), orderBy('uploadedAt', 'desc'))),
+    getDocs(query(collection(db, 'notices'), orderBy('created_at', 'desc'))),
+    getDocs(query(collection(db, 'results'), where('studentId', '==', user.uid))),
+    getDocs(query(collection(db, 'fees'), where('studentId', '==', user.uid)))
+  ]);
 
-      // Load recent notices
-      loadNotices();
-      
-      // Hide loader after everything
-      hideLoader();
-    });
+  // Merge notes
+  const notes = [];
+  notesSnap1.forEach(d => notes.push({ id: d.id, ...d.data() }));
+  notesSnap2.forEach(d => { if (!notes.find(n => n.id === d.id)) notes.push({ id: d.id, ...d.data() }); });
 
-    // ========== LOAD NOTES FOR STUDENT'S CLASS ==========
-    async function loadNotesForStudent(grade, section) {
-      const container = document.getElementById('notesList');
-      
-      try {
-        // Query notes for this grade AND (this section OR 'all' sections)
-        // Firestore doesn't support OR queries directly, so we do two queries
-        
-        // 1. Notes for this grade + this specific section
-        const q1 = query(
-          collection(db, 'notes'),
-          where('grade', '==', grade),
-          where('section', '==', section),
-          orderBy('uploadedAt', 'desc')
-        );
-        
-        // 2. Notes for this grade + all sections
-        const q2 = query(
-          collection(db, 'notes'),
-          where('grade', '==', grade),
-          where('section', '==', 'all'),
-          orderBy('uploadedAt', 'desc')
-        );
+  const notices = []; noticesSnap.forEach(d => notices.push({ id: d.id, ...d.data() }));
+  const results = []; resultsSnap.forEach(d => results.push({ id: d.id, ...d.data() }));
+  const fees = []; feesSnap.forEach(d => fees.push({ id: d.id, ...d.data() }));
 
-        const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
-        
-        // Merge results
-        allNotes = [];
-        snap1.forEach(doc => allNotes.push({ id: doc.id, ...doc.data() }));
-        snap2.forEach(doc => {
-          // Avoid duplicates
-          if (!allNotes.find(n => n.id === doc.id)) {
-            allNotes.push({ id: doc.id, ...doc.data() });
-          }
-        });
-
-        // Sort by date (newest first)
-        allNotes.sort((a, b) => {
-          const dateA = a.uploadedAt?.seconds || 0;
-          const dateB = b.uploadedAt?.seconds || 0;
-          return dateB - dateA;
-        });
-
-        renderNotes(allNotes);
-        
-      } catch (err) {
-        console.error('Error loading notes:', err);
-        container.innerHTML = '<p class="text-red-500 text-center py-4">Failed to load notes. Please try again.</p>';
-      }
-    }
-
-    // ========== RENDER NOTES ==========
-    function renderNotes(notes) {
-      const container = document.getElementById('notesList');
-      
-      if (notes.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-8">
-            <i class="fas fa-book-open text-4xl text-gray-300 mb-3"></i>
-            <p class="text-gray-500">No notes available for your class yet.</p>
-            <p class="text-xs text-gray-400 mt-1">Check back later or contact your teacher.</p>
-          </div>`;
-        return;
-      }
-
-      container.innerHTML = notes.map(n => `
-        <div class="border border-gray-200 rounded-xl p-4 hover:border-indigo-300 transition note-item" data-title="${n.title?.toLowerCase()}" data-subject="${n.subject?.toLowerCase()}">
-          <div class="flex justify-between items-start">
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold uppercase">${n.fileType || 'file'}</span>
-                <span class="text-xs text-gray-500">${n.subject}</span>
-                ${n.section !== 'all' ? `<span class="text-xs text-gray-400">• Section ${n.section}</span>` : ''}
-              </div>
-              <h3 class="font-semibold text-gray-900">${n.title}</h3>
-              ${n.description ? `<p class="text-sm text-gray-600 mt-1">${n.description}</p>` : ''}
-              <p class="text-xs text-gray-400 mt-2">
-                <i class="far fa-calendar-alt mr-1"></i>
-                ${n.uploadedAt?.toDate ? n.uploadedAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown date'}
-              </p>
-            </div>
-            <a href="${n.fileUrl}" target="_blank" 
-              class="ml-4 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition whitespace-nowrap">
-              <i class="fas fa-download mr-1"></i> Download
-            </a>
-          </div>
-        </div>
-      `).join('');
-
-      // Search functionality
-      document.getElementById('notesSearch').addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        document.querySelectorAll('.note-item').forEach(item => {
-          const title = item.getAttribute('data-title') || '';
-          const subject = item.getAttribute('data-subject') || '';
-          if (title.includes(searchTerm) || subject.includes(searchTerm)) {
-            item.style.display = '';
-          } else {
-            item.style.display = 'none';
-          }
-        });
-      });
-    }
-
-    // ========== LOAD NOTICES ==========
-    async function loadNotices() {
-      const container = document.getElementById('noticesList');
-      try {
-        const q = query(collection(db, 'notices'), orderBy('created_at', 'desc'), limit(5));
-        const snap = await getDocs(q);
-        container.innerHTML = '';
-        snap.forEach(doc => {
-          const n = doc.data();
-          container.innerHTML += `
-            <div class="border-l-4 border-indigo-500 pl-3 py-2">
-              <p class="font-semibold text-sm">${n.title}</p>
-              <p class="text-xs text-gray-500">${n.date || ''}</p>
-              ${n.description ? `<p class="text-xs text-gray-600 mt-1">${n.description.substring(0, 80)}...</p>` : ''}
-            </div>`;
-        });
-        if (snap.empty) container.innerHTML = '<p class="text-gray-400 text-sm">No notices yet.</p>';
-      } catch (e) {
-        container.innerHTML = '<p class="text-red-500 text-sm">Failed to load notices.</p>';
-      }
-    }
-
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.href = '/student-login.html';
-    });
+  // Now you have ALL data:
+  console.log({ studentData, settings, notes, notices, results, fees });
+  
+  // Update your UI here...
+});
   </script>
 </body>
 </html>
