@@ -3,435 +3,319 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About Us – G Star English Boarding School</title>
-  <meta name="description" content="Learn more about G Star English Boarding School – our history, mission, and dedicated teachers with contact details." />
-  <link rel="icon" href="/assets/images/favicon.ico" />
-
-  <!-- Tailwind CSS -->
+  <title>Teachers | Springdale Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <!-- GSAP & ScrollTrigger -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
-
   <style>
-    .fade-up {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: all 0.8s ease;
-    }
-    .fade-up.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    /* Loading overlay */
-    #global-loader {
-      position: fixed;
-      inset: 0;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.5s ease;
-    }
-    #global-loader.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    /* Constrain logo height to avoid navbar overlap */
-    .site-logo {
-      height: 2.5rem;
-      width: auto;
-      flex-shrink: 0;
-    }
-
-    /* Teacher card hover effect */
-    .teacher-card {
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .teacher-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.1);
-    }
+    .sidebar-link { transition: background 0.2s, padding-left 0.2s; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.1); padding-left: 1.2rem; }
   </style>
 </head>
-<body class="font-sans antialiased">
+<body class="bg-gray-100 font-sans antialiased">
 
-  <!-- ===== LOADING OVERLAY ===== -->
-  <div id="global-loader">
-    <div class="text-center">
-      <i class="fas fa-spinner fa-spin text-5xl text-indigo-600 mb-4"></i>
-      <p class="text-gray-600 text-lg">Loading about us…</p>
+  <!-- Layout: Sidebar + Main -->
+  <div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar (same as other admin pages) -->
+    <aside class="w-64 bg-indigo-900 text-white flex flex-col shadow-2xl">
+      <div class="p-6 border-b border-indigo-700">
+        <h2 class="text-2xl font-bold flex items-center gap-2"><i class="fas fa-graduation-cap"></i> Springdale</h2>
+        <p class="text-indigo-300 text-xs mt-1">Admin Panel</p>
+      </div>
+      <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+        <a href="dashboard.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-th-large w-5"></i> Dashboard
+        </a>
+        <a href="settings.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-cog w-5"></i> Site Settings
+        </a>
+        <a href="notices.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-bullhorn w-5"></i> Notices
+        </a>
+        <a href="students.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-user-graduate w-5"></i> Students
+        </a>
+        <a href="teachers.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg bg-indigo-800">
+          <i class="fas fa-chalkboard-teacher w-5"></i> Teachers
+        </a>
+        <a href="admissions.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-file-alt w-5"></i> Applications
+        </a>
+        <a href="media.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-images w-5"></i> Media
+        </a>
+        <a href="users.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-users-cog w-5"></i> Users
+        </a>
+      </nav>
+      <div class="p-4 border-t border-indigo-700">
+        <button id="logoutBtn" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-red-300 w-full">
+          <i class="fas fa-sign-out-alt w-5"></i> Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">👩‍🏫 Teachers</h1>
+        <button onclick="openModal()" class="px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl shadow hover:bg-indigo-700 transition">
+          <i class="fas fa-plus mr-2"></i> Add Teacher
+        </button>
+      </div>
+
+      <!-- Teachers Table -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="p-4">Photo</th>
+              <th class="p-4">Name</th>
+              <th class="p-4">Subject</th>
+              <th class="p-4">Email</th>
+              <th class="p-4">Contact</th>
+              <th class="p-4">Bio</th>
+              <th class="p-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="7" class="p-4 text-center text-gray-400">Loading teachers...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add / Edit Teacher Modal -->
+  <div id="teacherModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+      <h2 class="text-xl font-bold mb-4" id="modalTitle">Add Teacher</h2>
+      <form id="teacherForm" class="space-y-4">
+        <input type="hidden" id="teacherId" />
+
+        <div>
+          <label class="block text-sm font-medium">Name</label>
+          <input type="text" id="name" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" required />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium">Subject</label>
+          <input type="text" id="subject" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" required />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium">Email</label>
+          <input type="email" id="email" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium">Contact Number</label>
+          <input type="tel" id="contact" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium">Bio</label>
+          <textarea id="bio" rows="3" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400"></textarea>
+        </div>
+
+        <!-- Profile Photo -->
+        <div>
+          <label class="block text-sm font-medium">Profile Photo</label>
+          <div class="flex items-center gap-4 mt-2">
+            <img id="photoPreview" src="" alt="Preview" class="h-16 w-16 rounded-full object-cover border-2 border-indigo-200 hidden" />
+            <label class="cursor-pointer px-4 py-2 bg-indigo-100 text-indigo-700 rounded-xl hover:bg-indigo-200 transition text-sm">
+              <i class="fas fa-camera mr-1"></i> Choose Photo
+              <input type="file" id="photoFile" accept="image/*" class="hidden" />
+            </label>
+          </div>
+          <!-- Option to provide URL manually -->
+          <input type="url" id="photoUrl" placeholder="Or paste image URL" class="w-full mt-2 p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
+        </div>
+
+        <div class="flex gap-3 justify-end mt-6">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl text-gray-600 hover:bg-gray-100">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700">Save</button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <!-- ===== NAVBAR ===== -->
-  <nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 shadow-sm" id="navbar">
-    <div class="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
-      <a href="/" class="flex items-center gap-2">
-        <img src="/assets/images/logo.png" alt="Logo" class="site-logo" data-setting="logo_url" />
-        <span class="text-xl font-bold text-gray-900" data-setting="school_name">G Star</span>
-      </a>
-      <div class="hidden md:flex space-x-8">
-        <a href="/about.html" class="text-indigo-600 font-medium">About</a>
-        <a href="/academics.html" class="text-gray-700 hover:text-indigo-600 font-medium">Academics</a>
-        <a href="/admission.html" class="text-gray-700 hover:text-indigo-600 font-medium">Admission</a>
-        <a href="/student-life.html" class="text-gray-700 hover:text-indigo-600 font-medium">Student Life</a>
-        <a href="/gallery.html" class="text-gray-700 hover:text-indigo-600 font-medium">Gallery</a>
-        <a href="/contact.html" class="text-gray-700 hover:text-indigo-600 font-medium">Contact</a>
-      </div>
-      <div class="md:hidden">
-        <button id="menu-toggle" class="text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
-      </div>
-    </div>
-    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
-      <a href="/about.html" class="block px-6 py-3 text-indigo-600 font-semibold">About</a>
-      <a href="/academics.html" class="block px-6 py-3 hover:bg-gray-50">Academics</a>
-      <a href="/admission.html" class="block px-6 py-3 hover:bg-gray-50">Admission</a>
-      <a href="/student-life.html" class="block px-6 py-3 hover:bg-gray-50">Student Life</a>
-      <a href="/gallery.html" class="block px-6 py-3 hover:bg-gray-50">Gallery</a>
-      <a href="/contact.html" class="block px-6 py-3 hover:bg-gray-50">Contact</a>
-    </div>
-  </nav>
-
-  <!-- ===== HERO SECTION ===== -->
-  <section class="pt-28 pb-16 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-      <h1 class="text-5xl font-bold mb-4">About <span data-setting="school_name">Our School</span></h1>
-      <p class="text-xl opacity-90">Discover our story, our values, and the passionate educators behind our success.</p>
-    </div>
-  </section>
-
-  <!-- ===== ABOUT TEXT & ADDRESS ===== -->
-  <section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-      <div class="fade-up">
-        <h2 class="text-4xl font-bold text-gray-900 mb-6">Welcome to <span data-setting="school_name">G Star</span></h2>
-        <div id="about-text" class="text-lg text-gray-600 space-y-4"></div>
-        <div class="mt-8 flex flex-col gap-2 text-gray-700">
-          <p><i class="fas fa-map-marker-alt w-6 text-indigo-600"></i> <span data-setting="address">Gaur 5, Rautahat</span></p>
-          <p><i class="fas fa-phone w-6 text-indigo-600"></i> <a data-setting="phone" href="tel:+977-9800000000">+977-9800000000</a></p>
-          <p><i class="fas fa-envelope w-6 text-indigo-600"></i> <a data-setting="email" href="mailto:info@gsstar.edu.np">info@gsstar.edu.np</a></p>
-        </div>
-      </div>
-      <div class="fade-up">
-        <img src="https://images.unsplash.com/photo-1541339907198-e1689bb996bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="School building" class="rounded-2xl shadow-2xl w-full" />
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== MISSION & VISION ===== -->
-  <section class="py-20 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="grid md:grid-cols-2 gap-12">
-        <div class="fade-up bg-white p-8 rounded-2xl shadow-lg">
-          <h3 class="text-2xl font-bold text-indigo-600 mb-4">🎯 Our Mission</h3>
-          <p class="text-gray-600">To provide a transformative education that fosters intellectual curiosity, ethical character, and global citizenship.</p>
-        </div>
-        <div class="fade-up bg-white p-8 rounded-2xl shadow-lg">
-          <h3 class="text-2xl font-bold text-indigo-600 mb-4">🔭 Our Vision</h3>
-          <p class="text-gray-600">A vibrant learning community where every student is empowered to shape a better world.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== HISTORY TIMELINE ===== -->
-  <section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4">
-      <h2 class="text-4xl font-bold text-center text-gray-900 mb-16">Our Journey</h2>
-      <div class="space-y-12">
-        <div class="flex flex-col md:flex-row gap-8 items-center fade-up">
-          <div class="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center text-3xl font-bold text-indigo-600">2065</div>
-          <div class="flex-1">
-            <h3 class="text-2xl font-semibold">Founded</h3>
-            <p class="text-gray-600">G Star began with 50 students and a vision for excellence.</p>
-          </div>
-        </div>
-        <div class="flex flex-col md:flex-row gap-8 items-center fade-up">
-          <div class="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center text-3xl font-bold text-indigo-600">2065</div>
-          <div class="flex-1">
-            <h3 class="text-2xl font-semibold">First SEE Batch</h3>
-            <p class="text-gray-600">Our first cohort achieved 100% pass rate.</p>
-          </div>
-        </div>
-        <div class="flex flex-col md:flex-row gap-8 items-center fade-up">
-          <div class="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center text-3xl font-bold text-indigo-600">2024</div>
-          <div class="flex-1">
-            <h3 class="text-2xl font-semibold">Campus Expansion</h3>
-            <p class="text-gray-600">Added new science labs and a sports complex.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== TEACHERS SECTION (Dynamic: Photo + Contact from DB) ===== -->
-  <section class="py-20 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4">
-      <h2 class="text-4xl font-bold text-center text-gray-900 mb-6">Meet Our Dedicated Teachers</h2>
-      <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">Our educators bring expertise, warmth, and commitment. Reach out to them directly via contact details below.</p>
-      <div id="teachers-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <p class="col-span-full text-center text-gray-500">Loading teachers…</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== FOOTER ===== -->
-  <footer class="bg-gray-900 text-white py-12">
-    <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
-      <div>
-        <h3 class="text-2xl font-bold mb-4" data-setting="school_name">G Star Academy</h3>
-        <p data-setting="address">Gaur 5, Rautahat</p>
-        <p><a data-setting="phone" href="tel:+977-9800000000">+977-9800000000</a></p>
-        <p><a data-setting="email" href="mailto:info@gsstar.edu.np">info@gsstar.edu.np</a></p>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">Quick Links</h4>
-        <ul class="space-y-2">
-          <li><a href="/about.html" class="text-gray-400 hover:text-white">About</a></li>
-          <li><a href="/academics.html" class="text-gray-400 hover:text-white">Academics</a></li>
-          <li><a href="/admission.html" class="text-gray-400 hover:text-white">Admission</a></li>
-          <li><a href="/contact.html" class="text-gray-400 hover:text-white">Contact</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">Follow Us</h4>
-        <div class="flex space-x-4 text-2xl">
-          <a href="#" id="fb-link" class="hover:text-indigo-400"><i class="fab fa-facebook"></i></a>
-          <a href="#" id="ig-link" class="hover:text-indigo-400"><i class="fab fa-instagram"></i></a>
-          <a href="#" id="yt-link" class="hover:text-indigo-400"><i class="fab fa-youtube"></i></a>
-        </div>
-      </div>
-    </div>
-    <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500 text-sm">
-      &copy; <span data-setting="school_name">G Star English Boarding School</span>. All rights reserved.
-    </div>
-  </footer>
-
-  <!-- ===== FIREBASE + SCRIPTS ===== -->
-  <!-- Firebase SDKs (v10) -->
+  <!-- Firebase + Logic -->
   <script type="module">
-    // Import Firebase modules from CDN (if your existing config uses local files, this ensures Firestore is available)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    
-    // ----- IMPORTANT: Replace with your actual Firebase config -----
-    // This uses the same structure as your existing firebase-config.js
-    // For this page to work, please ensure your firebase project has a "teachers" collection.
-    // The images can be from imgbb URLs (already supported).
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+    import { auth, db } from "/assets/js/firebase-config.js";
+    import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { requireAdmin } from "/assets/js/admin-guard.js";
+
+    // imgbb API key (for photo uploads) – same as you use for media
+    const IMGBB_API_KEY = "YOUR_IMGBB_API_KEY"; // 🔥 Replace with your key
+
+    const mainArea = document.querySelector('main');
+    const user = await requireAdmin();
+    if (!user) {
+      mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2></div>`;
+      throw new Error('Not admin');
+    }
+
+    // Toast
+    function showToast(msg, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Load teachers from Firestore
+    async function loadTeachers() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      const snap = await getDocs(collection(db, 'teachers'));
+      if (snap.empty) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500">No teachers added yet.</td></tr>';
+        return;
+      }
+      snap.forEach(docSnap => {
+        const t = docSnap.data();
+        const row = document.createElement('tr');
+        row.className = 'border-t';
+        row.innerHTML = `
+          <td class="p-4">
+            <img src="${t.image || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="${t.name}" class="w-10 h-10 rounded-full object-cover" />
+          </td>
+          <td class="p-4 font-medium">${t.name}</td>
+          <td class="p-4">${t.subject}</td>
+          <td class="p-4">${t.email || '—'}</td>
+          <td class="p-4">${t.contact || '—'}</td>
+          <td class="p-4">${(t.bio || '').substring(0, 50)}…</td>
+          <td class="p-4 flex gap-2">
+            <button class="text-indigo-600 edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
+            <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
+          </td>`;
+        tbody.appendChild(row);
+      });
+      document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
+      document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteTeacher));
+    }
+    loadTeachers();
+
+    // Modal functions
+    window.openModal = () => {
+      document.getElementById('modalTitle').textContent = 'Add Teacher';
+      document.getElementById('teacherForm').reset();
+      document.getElementById('teacherId').value = '';
+      document.getElementById('photoPreview').classList.add('hidden');
+      document.getElementById('teacherModal').classList.remove('hidden');
     };
-    
-    // If you have a local firebase-config.js that exports db, you can uncomment the lines below
-    // and comment out the above initialization. But for standalone demonstration we use dynamic init.
-    // For production, keep your existing imports: import { db } from "/assets/js/firebase-config.js";
-    // We'll attempt to use existing db if available, else create fallback.
-    
-    let db;
-    try {
-      // Try to import from your local config (if the file exists and exports db)
-      const module = await import("/assets/js/firebase-config.js");
-      db = module.db;
-      console.log("✅ Using existing Firebase config from /assets/js/firebase-config.js");
-    } catch (err) {
-      console.warn("⚠️ Local firebase-config.js not found, using inline config. Please update with your credentials.");
-      // For demo, if inline config is incomplete, we show mock teachers with placeholder images.
-      const app = initializeApp(firebaseConfig);
-      db = getFirestore(app);
-    }
-    
-    // Helper: Load site settings (from your local module if exists)
-    async function loadSiteSettings() {
-      try {
-        const module = await import("/assets/js/site-settings.js");
-        if (module.loadSiteSettings) {
-          return await module.loadSiteSettings();
-        }
-      } catch (e) {
-        console.log("Using default site settings (site-settings.js not found)");
+    window.closeModal = () => document.getElementById('teacherModal').classList.add('hidden');
+
+    // Edit teacher
+    async function openEdit(e) {
+      const id = e.currentTarget.dataset.id;
+      const snap = await getDoc(doc(db, 'teachers', id));
+      if (!snap.exists()) return;
+      const t = snap.data();
+      document.getElementById('teacherId').value = id;
+      document.getElementById('name').value = t.name || '';
+      document.getElementById('subject').value = t.subject || '';
+      document.getElementById('email').value = t.email || '';
+      document.getElementById('contact').value = t.contact || '';
+      document.getElementById('bio').value = t.bio || '';
+      document.getElementById('photoUrl').value = t.image || '';
+      if (t.image) {
+        document.getElementById('photoPreview').src = t.image;
+        document.getElementById('photoPreview').classList.remove('hidden');
+      } else {
+        document.getElementById('photoPreview').classList.add('hidden');
       }
-      return null;
+      document.getElementById('modalTitle').textContent = 'Edit Teacher';
+      document.getElementById('teacherModal').classList.remove('hidden');
     }
-    
-    // Animation observer (reusable)
-    function refreshAnimations() {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
+
+    // Delete teacher
+    async function deleteTeacher(e) {
+      if (!confirm('Delete this teacher?')) return;
+      await deleteDoc(doc(db, 'teachers', e.currentTarget.dataset.id));
+      loadTeachers();
+      showToast('Teacher deleted');
+    }
+
+    // Photo preview when file selected
+    document.getElementById('photoFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          document.getElementById('photoPreview').src = ev.target.result;
+          document.getElementById('photoPreview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Form submit – save teacher
+    document.getElementById('teacherForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('teacherId').value;
+      const name = document.getElementById('name').value;
+      const subject = document.getElementById('subject').value;
+      const email = document.getElementById('email').value;
+      const contact = document.getElementById('contact').value;
+      const bio = document.getElementById('bio').value;
+
+      let imageUrl = document.getElementById('photoUrl').value.trim();
+      const photoFile = document.getElementById('photoFile').files[0];
+
+      // Upload photo to imgbb if chosen
+      if (photoFile) {
+        const formData = new FormData();
+        formData.append('image', photoFile);
+        try {
+          const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+            method: 'POST',
+            body: formData
+          });
+          const result = await res.json();
+          if (result.success) {
+            imageUrl = result.data.url;
+          } else {
+            showToast('Photo upload failed: ' + result.error.message, true);
+            return;
           }
-        });
-      }, { threshold: 0.15 });
-      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-    }
-    
-    function hideLoader() {
-      const loader = document.getElementById('global-loader');
-      if (loader) {
-        loader.classList.add('hidden');
-        setTimeout(() => loader.remove(), 600);
-      }
-    }
-    
-    const safetyTimer = setTimeout(hideLoader, 10000);
-    
-    // Load teachers with PROFILE PHOTO & CONTACT NUMBER from Firestore
-    async function loadTeachersFromDB() {
-      const container = document.getElementById('teachers-container');
-      if (!container) return;
-      try {
-        const teachersCol = collection(db, 'teachers');
-        const snapshot = await getDocs(teachersCol);
-        container.innerHTML = '';
-        
-        if (snapshot.empty) {
-          container.innerHTML = '<p class="col-span-full text-center text-gray-500">No teacher profiles available yet. Please check back later.</p>';
+        } catch (err) {
+          showToast('Photo upload error: ' + err.message, true);
           return;
         }
-        
-        snapshot.forEach(doc => {
-          const teacher = doc.data();
-          // Fields: name (required), subject, bio, image (imgbb url), phone (contact number)
-          const name = teacher.name || 'Educator';
-          const subject = teacher.subject || 'Faculty';
-          const bio = teacher.bio || 'Passionate about shaping young minds.';
-          // Profile photo - supports imgbb URLs (already stored in Firestore)
-          const photoUrl = teacher.image || 'https://randomuser.me/api/portraits/lego/1.jpg';
-          // Contact number from database (phone field)
-          const phone = teacher.phone || teacher.contact || null;
-          
-          const card = document.createElement('div');
-          card.className = 'teacher-card bg-white p-6 rounded-2xl shadow-md fade-up text-center transition-all duration-300';
-          card.innerHTML = `
-            <div class="relative w-28 h-28 mx-auto mb-4">
-              <img src="${photoUrl}" alt="${name}" class="w-28 h-28 rounded-full object-cover border-4 border-indigo-100 shadow-md" onerror="this.src='https://ui-avatars.com/api/?background=6366f1&color=fff&name=${encodeURIComponent(name)}'">
-            </div>
-            <h3 class="text-xl font-bold text-gray-800">${escapeHtml(name)}</h3>
-            <p class="text-indigo-600 font-medium mt-1">${escapeHtml(subject)}</p>
-            <p class="text-gray-600 text-sm mt-3 px-2">${escapeHtml(bio)}</p>
-            <div class="mt-4 pt-3 border-t border-gray-100">
-              ${phone ? `
-                <div class="flex items-center justify-center gap-2 text-gray-700 text-sm">
-                  <i class="fas fa-phone-alt text-indigo-500"></i>
-                  <a href="tel:${encodeURIComponent(phone)}" class="hover:text-indigo-600 transition">${escapeHtml(phone)}</a>
-                </div>
-              ` : `
-                <div class="flex items-center justify-center gap-2 text-gray-400 text-sm">
-                  <i class="fas fa-phone-slash"></i>
-                  <span>Contact not listed</span>
-                </div>
-              `}
-            </div>
-          `;
-          container.appendChild(card);
-        });
-        
-        // Re-trigger fade-in animations for newly added cards
-        refreshAnimations();
-      } catch (err) {
-        console.error("Error fetching teachers:", err);
-        container.innerHTML = '<p class="col-span-full text-center text-red-500">Unable to load teacher directory. Please refresh or try later.</p>';
       }
-    }
-    
-    // Escape HTML to avoid injection
-    function escapeHtml(str) {
-      if (!str) return '';
-      return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-      }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-        return c;
-      });
-    }
-    
-    // Main execution
-    (async () => {
+
+      const teacherData = {
+        name,
+        subject,
+        email,
+        contact,
+        bio,
+        image: imageUrl || null
+      };
+
       try {
-        // Load dynamic settings (school name, about text, etc.)
-        const settings = await loadSiteSettings();
-        const aboutDiv = document.getElementById('about-text');
-        if (settings && settings.about_text) {
-          aboutDiv.innerHTML = `<p>${escapeHtml(settings.about_text)}</p>`;
+        if (id) {
+          await updateDoc(doc(db, 'teachers', id), teacherData);
         } else {
-          aboutDiv.innerHTML = `
-            <p>G Star English Boarding School was founded with a dream: to provide quality education in a nurturing environment. Over the years, we have grown into a family of dedicated teachers, enthusiastic students, and supportive parents.</p>
-            <p>We believe that education goes beyond textbooks – it’s about building character, creativity, and confidence. Our campus is a safe, inclusive space where every child can discover their potential.</p>
-            <p>Join us as we continue to shape future leaders with values and vision.</p>`;
+          await addDoc(collection(db, 'teachers'), teacherData);
         }
-        
-        // Populate school name, address, phone, email from settings if available
-        if (settings) {
-          const schoolNameElements = document.querySelectorAll('[data-setting="school_name"]');
-          schoolNameElements.forEach(el => { if (settings.school_name) el.innerText = settings.school_name; });
-          const addressEl = document.querySelector('[data-setting="address"]');
-          if (addressEl && settings.address) addressEl.innerText = settings.address;
-          const phoneEl = document.querySelector('[data-setting="phone"]');
-          if (phoneEl && settings.phone) {
-            phoneEl.innerText = settings.phone;
-            phoneEl.setAttribute('href', `tel:${settings.phone}`);
-          }
-          const emailEl = document.querySelector('[data-setting="email"]');
-          if (emailEl && settings.email) {
-            emailEl.innerText = settings.email;
-            emailEl.setAttribute('href', `mailto:${settings.email}`);
-          }
-        }
-        
-        // Load teachers (with photo and contact number from DB)
-        await loadTeachersFromDB();
-        
-        // Additional fade-up for static elements
-        refreshAnimations();
-        
-        // Mobile menu toggle
-        const menuBtn = document.getElementById('menu-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-        if (menuBtn && mobileMenu) {
-          menuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-          });
-        }
-        
-        // Social links (optional, can be set via settings)
-        if (settings) {
-          if (settings.facebook) document.getElementById('fb-link')?.setAttribute('href', settings.facebook);
-          if (settings.instagram) document.getElementById('ig-link')?.setAttribute('href', settings.instagram);
-          if (settings.youtube) document.getElementById('yt-link')?.setAttribute('href', settings.youtube);
-        }
-        
+        closeModal();
+        loadTeachers();
+        showToast('Teacher saved!');
       } catch (err) {
-        console.error('Error initializing about page:', err);
-        const aboutDiv = document.getElementById('about-text');
-        if (aboutDiv && !aboutDiv.innerHTML.trim()) {
-          aboutDiv.innerHTML = `<p>Welcome to G Star English Boarding School. We are dedicated to excellence in education.</p>`;
-        }
-        // Still try to load teachers if possible
-        try { await loadTeachersFromDB(); } catch(e) { console.error(e); }
-      } finally {
-        clearTimeout(safetyTimer);
-        hideLoader();
+        showToast('Error saving: ' + err.message, true);
       }
-    })();
-  </script>
-  
-  <!-- Ensure that if local imports fail, the inline logic handles everything gracefully -->
-  <script nomodule>
-    // Fallback for older browsers (not needed but safe)
-    console.log("Non-module fallback");
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/admin/index.html';
+    });
   </script>
 </body>
 </html>
