@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard – G Star School</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .card {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <h1 class="text-xl font-bold text-indigo-700" data-setting="school_name">Student Portal</h1>
+      <div class="flex items-center gap-4">
+        <span id="studentName" class="text-gray-700 font-medium"></span>
+        <button id="logoutBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+          <i class="fas fa-sign-out-alt mr-1"></i> Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto p-6">
+    
+    <!-- Welcome & Quick Info -->
+    <div class="grid md:grid-cols-3 gap-6 mb-8">
+      <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+            <i class="fas fa-graduation-cap text-indigo-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Grade</p>
+            <p class="text-xl font-bold" id="studentGrade">—</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+            <i class="fas fa-wallet text-green-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Fee Status</p>
+            <p class="text-xl font-bold" id="feeStatus">—</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+            <i class="fas fa-star text-amber-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Attendance</p>
+            <p class="text-xl font-bold" id="attendance">—</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notices & Quick Links -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Recent Notices -->
+      <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">
+          <i class="fas fa-bullhorn text-indigo-600 mr-2"></i> Recent Notices
+        </h2>
+        <div id="noticesList" class="space-y-3">
+          <p class="text-gray-500">Loading...</p>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">
+          <i class="fas fa-link text-indigo-600 mr-2"></i> Quick Links
+        </h2>
+        <div class="grid grid-cols-2 gap-4">
+          <a href="#" class="p-4 bg-indigo-50 rounded-xl text-center hover:bg-indigo-100 transition">
+            <i class="fas fa-book text-2xl text-indigo-600 mb-2"></i>
+            <p class="text-sm font-medium">Notes</p>
+          </a>
+          <a href="#" class="p-4 bg-green-50 rounded-xl text-center hover:bg-green-100 transition">
+            <i class="fas fa-chart-bar text-2xl text-green-600 mb-2"></i>
+            <p class="text-sm font-medium">Results</p>
+          </a>
+          <a href="/gallery.html" class="p-4 bg-amber-50 rounded-xl text-center hover:bg-amber-100 transition">
+            <i class="fas fa-images text-2xl text-amber-600 mb-2"></i>
+            <p class="text-sm font-medium">Gallery</p>
+          </a>
+          <a href="/contact.html" class="p-4 bg-purple-50 rounded-xl text-center hover:bg-purple-100 transition">
+            <i class="fas fa-envelope text-2xl text-purple-600 mb-2"></i>
+            <p class="text-sm font-medium">Contact</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+<script type="module">
+  import { auth, db } from "/assets/js/firebase-config.js";
+  import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { doc, getDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // Auth guard
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = '/student-login.html';
+      return;
+    }
+
+    // Extract School ID from email
+    const schoolId = user.email?.split('@')[0];
+    document.getElementById('studentName').textContent = user.displayName || schoolId || 'Student';
+
+    // Load student data from Firestore
+    const studentSnap = await getDoc(doc(db, 'students', user.uid));
+    if (studentSnap.exists()) {
+      const data = studentSnap.data();
+      document.getElementById('studentGrade').textContent = data.grade || '—';
+      document.getElementById('feeStatus').textContent = data.feeStatus || 'N/A';
+      document.getElementById('attendance').textContent = data.attendancePercentage || '—';
+    }
+
+    // Load recent notices
+    loadNotices();
+  });
+
+  async function loadNotices() {
+    const container = document.getElementById('noticesList');
+    try {
+      const q = query(collection(db, 'notices'), orderBy('created_at', 'desc'), limit(5));
+      const snap = await getDocs(q);
+      container.innerHTML = '';
+      snap.forEach(doc => {
+        const n = doc.data();
+        container.innerHTML += `
+          <div class="border-l-4 border-indigo-500 pl-3 py-2">
+            <p class="font-semibold text-sm">${n.title}</p>
+            <p class="text-xs text-gray-500">${n.date || ''}</p>
+          </div>`;
+      });
+      if (snap.empty) container.innerHTML = '<p class="text-gray-400">No notices yet.</p>';
+    } catch (e) {
+      container.innerHTML = '<p class="text-red-500">Failed to load notices.</p>';
+    }
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = '/student-login.html';
+  });
+</script>
+</body>
+</html>
