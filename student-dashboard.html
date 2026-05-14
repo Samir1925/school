@@ -7,13 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    .card {
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
-    }
     /* Loading overlay */
     #global-loader {
       position: fixed;
@@ -29,6 +22,13 @@
       opacity: 0;
       pointer-events: none;
     }
+    .card {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
@@ -41,7 +41,7 @@
     </div>
   </div>
 
-  <!-- Navbar -->
+  <!-- ===== NAVBAR ===== -->
   <nav class="bg-white shadow-md">
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -59,10 +59,10 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto p-6">
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="max-w-7xl mx-auto p-6" id="mainContent" style="display:none;">
     
-    <!-- Welcome & Quick Info -->
+    <!-- Profile Cards -->
     <div class="grid md:grid-cols-4 gap-6 mb-8">
       <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div class="flex items-center gap-4">
@@ -75,7 +75,6 @@
           </div>
         </div>
       </div>
-
       <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -87,7 +86,6 @@
           </div>
         </div>
       </div>
-
       <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
@@ -99,7 +97,6 @@
           </div>
         </div>
       </div>
-
       <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -113,115 +110,257 @@
       </div>
     </div>
 
-    <!-- Notices & Quick Links -->
-    <div class="grid md:grid-cols-2 gap-6 mb-8">
-      <!-- Recent Notices -->
-      <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <h2 class="text-lg font-bold text-gray-900 mb-4">
-          <i class="fas fa-bullhorn text-indigo-600 mr-2"></i> Recent Notices
-        </h2>
-        <div id="noticesList" class="space-y-3 max-h-60 overflow-y-auto">
-          <p class="text-gray-500">Loading...</p>
-        </div>
-      </div>
-
-      <!-- Quick Links -->
-      <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <h2 class="text-lg font-bold text-gray-900 mb-4">
-          <i class="fas fa-link text-indigo-600 mr-2"></i> Quick Links
-        </h2>
-        <div class="grid grid-cols-2 gap-4">
-          <a href="#notesSection" class="p-4 bg-indigo-50 rounded-xl text-center hover:bg-indigo-100 transition">
-            <i class="fas fa-book text-2xl text-indigo-600 mb-2"></i>
-            <p class="text-sm font-medium">My Notes</p>
-          </a>
-          <a href="#" class="p-4 bg-green-50 rounded-xl text-center hover:bg-green-100 transition">
-            <i class="fas fa-chart-bar text-2xl text-green-600 mb-2"></i>
-            <p class="text-sm font-medium">Results</p>
-          </a>
-          <a href="/gallery.html" class="p-4 bg-amber-50 rounded-xl text-center hover:bg-amber-100 transition">
-            <i class="fas fa-images text-2xl text-amber-600 mb-2"></i>
-            <p class="text-sm font-medium">Gallery</p>
-          </a>
-          <a href="/contact.html" class="p-4 bg-purple-50 rounded-xl text-center hover:bg-purple-100 transition">
-            <i class="fas fa-envelope text-2xl text-purple-600 mb-2"></i>
-            <p class="text-sm font-medium">Contact</p>
-          </a>
-        </div>
+    <!-- Notices + Notes Combined Section -->
+    <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+      <h2 class="text-lg font-bold text-gray-900 mb-4">
+        <i class="fas fa-bell text-indigo-600 mr-2"></i> Notices & Study Materials
+      </h2>
+      <div id="combinedFeed" class="space-y-3 max-h-[600px] overflow-y-auto">
+        <p class="text-gray-500 text-center py-8">Loading...</p>
       </div>
     </div>
 
-    <!-- ===== STUDY NOTES SECTION ===== -->
-    <div id="notesSection" class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-bold text-gray-900">
-          <i class="fas fa-book-open text-indigo-600 mr-2"></i> My Study Notes
-        </h2>
-        <span class="text-xs text-gray-500" id="notesInfo"></span>
-      </div>
-      
-      <!-- Search within notes -->
-      <div class="mb-4">
-        <input type="text" id="notesSearch" placeholder="Search notes..." 
-          class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400 text-sm" />
-      </div>
-
-      <div id="notesList" class="space-y-3 max-h-96 overflow-y-auto">
-        <p class="text-gray-500 text-center py-8">Loading your notes...</p>
+    <!-- Quick Links -->
+    <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+      <h2 class="text-lg font-bold text-gray-900 mb-4">
+        <i class="fas fa-link text-indigo-600 mr-2"></i> Quick Links
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a href="/gallery.html" class="p-4 bg-amber-50 rounded-xl text-center hover:bg-amber-100 transition">
+          <i class="fas fa-images text-2xl text-amber-600 mb-2"></i>
+          <p class="text-sm font-medium">Gallery</p>
+        </a>
+        <a href="/contact.html" class="p-4 bg-purple-50 rounded-xl text-center hover:bg-purple-100 transition">
+          <i class="fas fa-envelope text-2xl text-purple-600 mb-2"></i>
+          <p class="text-sm font-medium">Contact</p>
+        </a>
+        <a href="/about.html" class="p-4 bg-green-50 rounded-xl text-center hover:bg-green-100 transition">
+          <i class="fas fa-info-circle text-2xl text-green-600 mb-2"></i>
+          <p class="text-sm font-medium">About</p>
+        </a>
+        <a href="/student-life.html" class="p-4 bg-pink-50 rounded-xl text-center hover:bg-pink-100 transition">
+          <i class="fas fa-star text-2xl text-pink-600 mb-2"></i>
+          <p class="text-sm font-medium">Activities</p>
+        </a>
       </div>
     </div>
 
   </main>
 
-  <!-- Scripts -->
+  <!-- ===== SCRIPTS ===== -->
   <script type="module">
-import { auth, db } from "/assets/js/firebase-config.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { doc, getDoc, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { auth, db } from "/assets/js/firebase-config.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, getDoc, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return window.location.href = '/student-login.html';
+    // ========== HIDE LOADER ==========
+    function hideLoader() {
+      const loader = document.getElementById('global-loader');
+      if (loader) {
+        loader.classList.add('hidden');
+        setTimeout(() => loader.remove(), 600);
+      }
+      // Show main content
+      const main = document.getElementById('mainContent');
+      if (main) main.style.display = '';
+    }
 
-  // Fetch everything in parallel
-  const [studentSnap, settingsSnap] = await Promise.all([
-    getDoc(doc(db, 'students', user.uid)),
-    getDoc(doc(db, 'site_settings', 'singleton'))
-  ]);
+    // Safety: always hide loader after 10 seconds
+    const safetyTimer = setTimeout(() => {
+      console.warn('Safety timeout – forcing dashboard display');
+      hideLoader();
+    }, 10000);
 
-  const studentData = studentSnap.exists() ? studentSnap.data() : null;
-  const settings = settingsSnap.exists() ? settingsSnap.data() : null;
+    // ========== FORMAT DATE ==========
+    function formatDate(timestamp) {
+      if (!timestamp) return 'Unknown date';
+      try {
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      } catch {
+        return 'Unknown date';
+      }
+    }
 
-  if (!studentData) {
-    console.error('Student record not found');
-    return;
-  }
+    // ========== AUTH GUARD ==========
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = '/student-login.html';
+        return;
+      }
 
-  // Fetch notes, notices, results in parallel
-  const grade = studentData.grade;
-  const section = studentData.section || 'A';
+      try {
+        const schoolId = user.email?.split('@')[0] || 'Unknown';
+        document.getElementById('studentName').textContent = user.displayName || schoolId;
+        document.getElementById('studentSchoolId').textContent = schoolId;
 
-  const [notesSnap1, notesSnap2, noticesSnap, resultsSnap, feesSnap] = await Promise.all([
-    getDocs(query(collection(db, 'notes'), where('grade', '==', grade), where('section', '==', section), orderBy('uploadedAt', 'desc'))),
-    getDocs(query(collection(db, 'notes'), where('grade', '==', grade), where('section', '==', 'all'), orderBy('uploadedAt', 'desc'))),
-    getDocs(query(collection(db, 'notices'), orderBy('created_at', 'desc'))),
-    getDocs(query(collection(db, 'results'), where('studentId', '==', user.uid))),
-    getDocs(query(collection(db, 'fees'), where('studentId', '==', user.uid)))
-  ]);
+        // ========== 1. FETCH STUDENT PROFILE ==========
+        const studentSnap = await getDoc(doc(db, 'students', user.uid));
+        const studentData = studentSnap.exists() ? studentSnap.data() : null;
 
-  // Merge notes
-  const notes = [];
-  notesSnap1.forEach(d => notes.push({ id: d.id, ...d.data() }));
-  notesSnap2.forEach(d => { if (!notes.find(n => n.id === d.id)) notes.push({ id: d.id, ...d.data() }); });
+        if (studentData) {
+          document.getElementById('studentGrade').textContent = studentData.grade || '—';
+          document.getElementById('studentSection').textContent = studentData.section || '—';
+          document.getElementById('feeStatus').textContent = studentData.feeStatus || 'N/A';
+        }
 
-  const notices = []; noticesSnap.forEach(d => notices.push({ id: d.id, ...d.data() }));
-  const results = []; resultsSnap.forEach(d => results.push({ id: d.id, ...d.data() }));
-  const fees = []; feesSnap.forEach(d => fees.push({ id: d.id, ...d.data() }));
+        // ========== 2. FETCH ALL DATA IN PARALLEL ==========
+        const grade = studentData?.grade || '';
+        const section = studentData?.section || 'A';
 
-  // Now you have ALL data:
-  console.log({ studentData, settings, notes, notices, results, fees });
-  
-  // Update your UI here...
-});
+        const promises = [
+          // Notices
+          getDocs(query(collection(db, 'notices'), orderBy('created_at', 'desc'))),
+        ];
+
+        // Only fetch notes if we have a grade
+        if (grade) {
+          promises.push(
+            getDocs(query(
+              collection(db, 'notes'),
+              where('grade', '==', grade),
+              where('section', '==', section),
+              orderBy('uploadedAt', 'desc')
+            ))
+          );
+          promises.push(
+            getDocs(query(
+              collection(db, 'notes'),
+              where('grade', '==', grade),
+              where('section', '==', 'all'),
+              orderBy('uploadedAt', 'desc')
+            ))
+          );
+        } else {
+          promises.push(Promise.resolve({ forEach: () => {} }));
+          promises.push(Promise.resolve({ forEach: () => {} }));
+        }
+
+        const [noticesSnap, notesSnap1, notesSnap2] = await Promise.all(promises);
+
+        // ========== 3. BUILD COMBINED FEED ==========
+        const feedItems = [];
+
+        // Add notices
+        noticesSnap.forEach(doc => {
+          const n = doc.data();
+          feedItems.push({
+            type: 'notice',
+            title: n.title,
+            description: n.description || '',
+            date: n.date || formatDate(n.created_at),
+            icon: 'fas fa-bullhorn',
+            color: 'text-blue-600',
+            bg: 'bg-blue-100',
+            border: 'border-blue-500'
+          });
+        });
+
+        // Add notes (displayed like notices)
+        notesSnap1.forEach(doc => {
+          const n = doc.data();
+          feedItems.push({
+            type: 'note',
+            title: `📚 ${n.title}`,
+            description: `${n.subject} | ${n.fileType?.toUpperCase()} | Click Download to view`,
+            date: formatDate(n.uploadedAt),
+            icon: 'fas fa-book',
+            color: 'text-green-600',
+            bg: 'bg-green-100',
+            border: 'border-green-500',
+            downloadUrl: n.fileUrl
+          });
+        });
+
+        notesSnap2.forEach(doc => {
+          const n = doc.data();
+          // Avoid duplicates
+          const exists = feedItems.find(item =>
+            item.type === 'note' && item.title === `📚 ${n.title}`
+          );
+          if (!exists) {
+            feedItems.push({
+              type: 'note',
+              title: `📚 ${n.title}`,
+              description: `${n.subject} | ${n.fileType?.toUpperCase()} | Click Download to view`,
+              date: formatDate(n.uploadedAt),
+              icon: 'fas fa-book',
+              color: 'text-green-600',
+              bg: 'bg-green-100',
+              border: 'border-green-500',
+              downloadUrl: n.fileUrl
+            });
+          }
+        });
+
+        // Sort by date (newest first)
+        feedItems.sort((a, b) => {
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          return dateB - dateA;
+        });
+
+        // ========== 4. RENDER FEED ==========
+        const feedContainer = document.getElementById('combinedFeed');
+
+        if (feedItems.length === 0) {
+          feedContainer.innerHTML = `
+            <div class="text-center py-8">
+              <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+              <p class="text-gray-500">No notices or study materials yet.</p>
+              <p class="text-xs text-gray-400 mt-1">Check back later!</p>
+            </div>`;
+        } else {
+          feedContainer.innerHTML = feedItems.map(item => `
+            <div class="border-l-4 ${item.border} pl-4 py-3 hover:bg-gray-50 rounded-r-lg transition">
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="${item.bg} ${item.color} p-1 rounded-full">
+                      <i class="${item.icon} text-xs"></i>
+                    </span>
+                    <span class="text-xs text-gray-500">${item.date}</span>
+                    <span class="text-xs text-gray-400 uppercase">${item.type}</span>
+                  </div>
+                  <h3 class="font-semibold text-gray-900">${item.title}</h3>
+                  <p class="text-sm text-gray-600 mt-1">${item.description}</p>
+                </div>
+                ${item.downloadUrl ? `
+                  <a href="${item.downloadUrl}" target="_blank" 
+                    class="ml-4 px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-semibold hover:bg-green-200 transition whitespace-nowrap">
+                    <i class="fas fa-download mr-1"></i> Download
+                  </a>
+                ` : ''}
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // ========== DONE – HIDE LOADER ==========
+        clearTimeout(safetyTimer);
+        hideLoader();
+
+      } catch (err) {
+        console.error('Dashboard error:', err);
+        document.getElementById('combinedFeed').innerHTML = `
+          <div class="text-center py-8 text-red-500">
+            <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+            <p>Failed to load dashboard. Please refresh.</p>
+          </div>`;
+        clearTimeout(safetyTimer);
+        hideLoader();
+      }
+    });
+
+    // ========== LOGOUT ==========
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/student-login.html';
+    });
   </script>
 </body>
 </html>
