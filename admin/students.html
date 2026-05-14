@@ -244,161 +244,158 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { requireAdmin } from "/assets/js/admin-guard.js";
+ <script type="module">
+  import { auth, db } from "/assets/js/firebase-config.js";
+  import { signOut, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { requireAdmin } from "/assets/js/admin-guard.js";
 
-    const firebaseConfig = { /* 🔥 Your config */ };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  // Guard
+  const mainArea = document.querySelector('main');
+  const adminUser = await requireAdmin();
+  if (!adminUser) {
+    mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2></div>`;
+    throw new Error('Not admin');
+  }
 
-    // Guard
-    const mainArea = document.querySelector('main');
-    const adminUser = await requireAdmin();
-    if (!adminUser) {
-      mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2></div>`;
-      throw new Error('Not admin');
+  function showToast(msg, isError = false) {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+    toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  // Generate School ID
+  function generateSchoolId() {
+    const year = new Date().getFullYear();
+    const random = Math.floor(Math.random() * 999).toString().padStart(3, '0');
+    return `GSB-${year}-${random}`;
+  }
+
+  // Load students
+  async function loadStudents() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    const snap = await getDocs(collection(db, 'students'));
+    if (snap.empty) {
+      tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">No students yet.</td></tr>';
+      return;
     }
+    snap.forEach(docSnap => {
+      const s = docSnap.data();
+      const row = document.createElement('tr');
+      row.className = 'border-t';
+      row.innerHTML = `
+        <td class="p-4 font-mono font-semibold text-indigo-600">${s.schoolId || '—'}</td>
+        <td class="p-4">${s.name}</td>
+        <td class="p-4">${s.grade}</td>
+        <td class="p-4">${s.parent_name || '—'}</td>
+        <td class="p-4">
+          <span class="px-2 py-1 rounded-full text-xs font-semibold ${s.feeStatus === 'paid' ? 'bg-green-100 text-green-700' : s.feeStatus === 'pending' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">
+            ${s.feeStatus || 'N/A'}
+          </span>
+        </td>
+        <td class="p-4 flex gap-2">
+          <button class="text-indigo-600 edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
+          <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
+        </td>`;
+      tbody.appendChild(row);
+    });
+    document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
+    document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteStudent));
+  }
+  loadStudents();
 
-    function showToast(msg, isError = false) {
-      const toast = document.createElement('div');
-      toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
-      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
+  window.openModal = () => {
+    document.getElementById('modalTitle').textContent = 'Add Student';
+    document.getElementById('studentForm').reset();
+    document.getElementById('studentId').value = '';
+    document.getElementById('studentModal').classList.remove('hidden');
+  };
+  window.closeModal = () => document.getElementById('studentModal').classList.add('hidden');
 
-    // Generate School ID
-    function generateSchoolId() {
-      const year = new Date().getFullYear();
-      const random = Math.floor(Math.random() * 999).toString().padStart(3, '0');
-      return `GSB-${year}-${random}`;
-    }
+  // Edit
+  async function openEdit(e) {
+    const id = e.currentTarget.dataset.id;
+    const snap = await getDoc(doc(db, 'students', id));
+    if (!snap.exists()) return;
+    const s = snap.data();
+    document.getElementById('studentId').value = id;
+    document.getElementById('name').value = s.name || '';
+    document.getElementById('grade').value = s.grade || '';
+    document.getElementById('parent').value = s.parent_name || '';
+    document.getElementById('contact').value = s.contact || '';
+    document.getElementById('feeStatus').value = s.feeStatus || 'pending';
+    document.getElementById('modalTitle').textContent = 'Edit Student';
+    document.getElementById('studentModal').classList.remove('hidden');
+  }
 
-    // Load students
-    async function loadStudents() {
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = '';
-      const snap = await getDocs(collection(db, 'students'));
-      if (snap.empty) {
-        tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">No students yet.</td></tr>';
-        return;
-      }
-      snap.forEach(docSnap => {
-        const s = docSnap.data();
-        const row = document.createElement('tr');
-        row.className = 'border-t';
-        row.innerHTML = `
-          <td class="p-4 font-mono font-semibold text-indigo-600">${s.schoolId || '—'}</td>
-          <td class="p-4">${s.name}</td>
-          <td class="p-4">${s.grade}</td>
-          <td class="p-4">${s.parent_name || '—'}</td>
-          <td class="p-4">
-            <span class="px-2 py-1 rounded-full text-xs font-semibold ${s.feeStatus === 'paid' ? 'bg-green-100 text-green-700' : s.feeStatus === 'pending' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">
-              ${s.feeStatus || 'N/A'}
-            </span>
-          </td>
-          <td class="p-4 flex gap-2">
-            <button class="text-indigo-600 edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
-            <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
-          </td>`;
-        tbody.appendChild(row);
-      });
-      document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
-      document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteStudent));
-    }
+  // Delete
+  async function deleteStudent(e) {
+    if (!confirm('Delete this student? This will also remove their login account.')) return;
+    const id = e.currentTarget.dataset.id;
+    await deleteDoc(doc(db, 'students', id));
     loadStudents();
+    showToast('Student deleted');
+  }
 
-    window.openModal = () => {
-      document.getElementById('modalTitle').textContent = 'Add Student';
-      document.getElementById('studentForm').reset();
-      document.getElementById('studentId').value = '';
-      document.getElementById('studentModal').classList.remove('hidden');
-    };
-    window.closeModal = () => document.getElementById('studentModal').classList.add('hidden');
+  // Save
+  document.getElementById('studentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('studentId').value;
+    const schoolId = id ? '' : generateSchoolId();
+    const name = document.getElementById('name').value;
+    const grade = document.getElementById('grade').value;
+    const parent_name = document.getElementById('parent').value;
+    const contact = document.getElementById('contact').value;
+    const feeStatus = document.getElementById('feeStatus').value;
 
-    // Edit
-    async function openEdit(e) {
-      const id = e.currentTarget.dataset.id;
-      const snap = await getDoc(doc(db, 'students', id));
-      if (!snap.exists()) return;
-      const s = snap.data();
-      document.getElementById('studentId').value = id;
-      document.getElementById('name').value = s.name || '';
-      document.getElementById('grade').value = s.grade || '';
-      document.getElementById('parent').value = s.parent_name || '';
-      document.getElementById('contact').value = s.contact || '';
-      document.getElementById('feeStatus').value = s.feeStatus || 'pending';
-      document.getElementById('modalTitle').textContent = 'Edit Student';
-      document.getElementById('studentModal').classList.remove('hidden');
-    }
+    try {
+      if (id) {
+        // Update existing student
+        await updateDoc(doc(db, 'students', id), {
+          name, grade, parent_name, contact, feeStatus
+        });
+      } else {
+        // Create new student with Firebase Auth
+        const email = `${schoolId}@school.local`;
+        const defaultPassword = contact || '12345678';
 
-    // Delete
-    async function deleteStudent(e) {
-      if (!confirm('Delete this student? This will also remove their login account.')) return;
-      const id = e.currentTarget.dataset.id;
-      await deleteDoc(doc(db, 'students', id));
-      loadStudents();
-      showToast('Student deleted');
-    }
+        const userCredential = await createUserWithEmailAndPassword(auth, email, defaultPassword);
+        const uid = userCredential.user.uid;
 
-    // Save (Create Auth + Firestore)
-    document.getElementById('studentForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('studentId').value;
-      const schoolId = id ? '' : generateSchoolId(); // Only generate for new students
-      const name = document.getElementById('name').value;
-      const grade = document.getElementById('grade').value;
-      const parent_name = document.getElementById('parent').value;
-      const contact = document.getElementById('contact').value;
-      const feeStatus = document.getElementById('feeStatus').value;
+        // Set display name
+        await updateProfile(userCredential.user, { displayName: name });
 
-      try {
-        if (id) {
-          // Update existing student
-          await updateDoc(doc(db, 'students', id), {
-            name, grade, parent_name, contact, feeStatus
-          });
-        } else {
-          // Create new student with Firebase Auth account
-          const email = `${schoolId}@school.local`;
-          const defaultPassword = contact || '12345678'; // Default password
-
-          // Create Firebase Auth user
-          const userCredential = await createUserWithEmailAndPassword(auth, email, defaultPassword);
-          const uid = userCredential.user.uid;
-
-          // Store in Firestore
-          await setDoc(doc(db, 'students', uid), {
-            schoolId,
-            name,
-            grade,
-            parent_name,
-            contact,
-            feeStatus,
-            email,
-            uid,
-            attendancePercentage: '95%',
-            createdAt: new Date()
-          });
-        }
-        closeModal();
-        loadStudents();
-        showToast(id ? 'Student updated!' : `Student created! School ID: ${schoolId}`);
-      } catch (err) {
-        showToast('Error: ' + err.message, true);
-        console.error(err);
+        // Save to Firestore
+        await setDoc(doc(db, 'students', uid), {
+          schoolId,
+          name,
+          grade,
+          parent_name,
+          contact,
+          feeStatus,
+          email,
+          uid,
+          attendancePercentage: '95%',
+          createdAt: new Date()
+        });
       }
-    });
+      closeModal();
+      loadStudents();
+      showToast(id ? 'Student updated!' : `Student created! School ID: ${schoolId}`);
+    } catch (err) {
+      showToast('Error: ' + err.message, true);
+      console.error(err);
+    }
+  });
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.href = '/admin/index.html';
-    });
-  </script>
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = '/admin/index.html';
+  });
+</script>
 </body>
 </html>
 </body>
