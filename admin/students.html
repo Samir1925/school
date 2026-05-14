@@ -72,12 +72,14 @@
               <th class="p-4">Section</th>
               <th class="p-4">Roll No</th>
               <th class="p-4">Parent</th>
+              <th class="p-4">Contact</th>
               <th class="p-4">Fee Status</th>
+              <th class="p-4">Password</th>
               <th class="p-4">Actions</th>
             </tr>
           </thead>
           <tbody id="tableBody">
-            <tr><td colspan="8" class="p-4 text-center text-gray-400">Loading students...</td></tr>
+            <tr><td colspan="10" class="p-4 text-center text-gray-400">Loading students...</td></tr>
           </tbody>
         </table>
       </div>
@@ -90,12 +92,10 @@
       <h2 class="text-xl font-bold mb-4" id="modalTitle">Add Student</h2>
       <form id="studentForm" class="space-y-4">
         <input type="hidden" id="studentId" />
-
         <div>
           <label class="block text-sm font-medium">Student Name *</label>
           <input type="text" id="name" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" required />
         </div>
-
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-sm font-medium">Grade / Class *</label>
@@ -112,31 +112,26 @@
             </select>
           </div>
         </div>
-
         <div>
           <label class="block text-sm font-medium">Roll Number *</label>
           <input type="number" id="rollNumber" placeholder="e.g., 25" min="1" max="999" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" required />
         </div>
-
         <div>
           <label class="block text-sm font-medium">Parent Name</label>
           <input type="text" id="parent" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
         </div>
-
         <div>
-          <label class="block text-sm font-medium">Contact Number</label>
-          <input type="tel" id="contact" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" />
+          <label class="block text-sm font-medium">Contact Number *</label>
+          <input type="tel" id="contact" placeholder="For SMS password delivery" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400" required />
         </div>
-
         <div>
           <label class="block text-sm font-medium">Fee Status</label>
           <select id="feeStatus" class="w-full p-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-400">
-            <option value="paid">Paid</option>
             <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
             <option value="partial">Partial</option>
           </select>
         </div>
-
         <div class="flex gap-3 justify-end mt-6">
           <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl text-gray-600 hover:bg-gray-100">Cancel</button>
           <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700">Save</button>
@@ -145,215 +140,350 @@
     </div>
   </div>
 
+  <!-- Password Display Modal -->
+  <div id="passwordModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
+    <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl text-center">
+      <div class="text-5xl mb-4">🔐</div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Student Created Successfully!</h2>
+      <p class="text-gray-600 mb-2" id="passwordStudentName"></p>
+      <p class="text-xs text-gray-400 mb-6">Save these credentials – password cannot be recovered</p>
+      
+      <div class="bg-indigo-50 rounded-xl p-6 mb-6">
+        <div class="mb-4">
+          <label class="text-sm text-gray-500">School ID (Login Username)</label>
+          <p class="text-xl font-bold text-indigo-700 font-mono" id="passwordSchoolId"></p>
+        </div>
+        <div class="mb-4">
+          <label class="text-sm text-gray-500">Password</label>
+          <div class="flex items-center justify-center gap-2">
+            <p class="text-2xl font-bold text-green-700 font-mono tracking-wider" id="passwordValue"></p>
+            <button onclick="copyPassword()" class="text-indigo-600 hover:text-indigo-800 p-2" title="Copy">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-amber-50 rounded-xl p-4 mb-6 text-left text-sm">
+        <p class="font-semibold text-amber-800 mb-2"><i class="fas fa-sms mr-1"></i> Send via SMS</p>
+        <p class="text-gray-600 mb-2">Contact: <span class="font-semibold" id="passwordContact"></span></p>
+        <button onclick="sendSMS()" class="w-full py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition mb-2">
+          <i class="fas fa-sms mr-2"></i> Open SMS App
+        </button>
+        <button onclick="sendWhatsApp()" class="w-full py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
+          <i class="fab fa-whatsapp mr-2"></i> Send via WhatsApp
+        </button>
+      </div>
+
+      <button onclick="closePasswordModal()" class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition">
+        Done
+      </button>
+    </div>
+  </div>
+
   <script type="module">
-  import { auth, db, studentAuth } from "/assets/js/firebase-config.js";
-  import { signOut, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { collection, getDocs, updateDoc, deleteDoc, doc, getDoc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { requireAdmin } from "/assets/js/admin-guard.js";
+    import { auth, db, studentAuth } from "/assets/js/firebase-config.js";
+    import { signOut, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { collection, getDocs, updateDoc, deleteDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { requireAdmin } from "/assets/js/admin-guard.js";
 
-  const mainArea = document.querySelector('main');
-  const adminUser = await requireAdmin();
-  if (!adminUser) {
-    mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2></div>`;
-    throw new Error('Not admin');
-  }
-
-  function showToast(msg, isError = false) {
-    const toast = document.createElement('div');
-    toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
-    toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-  }
-
-  // ========== NEPALI YEAR CALCULATION ==========
-  function getNepaliYear() {
-    const today = new Date();
-    const gregorianYear = today.getFullYear();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
-    if (month > 4 || (month === 4 && day >= 14)) {
-      return gregorianYear + 57;
-    } else {
-      return gregorianYear + 56;
+    const mainArea = document.querySelector('main');
+    const adminUser = await requireAdmin();
+    if (!adminUser) {
+      mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2></div>`;
+      throw new Error('Not admin');
     }
-  }
 
-  // ========== GENERATE SCHOOL ID ==========
-  function generateSchoolId(grade, section, rollNumber) {
-    const nepaliYear = getNepaliYear();
-    const paddedRoll = rollNumber.toString().padStart(3, '0');
-    return `${nepaliYear}-${grade}-${section}-${paddedRoll}`;
-  }
+    function showToast(msg, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
 
-  // ========== LOAD STUDENTS ==========
-  async function loadStudents() {
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = '';
-    try {
-      const snap = await getDocs(collection(db, 'students'));
-      if (snap.empty) {
-        tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-500">No students yet.</td></tr>';
+    // ========== NEPALI YEAR CALCULATION ==========
+    function getNepaliYear() {
+      const today = new Date();
+      const gregorianYear = today.getFullYear();
+      const month = today.getMonth() + 1;
+      const day = today.getDate();
+      if (month > 4 || (month === 4 && day >= 14)) {
+        return gregorianYear + 57;
+      } else {
+        return gregorianYear + 56;
+      }
+    }
+
+    // ========== GENERATE SCHOOL ID ==========
+    function generateSchoolId(grade, section, rollNumber) {
+      const nepaliYear = getNepaliYear();
+      const paddedRoll = rollNumber.toString().padStart(3, '0');
+      return `${nepaliYear}-${grade}-${section}-${paddedRoll}`;
+    }
+
+    // ========== GENERATE RANDOM PASSWORD ==========
+    function generateRandomPassword(length = 8) {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+      let password = '';
+      for (let i = 0; i < length; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return password;
+    }
+
+    // ========== LOAD STUDENTS ==========
+    async function loadStudents() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      try {
+        const snap = await getDocs(collection(db, 'students'));
+        if (snap.empty) {
+          tbody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-gray-500">No students yet.</td></tr>';
+          return;
+        }
+        snap.forEach(docSnap => {
+          const s = docSnap.data();
+          const row = document.createElement('tr');
+          row.className = 'border-t hover:bg-gray-50';
+          row.innerHTML = `
+            <td class="p-4 font-mono font-semibold text-indigo-600 text-xs">${s.schoolId || '—'}</td>
+            <td class="p-4 font-medium">${s.name}</td>
+            <td class="p-4">${s.grade}</td>
+            <td class="p-4 font-semibold">${s.section || '—'}</td>
+            <td class="p-4">${s.rollNumber || '—'}</td>
+            <td class="p-4">${s.parent_name || '—'}</td>
+            <td class="p-4 text-sm">${s.contact || '—'}</td>
+            <td class="p-4">
+              <span class="px-2 py-1 rounded-full text-xs font-semibold ${s.feeStatus === 'paid' ? 'bg-green-100 text-green-700' : s.feeStatus === 'partial' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}">
+                ${s.feeStatus || 'N/A'}
+              </span>
+            </td>
+            <td class="p-4">
+              <button class="text-amber-600 hover:text-amber-800 show-pass-btn" data-id="${docSnap.id}" title="Show Password">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+            <td class="p-4 flex gap-2">
+              <button class="text-indigo-600 hover:text-indigo-800 edit-btn" data-id="${docSnap.id}" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="text-red-600 hover:text-red-800 delete-btn" data-id="${docSnap.id}" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>`;
+          tbody.appendChild(row);
+        });
+
+        // Show password buttons
+        document.querySelectorAll('.show-pass-btn').forEach(b => {
+          b.addEventListener('click', async (e) => {
+            const id = e.currentTarget.dataset.id;
+            const snap = await getDoc(doc(db, 'students', id));
+            if (snap.exists()) {
+              const s = snap.data();
+              if (s.password) {
+                alert(`📧 Login: ${s.email}\n🔑 Password: ${s.password}`);
+              } else {
+                alert('Password not stored. Use Firebase Console to reset.');
+              }
+            }
+          });
+        });
+
+        document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
+        document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteStudent));
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-red-500">Failed to load students.</td></tr>';
+        console.error(err);
+      }
+    }
+    loadStudents();
+
+    window.openModal = () => {
+      document.getElementById('modalTitle').textContent = 'Add Student';
+      document.getElementById('studentForm').reset();
+      document.getElementById('studentId').value = '';
+      document.getElementById('studentModal').classList.remove('hidden');
+    };
+    window.closeModal = () => document.getElementById('studentModal').classList.add('hidden');
+
+    // ========== EDIT STUDENT ==========
+    async function openEdit(e) {
+      const id = e.currentTarget.dataset.id;
+      try {
+        const snap = await getDoc(doc(db, 'students', id));
+        if (!snap.exists()) return;
+        const s = snap.data();
+        document.getElementById('studentId').value = id;
+        document.getElementById('name').value = s.name || '';
+        document.getElementById('grade').value = s.grade || '';
+        document.getElementById('section').value = s.section || '';
+        document.getElementById('rollNumber').value = s.rollNumber || '';
+        document.getElementById('parent').value = s.parent_name || '';
+        document.getElementById('contact').value = s.contact || '';
+        document.getElementById('feeStatus').value = s.feeStatus || 'pending';
+        document.getElementById('modalTitle').textContent = 'Edit Student';
+        document.getElementById('studentModal').classList.remove('hidden');
+      } catch (err) {
+        showToast('Error loading student: ' + err.message, true);
+      }
+    }
+
+    // ========== DELETE STUDENT ==========
+    async function deleteStudent(e) {
+      if (!confirm('Delete this student? This cannot be undone.')) return;
+      const id = e.currentTarget.dataset.id;
+      try {
+        await deleteDoc(doc(db, 'students', id));
+        loadStudents();
+        showToast('Student deleted');
+      } catch (err) {
+        showToast('Error deleting: ' + err.message, true);
+      }
+    }
+
+    // ========== SAVE STUDENT ==========
+    document.getElementById('studentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+      const id = document.getElementById('studentId').value;
+      const name = document.getElementById('name').value.trim();
+      const grade = document.getElementById('grade').value.trim();
+      const section = document.getElementById('section').value;
+      const rollNumber = document.getElementById('rollNumber').value.trim();
+      const parent_name = document.getElementById('parent').value.trim();
+      const contact = document.getElementById('contact').value.trim();
+      const feeStatus = document.getElementById('feeStatus').value;
+
+      if (!section) {
+        showToast('Please select a section', true);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
         return;
       }
-      snap.forEach(docSnap => {
-        const s = docSnap.data();
-        const row = document.createElement('tr');
-        row.className = 'border-t';
-        row.innerHTML = `
-          <td class="p-4 font-mono font-semibold text-indigo-600 text-sm">${s.schoolId || '—'}</td>
-          <td class="p-4">${s.name}</td>
-          <td class="p-4">${s.grade}</td>
-          <td class="p-4 font-semibold">${s.section || '—'}</td>
-          <td class="p-4">${s.rollNumber || '—'}</td>
-          <td class="p-4">${s.parent_name || '—'}</td>
-          <td class="p-4">
-            <span class="px-2 py-1 rounded-full text-xs font-semibold ${s.feeStatus === 'paid' ? 'bg-green-100 text-green-700' : s.feeStatus === 'pending' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">
-              ${s.feeStatus || 'N/A'}
-            </span>
-          </td>
-          <td class="p-4 flex gap-2">
-            <button class="text-indigo-600 edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i></button>
-            <button class="text-red-600 delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash"></i></button>
-          </td>`;
-        tbody.appendChild(row);
-      });
-      document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', openEdit));
-      document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteStudent));
-    } catch (err) {
-      tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-red-500">Failed to load students.</td></tr>';
-      console.error(err);
-    }
-  }
-  loadStudents();
-
-  window.openModal = () => {
-    document.getElementById('modalTitle').textContent = 'Add Student';
-    document.getElementById('studentForm').reset();
-    document.getElementById('studentId').value = '';
-    document.getElementById('studentModal').classList.remove('hidden');
-  };
-  window.closeModal = () => document.getElementById('studentModal').classList.add('hidden');
-
-  // ========== EDIT STUDENT ==========
-  async function openEdit(e) {
-    const id = e.currentTarget.dataset.id;
-    try {
-      const snap = await getDoc(doc(db, 'students', id));
-      if (!snap.exists()) return;
-      const s = snap.data();
-      document.getElementById('studentId').value = id;
-      document.getElementById('name').value = s.name || '';
-      document.getElementById('grade').value = s.grade || '';
-      document.getElementById('section').value = s.section || '';
-      document.getElementById('rollNumber').value = s.rollNumber || '';
-      document.getElementById('parent').value = s.parent_name || '';
-      document.getElementById('contact').value = s.contact || '';
-      document.getElementById('feeStatus').value = s.feeStatus || 'pending';
-      document.getElementById('modalTitle').textContent = 'Edit Student';
-      document.getElementById('studentModal').classList.remove('hidden');
-    } catch (err) {
-      showToast('Error loading student: ' + err.message, true);
-    }
-  }
-
-  // ========== DELETE STUDENT ==========
-  async function deleteStudent(e) {
-    if (!confirm('Delete this student? This cannot be undone.')) return;
-    const id = e.currentTarget.dataset.id;
-    try {
-      await deleteDoc(doc(db, 'students', id));
-      loadStudents();
-      showToast('Student deleted');
-    } catch (err) {
-      showToast('Error deleting: ' + err.message, true);
-    }
-  }
-
-  // ========== SAVE STUDENT (NO PASSWORD PROMPT!) ==========
-  document.getElementById('studentForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-
-    const id = document.getElementById('studentId').value;
-    const name = document.getElementById('name').value.trim();
-    const grade = document.getElementById('grade').value.trim();
-    const section = document.getElementById('section').value;
-    const rollNumber = document.getElementById('rollNumber').value.trim();
-    const parent_name = document.getElementById('parent').value.trim();
-    const contact = document.getElementById('contact').value.trim();
-    const feeStatus = document.getElementById('feeStatus').value;
-
-    if (!section) {
-      showToast('Please select a section', true);
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-      return;
-    }
-    if (!rollNumber || parseInt(rollNumber) < 1) {
-      showToast('Please enter a valid roll number', true);
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-      return;
-    }
-
-    try {
-      if (id) {
-        // Update existing student
-        await updateDoc(doc(db, 'students', id), {
-          name, grade, section, rollNumber, parent_name, contact, feeStatus
-        });
-        showToast('Student updated!');
-      } else {
-        // 🔥 Generate School ID
-        const schoolId = generateSchoolId(grade, section, rollNumber);
-        const email = `${schoolId}@school.local`;
-        const defaultPassword = contact || 'student123';
-
-        // ✅ Use studentAuth (separate instance) – admin stays logged in!
-        const userCredential = await createUserWithEmailAndPassword(studentAuth, email, defaultPassword);
-        const uid = userCredential.user.uid;
-        await updateProfile(userCredential.user, { displayName: name });
-
-        // Save to Firestore
-        await setDoc(doc(db, 'students', uid), {
-          schoolId,
-          name,
-          grade,
-          section,
-          rollNumber,
-          parent_name,
-          contact,
-          feeStatus,
-          email,
-          uid,
-          attendancePercentage: '95%',
-          createdAt: new Date().toISOString()
-        });
-
-        // Sign out the studentAuth instance (not the admin!)
-        await studentAuth.signOut();
-
-        showToast(`✅ Student created! ID: ${schoolId}`);
+      if (!rollNumber || parseInt(rollNumber) < 1) {
+        showToast('Please enter a valid roll number', true);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        return;
       }
-      closeModal();
-      loadStudents();
-    } catch (err) {
-      console.error('Save error:', err);
-      showToast('Error: ' + err.message, true);
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-    }
-  });
+      if (!contact) {
+        showToast('Contact number is required', true);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        return;
+      }
 
-  document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await signOut(auth);
-    window.location.href = '/admin/index.html';
-  });
-</script>
+      try {
+        if (id) {
+          // Update existing
+          await updateDoc(doc(db, 'students', id), {
+            name, grade, section, rollNumber, parent_name, contact, feeStatus
+          });
+          showToast('Student updated!');
+        } else {
+          // Generate School ID & Password
+          const schoolId = generateSchoolId(grade, section, rollNumber);
+          const email = `${schoolId}@school.local`;
+          const randomPassword = generateRandomPassword(8);
+
+          // Create student in Firebase Auth (separate instance – admin stays logged in)
+          const userCredential = await createUserWithEmailAndPassword(studentAuth, email, randomPassword);
+          const uid = userCredential.user.uid;
+          await updateProfile(userCredential.user, { displayName: name });
+
+          // Save to Firestore
+          await setDoc(doc(db, 'students', uid), {
+            schoolId,
+            name,
+            grade,
+            section,
+            rollNumber,
+            parent_name,
+            contact,
+            feeStatus,
+            email,
+            uid,
+            password: randomPassword,
+            attendancePercentage: '95%',
+            createdAt: new Date().toISOString()
+          });
+
+          // Sign out student auth instance
+          await studentAuth.signOut();
+
+          // Show password modal
+          showPasswordModal(name, schoolId, randomPassword, contact);
+          showToast(`✅ Student created! ID: ${schoolId}`);
+        }
+        closeModal();
+        loadStudents();
+      } catch (err) {
+        console.error('Save error:', err);
+        showToast('Error: ' + err.message, true);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+    });
+
+    // ========== PASSWORD MODAL FUNCTIONS ==========
+    window.showPasswordModal = function(name, schoolId, password, contact) {
+      document.getElementById('passwordStudentName').textContent = name;
+      document.getElementById('passwordSchoolId').textContent = schoolId;
+      document.getElementById('passwordValue').textContent = password;
+      document.getElementById('passwordContact').textContent = contact;
+      document.getElementById('passwordModal').classList.remove('hidden');
+    };
+
+    window.closePasswordModal = function() {
+      document.getElementById('passwordModal').classList.add('hidden');
+    };
+
+    window.copyPassword = function() {
+      const password = document.getElementById('passwordValue').textContent;
+      navigator.clipboard.writeText(password).then(() => {
+        showToast('Password copied to clipboard!');
+      }).catch(() => {
+        showToast('Failed to copy', true);
+      });
+    };
+
+    window.sendSMS = function() {
+      const contact = document.getElementById('passwordContact').textContent;
+      const name = document.getElementById('passwordStudentName').textContent;
+      const schoolId = document.getElementById('passwordSchoolId').textContent;
+      const password = document.getElementById('passwordValue').textContent;
+      
+      const message = encodeURIComponent(
+        `Dear ${name}, welcome to G Star School!\nYour login:\nID: ${schoolId}\nPassword: ${password}`
+      );
+      
+      window.open(`sms:${contact}?body=${message}`, '_blank');
+    };
+
+    window.sendWhatsApp = function() {
+      const contact = document.getElementById('passwordContact').textContent.replace(/\+/g, '');
+      const name = document.getElementById('passwordStudentName').textContent;
+      const schoolId = document.getElementById('passwordSchoolId').textContent;
+      const password = document.getElementById('passwordValue').textContent;
+      
+      const message = encodeURIComponent(
+        `Dear ${name}, welcome to G Star School!\nYour login:\nID: ${schoolId}\nPassword: ${password}`
+      );
+      
+      window.open(`https://wa.me/${contact}?text=${message}`, '_blank');
+    };
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/admin/index.html';
+    });
+  </script>
 </body>
 </html>
