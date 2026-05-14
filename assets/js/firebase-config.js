@@ -1,3 +1,4 @@
+// /assets/js/firebase-config.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -12,8 +13,12 @@ const firebaseConfig = {
   appId: "1:594859618434:web:065c17831015ca0073049b"
 };
 
+// Main app (for admin & normal use)
 const app = initializeApp(firebaseConfig);
-
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
+// Second app instance (for creating student accounts without logging out admin)
+const studentApp = initializeApp(firebaseConfig, 'studentCreator');
+export const studentAuth = getAuth(studentApp);
