@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/assets/css/style.css" />
-  <!-- GSAP (for subtle animations) -->
+  <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
 
@@ -42,6 +42,13 @@
       opacity: 0;
       pointer-events: none;
     }
+
+    /* ✅ FIX: constrain logo height so it never overlaps the navbar links */
+    .site-logo {
+      height: 2.5rem;       /* 40px – perfect for a navbar */
+      width: auto;          /* keep aspect ratio */
+      flex-shrink: 0;       /* prevent shrinking if navbar is tight */
+    }
   </style>
 </head>
 <body class="font-sans antialiased">
@@ -54,7 +61,7 @@
     </div>
   </div>
 
-  <!-- ===== NAVBAR (dynamic) ===== -->
+  <!-- ===== NAVBAR ===== -->
   <nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 shadow-sm" id="navbar">
     <div class="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
       <a href="/" class="flex items-center gap-2">
@@ -109,7 +116,7 @@
     </div>
   </section>
 
-  <!-- ===== MISSION & VISION (static – can be moved to settings later) ===== -->
+  <!-- ===== MISSION & VISION (static) ===== -->
   <section class="py-20 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4">
       <div class="grid md:grid-cols-2 gap-12">
@@ -125,7 +132,7 @@
     </div>
   </section>
 
-  <!-- ===== HISTORY TIMELINE (static) ===== -->
+  <!-- ===== HISTORY TIMELINE ===== -->
   <section class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4">
       <h2 class="text-4xl font-bold text-center text-gray-900 mb-16">Our Journey</h2>
@@ -155,7 +162,7 @@
     </div>
   </section>
 
-  <!-- ===== TEACHERS SECTION (dynamic from Firestore) ===== -->
+  <!-- ===== TEACHERS SECTION (dynamic) ===== -->
   <section class="py-20 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4">
       <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">Meet Our Teachers</h2>
@@ -205,7 +212,7 @@
     import { db } from "/assets/js/firebase-config.js";
     import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // ---------- Animation observer (same as homepage) ----------
+    // Animation observer
     function refreshAnimations() {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -218,7 +225,6 @@
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     }
 
-    // ---------- Hide loader ----------
     function hideLoader() {
       const loader = document.getElementById('global-loader');
       if (loader) {
@@ -227,13 +233,12 @@
       }
     }
 
-    const safetyTimer = setTimeout(hideLoader, 10000); // fallback after 10s
+    const safetyTimer = setTimeout(hideLoader, 10000);
 
     try {
-      // 1. Load site settings (branding, about text, contact details)
       const settings = await loadSiteSettings();
 
-      // 2. If about_text exists, show it; otherwise fallback to custom description
+      // About text
       const aboutDiv = document.getElementById('about-text');
       if (settings && settings.about_text) {
         aboutDiv.innerHTML = `<p>${settings.about_text}</p>`;
@@ -244,10 +249,7 @@
           <p>Join us as we continue to shape future leaders with values and vision.</p>`;
       }
 
-      // 3. Load teachers from Firestore
       await loadTeachers();
-
-      // 4. Activate scroll animations
       refreshAnimations();
     } catch (err) {
       console.error('Error loading about page:', err);
@@ -277,7 +279,6 @@
           `;
           container.appendChild(card);
         });
-        // Re-attach observer to new cards
         refreshAnimations();
       } catch (err) {
         container.innerHTML = '<p class="col-span-full text-center text-red-500">Failed to load teachers.</p>';
