@@ -45,6 +45,9 @@
         <a href="media.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
           <i class="fas fa-images w-5"></i> Media
         </a>
+          <a href="users.html" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-indigo-200">
+          <i class="fas fa-users-cog w-5"></i> Users
+        </a>
       </nav>
       <div class="p-4 border-t border-indigo-700">
         <button id="logoutBtn" class="sidebar-link flex items-center gap-3 py-3 px-3 rounded-lg text-red-300 w-full">
@@ -189,188 +192,193 @@
   </div>
 
   <script type="module">
-    import { auth, db } from "/assets/js/firebase-config.js";
-    import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { collection, getDocs, addDoc, deleteDoc, doc, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { requireAdmin } from "/assets/js/admin-guard.js";
+  import { auth, db } from "/assets/js/firebase-config.js";
+  import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { collection, getDocs, addDoc, deleteDoc, doc, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { requireAdmin } from "/assets/js/admin-guard.js";
 
-    const IMGBB_API_KEY = "YOUR_IMGBB_API_KEY"; // 🔥 Replace
+  // 🔥 Replace with your imgbb API key
+  const IMGBB_API_KEY = "7fc4e70ff7c285b2e7c0ae7d1d60c4db";
 
-    const mainArea = document.querySelector('main');
-    const adminUser = await requireAdmin();
-    if (!adminUser) {
-      mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2></div>`;
-      throw new Error('Not admin');
-    }
+  const mainArea = document.querySelector('main');
+  const adminUser = await requireAdmin();
+  if (!adminUser) {
+    mainArea.innerHTML = `<div class="p-8 text-center"><h2 class="text-2xl font-bold text-red-600">Access Denied</h2></div>`;
+    throw new Error('Not admin');
+  }
 
-    function showToast(msg, isError = false) {
-      const toast = document.createElement('div');
-      toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
-      toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
+  function showToast(msg, isError = false) {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl text-white flex items-center gap-2 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+    toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
 
-    // Drag & drop
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('noteFile');
-    const fileNameDisplay = document.getElementById('fileName');
-
-    dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-indigo-400'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-indigo-400'));
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('border-indigo-400');
-      fileInput.files = e.dataTransfer.files;
-      if (fileInput.files[0]) {
-        fileNameDisplay.textContent = '📎 ' + fileInput.files[0].name;
-        fileNameDisplay.classList.remove('hidden');
-      }
-    });
-    fileInput.addEventListener('change', () => {
-      if (fileInput.files[0]) {
-        fileNameDisplay.textContent = '📎 ' + fileInput.files[0].name;
-        fileNameDisplay.classList.remove('hidden');
-      }
-    });
-
-    // Upload file to appropriate service
-    async function uploadFile(file) {
-      const fileType = file.name.split('.').pop().toLowerCase();
-      
-      // For images → use imgbb
-      if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType)) {
-        const formData = new FormData();
-        formData.append('image', file);
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-          method: 'POST',
-          body: formData
-        });
-        const result = await res.json();
-        if (!result.success) throw new Error(result.error?.message || 'Upload failed');
-        return { url: result.data.url, type: fileType };
-      }
-      
-      // For PDFs and other files → use file.io
+  // ========== FILE UPLOAD FUNCTION ==========
+  async function uploadFile(file) {
+    const fileType = file.name.split('.').pop().toLowerCase();
+    
+    // For images → imgbb
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType)) {
       const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('https://file.io', {
+      formData.append('image', file);
+      
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
         method: 'POST',
         body: formData
       });
-      const result = await res.json();
-      if (!result.success) throw new Error('File upload failed');
-      return { url: result.link, type: fileType };
-    }
-
-    // Load notes
-    async function loadNotes() {
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = '';
-      const filterGrade = document.getElementById('filterGrade').value;
       
-      try {
-        let q;
-        if (filterGrade === 'all') {
-          q = query(collection(db, 'notes'), orderBy('uploadedAt', 'desc'));
-        } else {
-          q = query(collection(db, 'notes'), where('grade', '==', filterGrade), orderBy('uploadedAt', 'desc'));
-        }
-        
-        const snap = await getDocs(q);
-        if (snap.empty) {
-          tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500">No notes found.</td></tr>';
-          return;
-        }
-        
-        snap.forEach(docSnap => {
-          const n = docSnap.data();
-          const row = document.createElement('tr');
-          row.className = 'border-t hover:bg-gray-50';
-          row.innerHTML = `
-            <td class="p-4 font-medium">${n.title}</td>
-            <td class="p-4">${n.subject}</td>
-            <td class="p-4">${n.grade}</td>
-            <td class="p-4">${n.section === 'all' ? 'All' : n.section}</td>
-            <td class="p-4">
-              <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold uppercase">${n.fileType}</span>
-            </td>
-            <td class="p-4 text-sm">${n.uploadedAt?.toDate ? n.uploadedAt.toDate().toLocaleDateString() : '—'}</td>
-            <td class="p-4 flex gap-2">
-              <a href="${n.fileUrl}" target="_blank" class="text-indigo-600 hover:text-indigo-800" title="View/Download">
-                <i class="fas fa-download"></i>
-              </a>
-              <button class="text-red-600 hover:text-red-800 delete-btn" data-id="${docSnap.id}" title="Delete">
-                <i class="fas fa-trash"></i>
-              </button>
-            </td>`;
-          tbody.appendChild(row);
-        });
-        document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteNote));
-      } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-red-500">Failed to load notes.</td></tr>';
-        console.error(err);
-      }
+      const result = await res.json();
+      if (!result.success) throw new Error(result.error?.message || 'Image upload failed');
+      return { url: result.data.url, type: fileType };
     }
+    
+    // For PDFs and other files → tmpfiles.org
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const res = await fetch('https://tmpfiles.org/api/v1/upload', {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!res.ok) throw new Error('Upload failed: HTTP ' + res.status);
+    
+    const result = await res.json();
+    
+    // Convert to direct download URL
+    const downloadUrl = result.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+    
+    return { url: downloadUrl, type: fileType };
+  }
+
+  // ========== LOAD NOTES ==========
+  async function loadNotes() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    const filterGrade = document.getElementById('filterGrade')?.value || 'all';
+    
+    try {
+      let q;
+      if (filterGrade === 'all') {
+        q = query(collection(db, 'notes'), orderBy('uploadedAt', 'desc'));
+      } else {
+        q = query(collection(db, 'notes'), where('grade', '==', filterGrade), orderBy('uploadedAt', 'desc'));
+      }
+      
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500">No notes uploaded yet.</td></tr>';
+        return;
+      }
+      
+      snap.forEach(docSnap => {
+        const n = docSnap.data();
+        const row = document.createElement('tr');
+        row.className = 'border-t hover:bg-gray-50';
+        row.innerHTML = `
+          <td class="p-4 font-medium">${n.title}</td>
+          <td class="p-4">${n.subject}</td>
+          <td class="p-4">Grade ${n.grade} ${n.section !== 'all' ? '(' + n.section + ')' : ''}</td>
+          <td class="p-4">
+            <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold uppercase">${n.fileType || 'file'}</span>
+          </td>
+          <td class="p-4 text-sm">${n.uploadedAt?.toDate ? n.uploadedAt.toDate().toLocaleDateString() : '—'}</td>
+          <td class="p-4 flex gap-2">
+            <a href="${n.fileUrl}" target="_blank" class="text-indigo-600 hover:text-indigo-800" title="Download">
+              <i class="fas fa-download"></i>
+            </a>
+            <button class="text-red-600 hover:text-red-800 delete-btn" data-id="${docSnap.id}" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>`;
+        tbody.appendChild(row);
+      });
+      document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', deleteNote));
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-red-500">Failed to load notes.</td></tr>';
+      console.error(err);
+    }
+  }
+  loadNotes();
+
+  window.openModal = () => {
+    document.getElementById('noteForm').reset();
+    const fileNameDisplay = document.getElementById('fileName');
+    if (fileNameDisplay) fileNameDisplay.classList.add('hidden');
+    document.getElementById('noteModal').classList.remove('hidden');
+  };
+  window.closeModal = () => document.getElementById('noteModal').classList.add('hidden');
+
+  async function deleteNote(e) {
+    if (!confirm('Delete this note?')) return;
+    await deleteDoc(doc(db, 'notes', e.currentTarget.dataset.id));
     loadNotes();
+    showToast('Note deleted');
+  }
 
-    window.openModal = () => {
-      document.getElementById('noteForm').reset();
-      fileNameDisplay.classList.add('hidden');
-      document.getElementById('noteModal').classList.remove('hidden');
-    };
-    window.closeModal = () => document.getElementById('noteModal').classList.add('hidden');
+  // ========== UPLOAD HANDLER ==========
+  document.getElementById('noteForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
 
-    async function deleteNote(e) {
-      if (!confirm('Delete this note?')) return;
-      await deleteDoc(doc(db, 'notes', e.currentTarget.dataset.id));
-      loadNotes();
-      showToast('Note deleted');
+    const fileInput = document.getElementById('noteFile');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+      showToast('Please select a file', true);
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+      return;
     }
 
-    // Upload handler
-    document.getElementById('noteForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = e.target.querySelector('button[type="submit"]');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    // Check file size (32MB max)
+    if (file.size > 32 * 1024 * 1024) {
+      showToast('File too large (max 32MB)', true);
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+      return;
+    }
 
-      const file = fileInput.files[0];
-      if (!file) { showToast('Please select a file', true); btn.disabled = false; btn.innerHTML = 'Upload Note'; return; }
+    try {
+      // Upload the file
+      showToast('Uploading file...');
+      const { url, type } = await uploadFile(file);
 
-      try {
-        const { url, type } = await uploadFile(file);
+      // Save metadata to Firestore
+      await addDoc(collection(db, 'notes'), {
+        title: document.getElementById('title').value.trim(),
+        subject: document.getElementById('subject').value.trim(),
+        grade: document.getElementById('grade').value,
+        section: document.getElementById('section').value || 'all',
+        description: document.getElementById('description').value.trim(),
+        fileUrl: url,
+        fileType: type,
+        fileName: file.name,
+        uploadedBy: adminUser.email || 'Admin',
+        uploadedAt: serverTimestamp()
+      });
 
-        await addDoc(collection(db, 'notes'), {
-          title: document.getElementById('title').value,
-          subject: document.getElementById('subject').value,
-          grade: document.getElementById('grade').value,
-          section: document.getElementById('section').value,
-          description: document.getElementById('description').value,
-          fileUrl: url,
-          fileType: type,
-          fileName: file.name,
-          uploadedBy: adminUser.email || 'Admin',
-          uploadedAt: serverTimestamp()
-        });
+      closeModal();
+      loadNotes();
+      showToast('✅ Note uploaded successfully!');
+    } catch (err) {
+      console.error('Upload error:', err);
+      showToast('Upload failed: ' + err.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  });
 
-        closeModal();
-        loadNotes();
-        showToast('✅ Note uploaded successfully!');
-      } catch (err) {
-        showToast('Error: ' + err.message, true);
-        console.error(err);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-upload mr-1"></i> Upload Note';
-      }
-    });
-
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.href = '/admin/index.html';
-    });
-  </script>
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = '/admin/index.html';
+  });
+</script>
 </body>
 </html>
