@@ -1,738 +1,698 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Student Portal – M.I Academy</title>
-    <meta name="description" content="Student portal for M.I Academy – dashboard, grades, attendance, and more." />
-    <link rel="icon" href="/assets/images/favicon.ico" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Student Dashboard – M.I Academy</title>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome 6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <!-- Google Font (Inter) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Google Font (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
 
-    <style>
-        * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
+  <style>
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
 
-        body {
-            background: #f2f4f8;
-            padding-bottom: 80px;
-            /* space for bottom nav */;
-        }
+    body {
+      background: #f0f2f8;
+    }
 
-        /* Hide scrollbar but keep scrolling */
-        ::-webkit-scrollbar {
-            width: 0;
-            background: transparent;
-        }
+    /* Smooth scroll & hide scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c4c8d4;
+      border-radius: 100px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a0a8b8;
+    }
 
-        /* App-like card */
-        .app-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
+    /* Loading overlay */
+    #global-loader {
+      position: fixed;
+      inset: 0;
+      background: #f0f2f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #global-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
 
-        .app-card:active {
-            transform: scale(0.98);
-        }
+    /* Glassmorphism card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .glass-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(79, 70, 229, 0.08);
+    }
 
-        /* Gradient header */
-        .gradient-header {
-            background: linear-gradient(145deg, #4f46e5, #7c3aed);
-            border-radius: 0 0 40px 40px;
-            padding-top: 48px;
-            padding-bottom: 32px;
-            position: relative;
-            overflow: hidden;
-        }
+    /* Gradient header */
+    .gradient-header {
+      background: linear-gradient(145deg, #4f46e5, #7c3aed);
+      border-radius: 0 0 48px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .gradient-header::before {
+      content: '';
+      position: absolute;
+      top: -60%;
+      right: -20%;
+      width: 400px;
+      height: 400px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 50%;
+    }
+    .gradient-header::after {
+      content: '';
+      position: absolute;
+      bottom: -40%;
+      left: -10%;
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 50%;
+    }
 
-        .gradient-header::before {
-            content: '';
-            position: absolute;
-            top: -60%;
-            right: -20%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 50%;
-        }
+    /* Avatar ring */
+    .avatar-ring {
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25), 0 8px 24px rgba(79, 70, 229, 0.25);
+    }
 
-        .gradient-header::after {
-            content: '';
-            position: absolute;
-            bottom: -40%;
-            left: -10%;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-        }
+    /* Stat card icon wrapper */
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
 
-        /* Avatar ring */
-        .avatar-ring {
-            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
-        }
+    /* Feed item */
+    .feed-item {
+      border-left: 4px solid transparent;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .feed-item:hover {
+      background: rgba(79, 70, 229, 0.04);
+    }
+    .feed-item.notice {
+      border-left-color: #3b82f6;
+    }
+    .feed-item.note {
+      border-left-color: #22c55e;
+    }
 
-        /* Bottom navigation – iOS style */
-        .bottom-nav {
-            position: fixed;
-            bottom: 16px;
-            left: 16px;
-            right: 16px;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border-radius: 32px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            padding: 6px 12px;
-            z-index: 100;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            height: 68px;
-        }
+    /* Badge pulse */
+    .badge-pulse {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse-badge 2s ease-in-out infinite;
+    }
+    @keyframes pulse-badge {
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.5;
+        transform: scale(1.3);
+      }
+    }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            transition: all 0.2s ease;
-            flex: 1;
-            max-width: 72px;
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 10px;
-            font-weight: 500;
-            position: relative;
-        }
+    /* Status chip */
+    .status-chip {
+      padding: 4px 14px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-chip.paid {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+    .status-chip.pending {
+      background: #fef3c7;
+      color: #d97706;
+    }
+    .status-chip.overdue {
+      background: #fee2e2;
+      color: #dc2626;
+    }
 
-        .nav-item i {
-            font-size: 20px;
-            transition: all 0.2s ease;
-        }
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #0f0f1a;
+      }
+      .glass-card {
+        background: rgba(30, 30, 50, 0.8);
+        border-color: rgba(255, 255, 255, 0.06);
+        color: #e2e8f0;
+      }
+      .glass-card:hover {
+        box-shadow: 0 16px 48px rgba(99, 102, 241, 0.06);
+      }
+      .text-gray-600,
+      .text-gray-500 {
+        color: #94a3b8 !important;
+      }
+      .text-gray-700 {
+        color: #cbd5e1 !important;
+      }
+      .text-gray-800,
+      .text-gray-900 {
+        color: #f1f5f9 !important;
+      }
+      .bg-white {
+        background: rgba(30, 30, 50, 0.7) !important;
+      }
+      .bg-gray-50 {
+        background: rgba(20, 20, 35, 0.6) !important;
+      }
+      .bg-gray-100 {
+        background: rgba(30, 30, 50, 0.5) !important;
+      }
+      .border-gray-100 {
+        border-color: rgba(255, 255, 255, 0.06) !important;
+      }
+      .border-gray-200 {
+        border-color: rgba(255, 255, 255, 0.08) !important;
+      }
+      .gradient-header {
+        background: linear-gradient(145deg, #3730a3, #5b21b6);
+      }
+      .stat-icon {
+        background: rgba(99, 102, 241, 0.15) !important;
+        color: #818cf8 !important;
+      }
+      .status-chip.paid {
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
+      }
+      .status-chip.pending {
+        background: rgba(234, 179, 8, 0.15);
+        color: #fbbf24;
+      }
+      .status-chip.overdue {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+      }
+      #global-loader {
+        background: #0f0f1a;
+      }
+      .feed-item:hover {
+        background: rgba(99, 102, 241, 0.06);
+      }
+    }
 
-        .nav-item.active {
-            color: #4f46e5;
-        }
+    /* Fade-up animation */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-        .nav-item.active i {
-            transform: translateY(-2px);
-        }
+    /* Button hover */
+    .btn-soft {
+      transition: all 0.2s ease;
+    }
+    .btn-soft:hover {
+      transform: scale(1.04);
+    }
 
-        .nav-item.active::after {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 3px;
-            background: #4f46e5;
-            border-radius: 4px;
-        }
+    /* Quick link tile */
+    .quick-tile {
+      transition: all 0.2s ease;
+      border-radius: 16px;
+    }
+    .quick-tile:active {
+      transform: scale(0.95);
+    }
 
-        .nav-item:active {
-            transform: scale(0.92);
-        }
-
-        /* Status badge pulse */
-        .pulse-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #22c55e;
-            border-radius: 50%;
-            animation: pulse-dot 2s infinite;
-        }
-
-        @keyframes pulse-dot {
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.5;
-                transform: scale(1.2);
-            }
-        }
-
-        /* Grade chip */
-        .grade-chip {
-            background: rgba(79, 70, 229, 0.08);
-            color: #4f46e5;
-            padding: 4px 12px;
-            border-radius: 100px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        /* Progress bar */
-        .progress-bar {
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 100px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            border-radius: 100px;
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            transition: width 0.6s ease;
-        }
-
-        /* Subject tag */
-        .subject-tag {
-            padding: 4px 12px;
-            border-radius: 100px;
-            font-size: 11px;
-            font-weight: 600;
-            background: #f1f5f9;
-            color: #475569;
-        }
-
-        /* Notification badge */
-        .notif-badge {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            background: #ef4444;
-            color: white;
-            font-size: 9px;
-            font-weight: 700;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid rgba(255, 255, 255, 0.9);
-        }
-
-        /* Scrollable horizontal row */
-        .scroll-horizontal {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding: 4px 2px 12px 2px;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .scroll-horizontal>* {
-            scroll-snap-align: start;
-            flex-shrink: 0;
-        }
-
-        /* Loading shimmer */
-        .shimmer {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        /* Fade up animation */
-        .fade-up {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.5s ease;
-        }
-
-        .fade-up.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: #0f0f1a;
-            }
-            .app-card {
-                background: rgba(30, 30, 50, 0.85);
-                border-color: rgba(255, 255, 255, 0.06);
-                color: #e2e8f0;
-            }
-            .bottom-nav {
-                background: rgba(20, 20, 35, 0.92);
-                border-color: rgba(255, 255, 255, 0.06);
-            }
-            .nav-item {
-                color: #64748b;
-            }
-            .nav-item.active {
-                color: #818cf8;
-            }
-            .subject-tag {
-                background: #1e293b;
-                color: #94a3b8;
-            }
-            .grade-chip {
-                background: rgba(99, 102, 241, 0.15);
-                color: #818cf8;
-            }
-            .progress-bar {
-                background: #1e293b;
-            }
-            .text-gray-600 {
-                color: #94a3b8 !important;
-            }
-            .text-gray-500 {
-                color: #64748b !important;
-            }
-            .text-gray-700 {
-                color: #cbd5e1 !important;
-            }
-            .text-gray-800 {
-                color: #e2e8f0 !important;
-            }
-            .text-gray-900 {
-                color: #f1f5f9 !important;
-            }
-            .bg-white {
-                background: rgba(30, 30, 50, 0.8) !important;
-            }
-            .bg-gray-50 {
-                background: rgba(20, 20, 35, 0.6) !important;
-            }
-            .bg-gray-100 {
-                background: rgba(30, 30, 50, 0.5) !important;
-            }
-            .border-gray-100 {
-                border-color: rgba(255, 255, 255, 0.06) !important;
-            }
-            .border-gray-200 {
-                border-color: rgba(255, 255, 255, 0.08) !important;
-            }
-            .gradient-header {
-                background: linear-gradient(145deg, #3730a3, #5b21b6);
-            }
-        }
-
-        /* Safe area for notched phones */
-        @supports (padding-bottom: env(safe-area-inset-bottom)) {
-            .bottom-nav {
-                padding-bottom: calc(6px + env(safe-area-inset-bottom));
-                bottom: calc(16px + env(safe-area-inset-bottom));
-            }
-            body {
-                padding-bottom: calc(80px + env(safe-area-inset-bottom));
-            }
-        }
-    </style>
+    /* Mobile optimizations */
+    @media (max-width: 640px) {
+      .gradient-header {
+        border-radius: 0 0 32px 32px;
+        padding-top: 20px;
+        padding-bottom: 24px;
+      }
+      .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
+      .glass-card {
+        padding: 16px !important;
+      }
+    }
+  </style>
 </head>
 <body>
 
-    <!-- ===== APP HEADER ===== -->
-    <header class="gradient-header text-white relative">
-        <div class="px-5 relative z-10">
-            <!-- Top row: greeting + notifications -->
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-white/70 text-sm font-medium">Welcome back,</p>
-                    <h1 class="text-2xl font-bold tracking-tight" id="student-name">Aarav Sharma</h1>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="pulse-dot"></span>
-                        <span class="text-white/80 text-sm">Online</span>
-                    </div>
-                </div>
-                <div class="relative">
-                    <button class="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-white text-xl hover:bg-white/30 transition">
-                        <i class="fas fa-bell"></i>
-                    </button>
-                    <span class="notif-badge">3</span>
-                </div>
-            </div>
+  <!-- ===== LOADING OVERLAY ===== -->
+  <div id="global-loader">
+    <div class="text-center">
+      <div class="w-16 h-16 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin mx-auto mb-4"></div>
+      <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Loading your dashboard…</p>
+    </div>
+  </div>
 
-            <!-- Quick stats row -->
-            <div class="grid grid-cols-3 gap-3 mt-6">
-                <div class="bg-white/15 backdrop-blur rounded-2xl p-3 text-center">
-                    <p class="text-2xl font-bold" id="gpa-display">3.8</p>
-                    <p class="text-white/70 text-xs font-medium">GPA</p>
-                </div>
-                <div class="bg-white/15 backdrop-blur rounded-2xl p-3 text-center">
-                    <p class="text-2xl font-bold" id="attendance-display">92%</p>
-                    <p class="text-white/70 text-xs font-medium">Attendance</p>
-                </div>
-                <div class="bg-white/15 backdrop-blur rounded-2xl p-3 text-center">
-                    <p class="text-2xl font-bold" id="assignments-display">5</p>
-                    <p class="text-white/70 text-xs font-medium">Pending</p>
-                </div>
+  <!-- ===== MAIN APP ===== -->
+  <div id="app" style="display:none;">
+
+    <!-- ===== HEADER ===== -->
+    <header class="gradient-header text-white px-5 pt-6 pb-8 relative">
+      <div class="relative z-10 max-w-7xl mx-auto">
+
+        <!-- Top row: greeting + actions -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <!-- Avatar -->
+            <div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur avatar-ring flex items-center justify-center text-2xl font-bold text-white overflow-hidden flex-shrink-0">
+              <span id="avatarInitial">A</span>
             </div>
+            <div>
+              <p class="text-white/70 text-xs font-medium uppercase tracking-wider">Welcome back</p>
+              <h1 class="text-xl font-bold tracking-tight" id="studentName">Student</h1>
+              <div class="flex items-center gap-2 mt-0.5">
+                <span class="badge-pulse"></span>
+                <span class="text-white/70 text-xs">Online</span>
+                <span class="text-white/30 text-xs">•</span>
+                <span class="text-white/50 text-xs font-mono" id="studentSchoolId">ID</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="logoutBtn" class="w-10 h-10 rounded-full bg-white/15 backdrop-blur hover:bg-white/25 transition flex items-center justify-center text-white/80 hover:text-white text-sm">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
         </div>
+
+        <!-- Quick stats row -->
+        <div class="grid grid-cols-3 gap-3 mt-6">
+          <div class="bg-white/10 backdrop-blur rounded-2xl px-4 py-3 text-center">
+            <p class="text-2xl font-bold" id="studentGrade">—</p>
+            <p class="text-white/60 text-xs font-medium uppercase tracking-wider">Grade</p>
+          </div>
+          <div class="bg-white/10 backdrop-blur rounded-2xl px-4 py-3 text-center">
+            <p class="text-2xl font-bold" id="studentSection">—</p>
+            <p class="text-white/60 text-xs font-medium uppercase tracking-wider">Section</p>
+          </div>
+          <div class="bg-white/10 backdrop-blur rounded-2xl px-4 py-3 text-center">
+            <p class="text-2xl font-bold" id="feeStatus">—</p>
+            <p class="text-white/60 text-xs font-medium uppercase tracking-wider">Fee Status</p>
+          </div>
+        </div>
+
+      </div>
     </header>
 
     <!-- ===== MAIN CONTENT ===== -->
-    <main class="px-4 -mt-4 relative z-10">
+    <main class="max-w-7xl mx-auto px-4 -mt-4 relative z-10 pb-8">
 
-        <!-- ===== SCHEDULE / NEXT CLASS ===== -->
-        <section class="app-card p-4 mb-4 fade-up">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold text-indigo-500 uppercase tracking-wider">Next Class</p>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white" id="next-class">Mathematics</h3>
-                    <p class="text-sm text-gray-500" id="next-class-time">Today · 10:30 AM – 11:30 AM</p>
-                </div>
-                <div class="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-500 text-xl">
-                    <i class="fas fa-calculator"></i>
-                </div>
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 fade-up" id="statsGrid">
+        <div class="glass-card p-5 rounded-2xl">
+          <div class="flex items-center gap-4">
+            <div class="stat-icon bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400">
+              <i class="fas fa-id-card"></i>
             </div>
-            <div class="mt-3 flex items-center gap-2">
-                <span class="subject-tag">Room 204</span>
-                <span class="subject-tag">Mr. Gupta</span>
-                <span class="ml-auto text-xs text-indigo-500 font-medium"><i class="fas fa-video mr-1"></i>Join</span>
+            <div>
+              <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">School ID</p>
+              <p class="text-lg font-bold font-mono text-gray-800 dark:text-white" id="statSchoolId">—</p>
             </div>
-        </section>
-
-        <!-- ===== QUICK ACTIONS ===== -->
-        <section class="mb-4 fade-up">
-            <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-1">Quick Actions</h2>
-            <div class="grid grid-cols-4 gap-3">
-                <button class="app-card p-3 flex flex-col items-center justify-center gap-1.5 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition" onclick="alert('📚 Assignments page')">
-                    <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-500 text-lg">
-                        <i class="fas fa-book-open"></i>
-                    </div>
-                    <span class="text-[10px] font-medium text-gray-700 dark:text-gray-300">Assignments</span>
-                </button>
-                <button class="app-card p-3 flex flex-col items-center justify-center gap-1.5 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition" onclick="alert('📅 Timetable')">
-                    <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500 text-lg">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <span class="text-[10px] font-medium text-gray-700 dark:text-gray-300">Timetable</span>
-                </button>
-                <button class="app-card p-3 flex flex-col items-center justify-center gap-1.5 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition" onclick="alert('📊 Results')">
-                    <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-500 text-lg">
-                        <i class="fas fa-chart-simple"></i>
-                    </div>
-                    <span class="text-[10px] font-medium text-gray-700 dark:text-gray-300">Results</span>
-                </button>
-                <button class="app-card p-3 flex flex-col items-center justify-center gap-1.5 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition" onclick="alert('💬 Messages')">
-                    <div class="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-500 text-lg">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <span class="text-[10px] font-medium text-gray-700 dark:text-gray-300">Messages</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- ===== RECENT GRADES ===== -->
-        <section class="mb-4 fade-up">
-            <div class="flex items-center justify-between mb-3 px-1">
-                <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Recent Grades</h2>
-                <a href="#" class="text-xs font-medium text-indigo-500">See all</a>
-            </div>
-            <div class="space-y-3" id="grades-container">
-                <!-- populated by JS -->
-            </div>
-        </section>
-
-        <!-- ===== ATTENDANCE OVERVIEW ===== -->
-        <section class="mb-4 fade-up">
-            <div class="flex items-center justify-between mb-3 px-1">
-                <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Attendance</h2>
-                <span class="text-xs font-medium text-gray-400">This month</span>
-            </div>
-            <div class="app-card p-4">
-                <div class="flex items-center gap-4">
-                    <div class="relative w-20 h-20">
-                        <svg class="w-20 h-20 -rotate-90" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" stroke-width="8" />
-                            <circle id="attendance-circle" cx="50" cy="50" r="42" fill="none" stroke="url(#grad)" stroke-width="8" stroke-linecap="round"
-                            stroke-dasharray="263.89" stroke-dashoffset="40" />
-                            <defs>
-                                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stop-color="#4f46e5" />
-                                    <stop offset="100%" stop-color="#7c3aed" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <span class="text-lg font-bold text-gray-900 dark:text-white" id="attendance-percent">85%</span>
-                        </div>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500 dark:text-gray-400">Present</span>
-                            <span class="font-semibold text-gray-900 dark:text-white" id="present-days">17</span>
-                        </div>
-                        <div class="flex justify-between text-sm mt-1">
-                            <span class="text-gray-500 dark:text-gray-400">Absent</span>
-                            <span class="font-semibold text-gray-900 dark:text-white" id="absent-days">3</span>
-                        </div>
-                        <div class="flex justify-between text-sm mt-1">
-                            <span class="text-gray-500 dark:text-gray-400">Total</span>
-                            <span class="font-semibold text-gray-900 dark:text-white" id="total-days">20</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== RECENT ACTIVITY ===== -->
-        <section class="mb-4 fade-up">
-            <div class="flex items-center justify-between mb-3 px-1">
-                <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Recent Activity</h2>
-                <span class="text-xs font-medium text-gray-400">Today</span>
-            </div>
-            <div class="space-y-2" id="activity-container">
-                <!-- populated by JS -->
-            </div>
-        </section>
-
-        <!-- spacer for bottom nav -->
-        <div class="h-4"></div>
-    </main>
-
-    <!-- ===== BOTTOM NAVIGATION (App-like) ===== -->
-    <nav class="bottom-nav" id="bottom-nav">
-        <a href="#" class="nav-item active" data-tab="home">
-            <i class="fas fa-house"></i>
-            <span>Home</span>
-        </a>
-        <a href="#" class="nav-item" data-tab="grades">
-            <i class="fas fa-chart-simple"></i>
-            <span>Grades</span>
-        </a>
-        <a href="#" class="nav-item" data-tab="schedule">
-            <i class="fas fa-calendar"></i>
-            <span>Schedule</span>
-        </a>
-        <a href="#" class="nav-item" data-tab="profile">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
-        </a>
-    </nav>
-
-    <!-- ===== LOADING OVERLAY ===== -->
-    <div id="global-loader" class="fixed inset-0 bg-white dark:bg-[#0f0f1a] flex items-center justify-center z-[9999] transition-opacity duration-500">
-        <div class="text-center">
-            <div class="w-16 h-16 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin mx-auto mb-4"></div>
-            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Loading portal…</p>
+          </div>
         </div>
-    </div>
+        <div class="glass-card p-5 rounded-2xl">
+          <div class="flex items-center gap-4">
+            <div class="stat-icon bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div>
+              <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Grade</p>
+              <p class="text-lg font-bold text-gray-800 dark:text-white" id="statGrade">—</p>
+            </div>
+          </div>
+        </div>
+        <div class="glass-card p-5 rounded-2xl">
+          <div class="flex items-center gap-4">
+            <div class="stat-icon bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400">
+              <i class="fas fa-layer-group"></i>
+            </div>
+            <div>
+              <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Section</p>
+              <p class="text-lg font-bold text-gray-800 dark:text-white" id="statSection">—</p>
+            </div>
+          </div>
+        </div>
+        <div class="glass-card p-5 rounded-2xl">
+          <div class="flex items-center gap-4">
+            <div class="stat-icon bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400">
+              <i class="fas fa-wallet"></i>
+            </div>
+            <div>
+              <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Fee Status</p>
+              <p class="text-lg font-bold" id="statFeeStatus">—</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <!-- ===== SCRIPTS ===== -->
-    <script type="module">
-        // ----- FIREBASE IMPORTS -----
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      <!-- ===== NOTICES + NOTES FEED ===== -->
+      <section class="glass-card p-6 rounded-2xl mb-6 fade-up">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <i class="fas fa-bell text-lg"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-white">Feed</h2>
+              <p class="text-xs text-gray-400">Notices &amp; study materials</p>
+            </div>
+          </div>
+          <span class="text-xs text-gray-400" id="feedCount">0 items</span>
+        </div>
 
-        // ----- CONFIG (Replace with yours) -----
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+        <div id="combinedFeed" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+          <div class="text-center py-10 text-gray-400">
+            <i class="fas fa-spinner fa-spin text-2xl mb-3"></i>
+            <p class="text-sm">Loading feed…</p>
+          </div>
+        </div>
+      </section>
 
-        let db;
-        try {
-            const module = await import("/assets/js/firebase-config.js");
-            db = module.db;
-            console.log("✅ Using Firebase config from /assets/js/firebase-config.js");
-        } catch (_) {
-            console.warn("⚠️ Using inline Firebase config. Update with your credentials.");
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
+      <!-- ===== QUICK LINKS ===== -->
+      <section class="glass-card p-6 rounded-2xl fade-up">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-500 dark:text-rose-400">
+            <i class="fas fa-link text-lg"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Quick Links</h2>
+            <p class="text-xs text-gray-400">Jump to important pages</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <a href="/gallery.html" class="quick-tile p-4 bg-amber-50 dark:bg-amber-900/10 text-center hover:bg-amber-100 dark:hover:bg-amber-900/20 transition">
+            <i class="fas fa-images text-2xl text-amber-600 dark:text-amber-400 mb-2"></i>
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Gallery</p>
+          </a>
+          <a href="/contact.html" class="quick-tile p-4 bg-purple-50 dark:bg-purple-900/10 text-center hover:bg-purple-100 dark:hover:bg-purple-900/20 transition">
+            <i class="fas fa-envelope text-2xl text-purple-600 dark:text-purple-400 mb-2"></i>
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Contact</p>
+          </a>
+          <a href="/about.html" class="quick-tile p-4 bg-green-50 dark:bg-green-900/10 text-center hover:bg-green-100 dark:hover:bg-green-900/20 transition">
+            <i class="fas fa-info-circle text-2xl text-green-600 dark:text-green-400 mb-2"></i>
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">About</p>
+          </a>
+          <a href="/student-life.html" class="quick-tile p-4 bg-pink-50 dark:bg-pink-900/10 text-center hover:bg-pink-100 dark:hover:bg-pink-900/20 transition">
+            <i class="fas fa-star text-2xl text-pink-600 dark:text-pink-400 mb-2"></i>
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Activities</p>
+          </a>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script type="module">
+    // ----- FIREBASE IMPORTS -----
+    import { auth, db } from "/assets/js/firebase-config.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, getDoc, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // ========== DOM REFS ==========
+    const loader = document.getElementById('global-loader');
+    const app = document.getElementById('app');
+    const feedContainer = document.getElementById('combinedFeed');
+    const feedCount = document.getElementById('feedCount');
+
+    // ========== HELPERS ==========
+    function hideLoader() {
+      if (loader) {
+        loader.classList.add('hidden');
+        setTimeout(() => loader.style.display = 'none', 600);
+      }
+      if (app) app.style.display = '';
+    }
+
+    function formatDate(timestamp) {
+      if (!timestamp) return 'Unknown';
+      try {
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      } catch { return 'Unknown'; }
+    }
+
+    function getInitials(name) {
+      if (!name) return 'S';
+      const parts = name.trim().split(' ');
+      if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+      return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+
+    function getStatusChip(status) {
+      const map = {
+        'paid': 'paid',
+        'Paid': 'paid',
+        'PAID': 'paid',
+        'pending': 'pending',
+        'Pending': 'pending',
+        'overdue': 'overdue',
+        'Overdue': 'overdue'
+      };
+      const key = map[status] || 'pending';
+      return `<span class="status-chip ${key}">${status || 'Pending'}</span>`;
+    }
+
+    // ========== SAFETY TIMER ==========
+    const safetyTimer = setTimeout(() => {
+      console.warn('⚠️ Safety timeout – forcing dashboard display');
+      hideLoader();
+    }, 12000);
+
+    // ========== AUTH GUARD ==========
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = '/student-login.html';
+        return;
+      }
+
+      try {
+        const schoolId = user.email?.split('@')[0] || 'Unknown';
+        const displayName = user.displayName || schoolId;
+
+        // ---- Update UI with user info ----
+        document.getElementById('studentName').textContent = displayName;
+        document.getElementById('studentSchoolId').textContent = schoolId;
+        document.getElementById('statSchoolId').textContent = schoolId;
+        document.getElementById('avatarInitial').textContent = getInitials(displayName);
+
+        // ---- 1. Fetch student profile ----
+        const studentSnap = await getDoc(doc(db, 'students', user.uid));
+        const studentData = studentSnap.exists() ? studentSnap.data() : null;
+
+        const grade = studentData?.grade || '—';
+        const section = studentData?.section || '—';
+        const feeStatus = studentData?.feeStatus || 'N/A';
+
+        document.getElementById('studentGrade').textContent = grade;
+        document.getElementById('studentSection').textContent = section;
+        document.getElementById('feeStatus').textContent = feeStatus;
+        document.getElementById('statGrade').textContent = grade;
+        document.getElementById('statSection').textContent = section;
+        document.getElementById('statFeeStatus').innerHTML = getStatusChip(feeStatus);
+
+        // ---- 2. Fetch notices + notes in parallel ----
+        const gradeFilter = (grade !== '—' && grade !== '') ? grade : '';
+        const sectionFilter = (section !== '—' && section !== '') ? section : 'A';
+
+        const promises = [
+          // Notices (all, sorted by date)
+          getDocs(query(collection(db, 'notices'), orderBy('created_at', 'desc'))),
+        ];
+
+        // Notes: only if we have a valid grade
+        if (gradeFilter) {
+          promises.push(
+            getDocs(query(
+              collection(db, 'notes'),
+              where('grade', '==', gradeFilter),
+              where('section', '==', sectionFilter),
+              orderBy('uploadedAt', 'desc')
+            ))
+          );
+          promises.push(
+            getDocs(query(
+              collection(db, 'notes'),
+              where('grade', '==', gradeFilter),
+              where('section', '==', 'all'),
+              orderBy('uploadedAt', 'desc')
+            ))
+          );
+        } else {
+          promises.push(Promise.resolve({ forEach: () => {} }));
+          promises.push(Promise.resolve({ forEach: () => {} }));
         }
 
-        // ----- HELPERS -----
-        function hideLoader() {
-            const el = document.getElementById('global-loader');
-            if (el) {
-                el.style.opacity = '0';
-                setTimeout(() => el.style.display = 'none', 500);
-            }
+        const [noticesSnap, notesSnap1, notesSnap2] = await Promise.all(promises);
+
+        // ---- 3. Build combined feed ----
+        const feedItems = [];
+
+        // Notices
+        noticesSnap.forEach(doc => {
+          const n = doc.data();
+          feedItems.push({
+            type: 'notice',
+            title: n.title || 'Notice',
+            description: n.description || '',
+            date: n.date || formatDate(n.created_at),
+            icon: 'fa-bullhorn',
+            color: 'text-blue-600 dark:text-blue-400',
+            bg: 'bg-blue-50 dark:bg-blue-900/20',
+            borderClass: 'notice'
+          });
+        });
+
+        // Notes (deduplicate by title)
+        const seenTitles = new Set();
+        const noteDocs = [...(notesSnap1?.docs || []), ...(notesSnap2?.docs || [])];
+        noteDocs.forEach(doc => {
+          const n = doc.data();
+          const key = n.title || 'Untitled';
+          if (seenTitles.has(key)) return;
+          seenTitles.add(key);
+
+          feedItems.push({
+            type: 'note',
+            title: `📚 ${key}`,
+            description: `${n.subject || 'General'} • ${n.fileType?.toUpperCase() || 'PDF'}`,
+            date: formatDate(n.uploadedAt),
+            icon: 'fa-book',
+            color: 'text-green-600 dark:text-green-400',
+            bg: 'bg-green-50 dark:bg-green-900/20',
+            borderClass: 'note',
+            downloadUrl: n.fileUrl || null,
+            fileName: n.fileName || null
+          });
+        });
+
+        // Sort by date (newest first)
+        feedItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // ---- 4. Render feed ----
+        feedCount.textContent = `${feedItems.length} items`;
+
+        if (feedItems.length === 0) {
+          feedContainer.innerHTML = `
+            <div class="text-center py-10">
+              <i class="fas fa-inbox text-4xl text-gray-300 dark:text-gray-600 mb-3"></i>
+              <p class="text-gray-500 dark:text-gray-400 font-medium">No notices or study materials</p>
+              <p class="text-xs text-gray-400 mt-1">Check back later for updates</p>
+            </div>`;
+        } else {
+          feedContainer.innerHTML = feedItems.map(item => `
+            <div class="feed-item ${item.borderClass} pl-4 py-3 pr-2 rounded-lg transition">
+              <div class="flex justify-between items-start gap-3">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <span class="${item.bg} ${item.color} p-1.5 rounded-full inline-flex items-center justify-center w-7 h-7">
+                      <i class="fas ${item.icon} text-xs"></i>
+                    </span>
+                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">${item.date}</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">${item.type}</span>
+                  </div>
+                  <h3 class="font-semibold text-gray-800 dark:text-white text-sm sm:text-base">${item.title}</h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">${item.description}</p>
+                </div>
+                ${item.downloadUrl ? `
+                  <a href="${item.downloadUrl}" target="_blank" rel="noopener noreferrer"
+                    class="flex-shrink-0 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-xs font-semibold hover:bg-green-200 dark:hover:bg-green-900/50 transition btn-soft">
+                    <i class="fas fa-download mr-1"></i> Download
+                  </a>
+                ` : ''}
+              </div>
+            </div>
+          `).join('');
         }
 
-        function observeFade() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(e => {
-                    if (e.isIntersecting) e.target.classList.add('visible');
-                });
-            }, { threshold: 0.1 });
-            document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-        }
+        // ---- 5. Fade-up animations ----
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('visible');
+          });
+        }, { threshold: 0.08 });
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-        // ----- LOAD STUDENT DATA (mock + Firebase fallback) -----
-        async function loadStudentData() {
-            try {
-                // Try fetching from a "students" collection or a "student" doc
-                const studentRef = doc(db, 'students', 'demo');
-                const snap = await getDoc(studentRef);
-                if (snap.exists()) {
-                    const data = snap.data();
-                    applyStudentData(data);
-                    return;
-                }
-            } catch (_) { /* ignore */ }
+        // ---- DONE ----
+        clearTimeout(safetyTimer);
+        hideLoader();
 
-            // Fallback: generate mock data
-            applyStudentData({
-                name: 'Aarav Sharma',
-                grade: '10',
-                section: 'A',
-                gpa: 3.8,
-                attendance: 92,
-                pendingAssignments: 5,
-                nextClass: 'Mathematics',
-                nextClassTime: 'Today · 10:30 AM – 11:30 AM',
-                nextClassRoom: 'Room 204',
-                nextClassTeacher: 'Mr. Gupta',
-                grades: [
-                    { subject: 'Mathematics', score: 92, grade: 'A', max: 100 },
-                    { subject: 'Science', score: 88, grade: 'B+', max: 100 },
-                    { subject: 'English', score: 95, grade: 'A+', max: 100 },
-                ],
-                attendanceData: { present: 17, absent: 3, total: 20 },
-                activities: [
-                    { icon: 'fa-check-circle', color: 'text-emerald-500', text: 'Submitted Math assignment', time: '2h ago' },
-                    { icon: 'fa-star', color: 'text-amber-500', text: 'Scored 95% in English test', time: '4h ago' },
-                    { icon: 'fa-clock', color: 'text-indigo-500', text: 'Attendance marked for today', time: '6h ago' },
-                ]
-            });
-        }
+      } catch (err) {
+        console.error('Dashboard error:', err);
+        feedContainer.innerHTML = `
+          <div class="text-center py-10 text-red-500">
+            <i class="fas fa-exclamation-triangle text-3xl mb-3"></i>
+            <p class="font-medium">Failed to load dashboard</p>
+            <p class="text-sm text-gray-400 mt-1">Please refresh the page</p>
+          </div>`;
+        clearTimeout(safetyTimer);
+        hideLoader();
+      }
+    });
 
-        function applyStudentData(data) {
-            // Name
-            document.getElementById('student-name').textContent = data.name || 'Student';
+    // ========== LOGOUT ==========
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/student-login.html';
+    });
+  </script>
 
-            // Stats
-            document.getElementById('gpa-display').textContent = data.gpa?.toFixed(1) || '—';
-            document.getElementById('attendance-display').textContent = (data.attendance || 0) + '%';
-            document.getElementById('assignments-display').textContent = data.pendingAssignments || 0;
-
-            // Next class
-            document.getElementById('next-class').textContent = data.nextClass || 'No class';
-            document.getElementById('next-class-time').textContent = data.nextClassTime || '';
-            const roomEl = document.querySelector('.subject-tag:first-child');
-            const teacherEl = document.querySelector('.subject-tag:last-child');
-            if (roomEl) roomEl.textContent = data.nextClassRoom || '—';
-            if (teacherEl) teacherEl.textContent = data.nextClassTeacher || '—';
-
-            // Grades
-            const gradesContainer = document.getElementById('grades-container');
-            if (data.grades && data.grades.length) {
-                gradesContainer.innerHTML = data.grades.map(g => `
-                    <div class="app-card p-3 flex items-center justify-between">
-                        <div>
-                            <p class="font-semibold text-gray-900 dark:text-white text-sm">${g.subject}</p>
-                            <p class="text-xs text-gray-500">Score: ${g.score}/${g.max}</p>
-                        </div>
-                        <span class="grade-chip">${g.grade}</span>
-                    </div>
-                `).join('');
-            } else {
-                gradesContainer.innerHTML = `
-                    <div class="app-card p-4 text-center text-gray-400 text-sm">
-                        <i class="fas fa-inbox text-2xl block mb-2"></i>
-                        No grades yet
-                    </div>
-                `;
-            }
-
-            // Attendance circle
-            const pct = data.attendance || 85;
-            const circumference = 263.89;
-            const offset = circumference - (pct / 100) * circumference;
-            document.getElementById('attendance-circle').setAttribute('stroke-dashoffset', offset);
-            document.getElementById('attendance-percent').textContent = pct + '%';
-
-            if (data.attendanceData) {
-                document.getElementById('present-days').textContent = data.attendanceData.present || 0;
-                document.getElementById('absent-days').textContent = data.attendanceData.absent || 0;
-                document.getElementById('total-days').textContent = data.attendanceData.total || 0;
-            }
-
-            // Activities
-            const activityContainer = document.getElementById('activity-container');
-            if (data.activities && data.activities.length) {
-                activityContainer.innerHTML = data.activities.map(a => `
-                    <div class="app-card p-3 flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center ${a.color} text-sm">
-                            <i class="fas ${a.icon}"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-800 dark:text-gray-200">${a.text}</p>
-                            <p class="text-xs text-gray-400">${a.time}</p>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                activityContainer.innerHTML = `
-                    <div class="app-card p-4 text-center text-gray-400 text-sm">
-                        <i class="fas fa-clock text-2xl block mb-2"></i>
-                        No recent activity
-                    </div>
-                `;
-            }
-        }
-
-        // ----- BOTTOM NAV INTERACTION -----
-        function setupNav() {
-            const items = document.querySelectorAll('.nav-item');
-            items.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    items.forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-                    const tab = item.dataset.tab;
-                    // Simulate tab switching – in a real app, you'd route to different views
-                    if (tab === 'home') {
-                        // stay
-                    } else {
-                        alert(`📱 ${tab.charAt(0).toUpperCase() + tab.slice(1)} tab – coming soon!`);
-                        // revert active to home
-                        items.forEach(i => i.classList.remove('active'));
-                        document.querySelector('[data-tab="home"]').classList.add('active');
-                    }
-                });
-            });
-        }
-
-        // ----- INIT -----
-        (async () => {
-            await loadStudentData();
-            observeFade();
-            setupNav();
-            hideLoader();
-        })();
-    </script>
-
-    <!-- Ensure loader hides even if JS fails -->
-    <script nomodule>
-        setTimeout(() => {
-            document.getElementById('global-loader').style.display = 'none';
-        }, 3000);
-    </script>
+  <!-- Fallback: hide loader if module fails -->
+  <script nomodule>
+    setTimeout(() => {
+      const el = document.getElementById('global-loader');
+      if (el) el.style.display = 'none';
+    }, 5000);
+  </script>
 </body>
 </html>
