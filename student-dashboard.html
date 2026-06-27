@@ -1,366 +1,738 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Student Dashboard – G Star School</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>
-    /* Loading overlay */
-    #global-loader {
-      position: fixed;
-      inset: 0;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.5s ease;
-    }
-    #global-loader.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .card {
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Student Portal – M.I Academy</title>
+    <meta name="description" content="Student portal for M.I Academy – dashboard, grades, attendance, and more." />
+    <link rel="icon" href="/assets/images/favicon.ico" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Google Font (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: #f2f4f8;
+            padding-bottom: 80px;
+            /* space for bottom nav */;
+        }
+
+        /* Hide scrollbar but keep scrolling */
+        ::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        /* App-like card */
+        .app-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .app-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Gradient header */
+        .gradient-header {
+            background: linear-gradient(145deg, #4f46e5, #7c3aed);
+            border-radius: 0 0 40px 40px;
+            padding-top: 48px;
+            padding-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gradient-header::before {
+            content: '';
+            position: absolute;
+            top: -60%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .gradient-header::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -10%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        /* Avatar ring */
+        .avatar-ring {
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Bottom navigation – iOS style */
+        .bottom-nav {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 32px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 6px 12px;
+            z-index: 100;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 68px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+            flex: 1;
+            max-width: 72px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item.active {
+            color: #4f46e5;
+        }
+
+        .nav-item.active i {
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: #4f46e5;
+            border-radius: 4px;
+        }
+
+        .nav-item:active {
+            transform: scale(0.92);
+        }
+
+        /* Status badge pulse */
+        .pulse-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Grade chip */
+        .grade-chip {
+            background: rgba(79, 70, 229, 0.08);
+            color: #4f46e5;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 100px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 100px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            transition: width 0.6s ease;
+        }
+
+        /* Subject tag */
+        .subject-tag {
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        /* Notification badge */
+        .notif-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #ef4444;
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+        }
+
+        /* Scrollable horizontal row */
+        .scroll-horizontal {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 4px 2px 12px 2px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .scroll-horizontal>* {
+            scroll-snap-align: start;
+            flex-shrink: 0;
+        }
+
+        /* Loading shimmer */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Fade up animation */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #0f0f1a;
+            }
+            .app-card {
+                background: rgba(30, 30, 50, 0.85);
+                border-color: rgba(255, 255, 255, 0.06);
+                color: #e2e8f0;
+            }
+            .bottom-nav {
+                background: rgba(20, 20, 35, 0.92);
+                border-color: rgba(255, 255, 255, 0.06);
+            }
+            .nav-item {
+                color: #64748b;
+            }
+            .nav-item.active {
+                color: #818cf8;
+            }
+            .subject-tag {
+                background: #1e293b;
+                color: #94a3b8;
+            }
+            .grade-chip {
+                background: rgba(99, 102, 241, 0.15);
+                color: #818cf8;
+            }
+            .progress-bar {
+                background: #1e293b;
+            }
+            .text-gray-600 {
+                color: #94a3b8 !important;
+            }
+            .text-gray-500 {
+                color: #64748b !important;
+            }
+            .text-gray-700 {
+                color: #cbd5e1 !important;
+            }
+            .text-gray-800 {
+                color: #e2e8f0 !important;
+            }
+            .text-gray-900 {
+                color: #f1f5f9 !important;
+            }
+            .bg-white {
+                background: rgba(30, 30, 50, 0.8) !important;
+            }
+            .bg-gray-50 {
+                background: rgba(20, 20, 35, 0.6) !important;
+            }
+            .bg-gray-100 {
+                background: rgba(30, 30, 50, 0.5) !important;
+            }
+            .border-gray-100 {
+                border-color: rgba(255, 255, 255, 0.06) !important;
+            }
+            .border-gray-200 {
+                border-color: rgba(255, 255, 255, 0.08) !important;
+            }
+            .gradient-header {
+                background: linear-gradient(145deg, #3730a3, #5b21b6);
+            }
+        }
+
+        /* Safe area for notched phones */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .bottom-nav {
+                padding-bottom: calc(6px + env(safe-area-inset-bottom));
+                bottom: calc(16px + env(safe-area-inset-bottom));
+            }
+            body {
+                padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans antialiased">
+<body>
 
-  <!-- ===== LOADING OVERLAY ===== -->
-  <div id="global-loader">
-    <div class="text-center">
-      <i class="fas fa-spinner fa-spin text-5xl text-indigo-600 mb-4"></i>
-      <p class="text-gray-600 text-lg">Loading your dashboard…</p>
-    </div>
-  </div>
-
-  <!-- ===== NAVBAR ===== -->
-  <nav class="bg-white shadow-md">
-    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <a href="/" class="text-gray-500 hover:text-indigo-600">
-          <i class="fas fa-home"></i>
-        </a>
-        <h1 class="text-xl font-bold text-indigo-700">Student Portal</h1>
-      </div>
-      <div class="flex items-center gap-4">
-        <span id="studentName" class="text-gray-700 font-medium"></span>
-        <button id="logoutBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm">
-          <i class="fas fa-sign-out-alt mr-1"></i> Logout
-        </button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- ===== MAIN CONTENT ===== -->
-  <main class="max-w-7xl mx-auto p-6" id="mainContent" style="display:none;">
-    
-    <!-- Profile Cards -->
-    <div class="grid md:grid-cols-4 gap-6 mb-8">
-      <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-            <i class="fas fa-id-card text-indigo-600 text-xl"></i>
-          </div>
-          <div>
-            <p class="text-gray-500 text-sm">School ID</p>
-            <p class="text-lg font-bold font-mono" id="studentSchoolId">—</p>
-          </div>
-        </div>
-      </div>
-      <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-            <i class="fas fa-graduation-cap text-green-600 text-xl"></i>
-          </div>
-          <div>
-            <p class="text-gray-500 text-sm">Grade</p>
-            <p class="text-lg font-bold" id="studentGrade">—</p>
-          </div>
-        </div>
-      </div>
-      <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-            <i class="fas fa-layer-group text-amber-600 text-xl"></i>
-          </div>
-          <div>
-            <p class="text-gray-500 text-sm">Section</p>
-            <p class="text-lg font-bold" id="studentSection">—</p>
-          </div>
-        </div>
-      </div>
-      <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-            <i class="fas fa-wallet text-purple-600 text-xl"></i>
-          </div>
-          <div>
-            <p class="text-gray-500 text-sm">Fee Status</p>
-            <p class="text-lg font-bold" id="feeStatus">—</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Notices + Notes Combined Section -->
-    <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
-      <h2 class="text-lg font-bold text-gray-900 mb-4">
-        <i class="fas fa-bell text-indigo-600 mr-2"></i> Notices & Study Materials
-      </h2>
-      <div id="combinedFeed" class="space-y-3 max-h-[600px] overflow-y-auto">
-        <p class="text-gray-500 text-center py-8">Loading...</p>
-      </div>
-    </div>
-
-    <!-- Quick Links -->
-    <div class="card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-      <h2 class="text-lg font-bold text-gray-900 mb-4">
-        <i class="fas fa-link text-indigo-600 mr-2"></i> Quick Links
-      </h2>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <a href="/gallery.html" class="p-4 bg-amber-50 rounded-xl text-center hover:bg-amber-100 transition">
-          <i class="fas fa-images text-2xl text-amber-600 mb-2"></i>
-          <p class="text-sm font-medium">Gallery</p>
-        </a>
-        <a href="/contact.html" class="p-4 bg-purple-50 rounded-xl text-center hover:bg-purple-100 transition">
-          <i class="fas fa-envelope text-2xl text-purple-600 mb-2"></i>
-          <p class="text-sm font-medium">Contact</p>
-        </a>
-        <a href="/about.html" class="p-4 bg-green-50 rounded-xl text-center hover:bg-green-100 transition">
-          <i class="fas fa-info-circle text-2xl text-green-600 mb-2"></i>
-          <p class="text-sm font-medium">About</p>
-        </a>
-        <a href="/student-life.html" class="p-4 bg-pink-50 rounded-xl text-center hover:bg-pink-100 transition">
-          <i class="fas fa-star text-2xl text-pink-600 mb-2"></i>
-          <p class="text-sm font-medium">Activities</p>
-        </a>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- ===== SCRIPTS ===== -->
-  <script type="module">
-    import { auth, db } from "/assets/js/firebase-config.js";
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { doc, getDoc, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    // ========== HIDE LOADER ==========
-    function hideLoader() {
-      const loader = document.getElementById('global-loader');
-      if (loader) {
-        loader.classList.add('hidden');
-        setTimeout(() => loader.remove(), 600);
-      }
-      // Show main content
-      const main = document.getElementById('mainContent');
-      if (main) main.style.display = '';
-    }
-
-    // Safety: always hide loader after 10 seconds
-    const safetyTimer = setTimeout(() => {
-      console.warn('Safety timeout – forcing dashboard display');
-      hideLoader();
-    }, 10000);
-
-    // ========== FORMAT DATE ==========
-    function formatDate(timestamp) {
-      if (!timestamp) return 'Unknown date';
-      try {
-        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-        return date.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        });
-      } catch {
-        return 'Unknown date';
-      }
-    }
-
-    // ========== AUTH GUARD ==========
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = '/student-login.html';
-        return;
-      }
-
-      try {
-        const schoolId = user.email?.split('@')[0] || 'Unknown';
-        document.getElementById('studentName').textContent = user.displayName || schoolId;
-        document.getElementById('studentSchoolId').textContent = schoolId;
-
-        // ========== 1. FETCH STUDENT PROFILE ==========
-        const studentSnap = await getDoc(doc(db, 'students', user.uid));
-        const studentData = studentSnap.exists() ? studentSnap.data() : null;
-
-        if (studentData) {
-          document.getElementById('studentGrade').textContent = studentData.grade || '—';
-          document.getElementById('studentSection').textContent = studentData.section || '—';
-          document.getElementById('feeStatus').textContent = studentData.feeStatus || 'N/A';
-        }
-
-        // ========== 2. FETCH ALL DATA IN PARALLEL ==========
-        const grade = studentData?.grade || '';
-        const section = studentData?.section || 'A';
-
-        const promises = [
-          // Notices
-          getDocs(query(collection(db, 'notices'), orderBy('created_at', 'desc'))),
-        ];
-
-        // Only fetch notes if we have a grade
-        if (grade) {
-          promises.push(
-            getDocs(query(
-              collection(db, 'notes'),
-              where('grade', '==', grade),
-              where('section', '==', section),
-              orderBy('uploadedAt', 'desc')
-            ))
-          );
-          promises.push(
-            getDocs(query(
-              collection(db, 'notes'),
-              where('grade', '==', grade),
-              where('section', '==', 'all'),
-              orderBy('uploadedAt', 'desc')
-            ))
-          );
-        } else {
-          promises.push(Promise.resolve({ forEach: () => {} }));
-          promises.push(Promise.resolve({ forEach: () => {} }));
-        }
-
-        const [noticesSnap, notesSnap1, notesSnap2] = await Promise.all(promises);
-
-        // ========== 3. BUILD COMBINED FEED ==========
-        const feedItems = [];
-
-        // Add notices
-        noticesSnap.forEach(doc => {
-          const n = doc.data();
-          feedItems.push({
-            type: 'notice',
-            title: n.title,
-            description: n.description || '',
-            date: n.date || formatDate(n.created_at),
-            icon: 'fas fa-bullhorn',
-            color: 'text-blue-600',
-            bg: 'bg-blue-100',
-            border: 'border-blue-500'
-          });
-        });
-
-        // Add notes (displayed like notices)
-        notesSnap1.forEach(doc => {
-          const n = doc.data();
-          feedItems.push({
-            type: 'note',
-            title: `📚 ${n.title}`,
-            description: `${n.subject} | ${n.fileType?.toUpperCase()} | Click Download to view`,
-            date: formatDate(n.uploadedAt),
-            icon: 'fas fa-book',
-            color: 'text-green-600',
-            bg: 'bg-green-100',
-            border: 'border-green-500',
-            downloadUrl: n.fileUrl
-          });
-        });
-
-        notesSnap2.forEach(doc => {
-          const n = doc.data();
-          // Avoid duplicates
-          const exists = feedItems.find(item =>
-            item.type === 'note' && item.title === `📚 ${n.title}`
-          );
-          if (!exists) {
-            feedItems.push({
-              type: 'note',
-              title: `📚 ${n.title}`,
-              description: `${n.subject} | ${n.fileType?.toUpperCase()} | Click Download to view`,
-              date: formatDate(n.uploadedAt),
-              icon: 'fas fa-book',
-              color: 'text-green-600',
-              bg: 'bg-green-100',
-              border: 'border-green-500',
-              downloadUrl: n.fileUrl
-            });
-          }
-        });
-
-        // Sort by date (newest first)
-        feedItems.sort((a, b) => {
-          const dateA = new Date(a.date);
-          const dateB = new Date(b.date);
-          return dateB - dateA;
-        });
-
-        // ========== 4. RENDER FEED ==========
-        const feedContainer = document.getElementById('combinedFeed');
-
-        if (feedItems.length === 0) {
-          feedContainer.innerHTML = `
-            <div class="text-center py-8">
-              <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
-              <p class="text-gray-500">No notices or study materials yet.</p>
-              <p class="text-xs text-gray-400 mt-1">Check back later!</p>
-            </div>`;
-        } else {
-          feedContainer.innerHTML = feedItems.map(item => `
-            <div class="border-l-4 ${item.border} pl-4 py-3 hover:bg-gray-50 rounded-r-lg transition">
-              <div class="flex justify-between items-start">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="${item.bg} ${item.color} p-1 rounded-full">
-                      <i class="${item.icon} text-xs"></i>
-                    </span>
-                    <span class="text-xs text-gray-500">${item.date}</span>
-                    <span class="text-xs text-gray-400 uppercase">${item.type}</span>
-                  </div>
-                  <h3 class="font-semibold text-gray-900">${item.title}</h3>
-                  <p class="text-sm text-gray-600 mt-1">${item.description}</p>
+    <!-- ===== APP HEADER ===== -->
+    <header class="gradient-header text-white relative">
+        <div class="px-5 relative z-10">
+            <!-- Top row: greeting + notifications -->
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-white/70 text-sm font-medium">Welcome back,</p>
+                    <h1 class="text-2xl font-bold tracking-tight" id="student-name">Aarav Sharma</h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="pulse-dot"></span>
+                        <span class="text-white/80 text-sm">Online</span>
+                    </div>
                 </div>
-                ${item.downloadUrl ? `
-                  <a href="${item.downloadUrl}" target="_blank" 
-                    class="ml-4 px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-semibold hover:bg-green-200 transition whitespace-nowrap">
-                    <i class="fas fa-download mr-1"></i> Download
-                  </a>
-                ` : ''}
-              </div>
+                <div class="relative">
+                    <button class="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-white text-xl hover:bg-white/30 transition">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <span class="notif-badge">3</span>
+                </div>
             </div>
-          `).join('');
+
+            <!-- Quick stats row -->
+            <div class="grid grid-cols-3 gap-3 mt-6">
+                <div class="bg-white/15 backdrop-blur rounded-2xl p-3 text-center">
+                    <p class="text-2xl font-bold" id="gpa-display">3.8</p>
+                    <p class="text-white/70 text-xs font-medium">GPA</p>
+                </div>
+                <div class="bg-white/15 backdrop-blur rounded-2xl p-3 text-center">
+                    <p class="text-2xl font-bold" id="attendance-display">92%</p>
+                    <p class="text-white/70 text-xs font-medium">Attendance</p>
+                </div>
+                <div class="bg-white/15 backdrop-blur rounded-2xl p-3 text-center">
+                    <p class="text-2xl font-bold" id="assignments-display">5</p>
+                    <p class="text-white/70 text-xs font-medium">Pending</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="px-4 -mt-4 relative z-10">
+
+        <!-- ===== SCHEDULE / NEXT CLASS ===== -->
+        <section class="app-card p-4 mb-4 fade-up">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-indigo-500 uppercase tracking-wider">Next Class</p>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white" id="next-class">Mathematics</h3>
+                    <p class="text-sm text-gray-500" id="next-class-time">Today · 10:30 AM – 11:30 AM</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-500 text-xl">
+                    <i class="fas fa-calculator"></i>
+                </div>
+            </div>
+            <div class="mt-3 flex items-center gap-2">
+                <span class="subject-tag">Room 204</span>
+                <span class="subject-tag">Mr. Gupta</span>
+                <span class="ml-auto text-xs text-indigo-500 font-medium"><i class="fas fa-video mr-1"></i>Join</span>
+            </div>
+        </section>
+
+        <!-- ===== QUICK ACTIONS ===== -->
+        <section class="mb-4 fade-up">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-1">Quick Actions</h2>
+            <div class="grid grid-cols-4 gap-3">
+                <button class="app-card p-3 flex flex-col items-center justify-center gap-1.5 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition" onclick="alert('📚 Assignments page')">
+                    <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-500 text-lg">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <span class="text-[10px] font-medium text-gray-700 dark:text-gray-300">Assignments</span>
+                </button>
+                <button class="app-card p-3 flex flex-col items-center justify-center gap-1.5 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition" onclick="alert('📅 Timetable')">
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500 text-lg">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <span class="text-[10px] font-medium text-gray-700 dark:text-gray-300">Timetable</span>
+                </button>
+                <button class="app-card p-3 flex flex-col items-center justify-center gap-1.5 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition" onclick="alert('📊 Results')">
+                    <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-500 text-lg">
+                        <i class="fas fa-chart-simple"></i>
+                    </div>
+                    <span class="text-[10px] font-medium text-gray-700 dark:text-gray-300">Results</span>
+                </button>
+                <button class="app-card p-3 flex flex-col items-center justify-center gap-1.5 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition" onclick="alert('💬 Messages')">
+                    <div class="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-500 text-lg">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <span class="text-[10px] font-medium text-gray-700 dark:text-gray-300">Messages</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ===== RECENT GRADES ===== -->
+        <section class="mb-4 fade-up">
+            <div class="flex items-center justify-between mb-3 px-1">
+                <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Recent Grades</h2>
+                <a href="#" class="text-xs font-medium text-indigo-500">See all</a>
+            </div>
+            <div class="space-y-3" id="grades-container">
+                <!-- populated by JS -->
+            </div>
+        </section>
+
+        <!-- ===== ATTENDANCE OVERVIEW ===== -->
+        <section class="mb-4 fade-up">
+            <div class="flex items-center justify-between mb-3 px-1">
+                <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Attendance</h2>
+                <span class="text-xs font-medium text-gray-400">This month</span>
+            </div>
+            <div class="app-card p-4">
+                <div class="flex items-center gap-4">
+                    <div class="relative w-20 h-20">
+                        <svg class="w-20 h-20 -rotate-90" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" stroke-width="8" />
+                            <circle id="attendance-circle" cx="50" cy="50" r="42" fill="none" stroke="url(#grad)" stroke-width="8" stroke-linecap="round"
+                            stroke-dasharray="263.89" stroke-dashoffset="40" />
+                            <defs>
+                                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#4f46e5" />
+                                    <stop offset="100%" stop-color="#7c3aed" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-lg font-bold text-gray-900 dark:text-white" id="attendance-percent">85%</span>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500 dark:text-gray-400">Present</span>
+                            <span class="font-semibold text-gray-900 dark:text-white" id="present-days">17</span>
+                        </div>
+                        <div class="flex justify-between text-sm mt-1">
+                            <span class="text-gray-500 dark:text-gray-400">Absent</span>
+                            <span class="font-semibold text-gray-900 dark:text-white" id="absent-days">3</span>
+                        </div>
+                        <div class="flex justify-between text-sm mt-1">
+                            <span class="text-gray-500 dark:text-gray-400">Total</span>
+                            <span class="font-semibold text-gray-900 dark:text-white" id="total-days">20</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== RECENT ACTIVITY ===== -->
+        <section class="mb-4 fade-up">
+            <div class="flex items-center justify-between mb-3 px-1">
+                <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Recent Activity</h2>
+                <span class="text-xs font-medium text-gray-400">Today</span>
+            </div>
+            <div class="space-y-2" id="activity-container">
+                <!-- populated by JS -->
+            </div>
+        </section>
+
+        <!-- spacer for bottom nav -->
+        <div class="h-4"></div>
+    </main>
+
+    <!-- ===== BOTTOM NAVIGATION (App-like) ===== -->
+    <nav class="bottom-nav" id="bottom-nav">
+        <a href="#" class="nav-item active" data-tab="home">
+            <i class="fas fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="grades">
+            <i class="fas fa-chart-simple"></i>
+            <span>Grades</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="schedule">
+            <i class="fas fa-calendar"></i>
+            <span>Schedule</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="profile">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- ===== LOADING OVERLAY ===== -->
+    <div id="global-loader" class="fixed inset-0 bg-white dark:bg-[#0f0f1a] flex items-center justify-center z-[9999] transition-opacity duration-500">
+        <div class="text-center">
+            <div class="w-16 h-16 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin mx-auto mb-4"></div>
+            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Loading portal…</p>
+        </div>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script type="module">
+        // ----- FIREBASE IMPORTS -----
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // ----- CONFIG (Replace with yours) -----
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        let db;
+        try {
+            const module = await import("/assets/js/firebase-config.js");
+            db = module.db;
+            console.log("✅ Using Firebase config from /assets/js/firebase-config.js");
+        } catch (_) {
+            console.warn("⚠️ Using inline Firebase config. Update with your credentials.");
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
         }
 
-        // ========== DONE – HIDE LOADER ==========
-        clearTimeout(safetyTimer);
-        hideLoader();
+        // ----- HELPERS -----
+        function hideLoader() {
+            const el = document.getElementById('global-loader');
+            if (el) {
+                el.style.opacity = '0';
+                setTimeout(() => el.style.display = 'none', 500);
+            }
+        }
 
-      } catch (err) {
-        console.error('Dashboard error:', err);
-        document.getElementById('combinedFeed').innerHTML = `
-          <div class="text-center py-8 text-red-500">
-            <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
-            <p>Failed to load dashboard. Please refresh.</p>
-          </div>`;
-        clearTimeout(safetyTimer);
-        hideLoader();
-      }
-    });
+        function observeFade() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) e.target.classList.add('visible');
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+        }
 
-    // ========== LOGOUT ==========
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await signOut(auth);
-      window.location.href = '/student-login.html';
-    });
-  </script>
+        // ----- LOAD STUDENT DATA (mock + Firebase fallback) -----
+        async function loadStudentData() {
+            try {
+                // Try fetching from a "students" collection or a "student" doc
+                const studentRef = doc(db, 'students', 'demo');
+                const snap = await getDoc(studentRef);
+                if (snap.exists()) {
+                    const data = snap.data();
+                    applyStudentData(data);
+                    return;
+                }
+            } catch (_) { /* ignore */ }
+
+            // Fallback: generate mock data
+            applyStudentData({
+                name: 'Aarav Sharma',
+                grade: '10',
+                section: 'A',
+                gpa: 3.8,
+                attendance: 92,
+                pendingAssignments: 5,
+                nextClass: 'Mathematics',
+                nextClassTime: 'Today · 10:30 AM – 11:30 AM',
+                nextClassRoom: 'Room 204',
+                nextClassTeacher: 'Mr. Gupta',
+                grades: [
+                    { subject: 'Mathematics', score: 92, grade: 'A', max: 100 },
+                    { subject: 'Science', score: 88, grade: 'B+', max: 100 },
+                    { subject: 'English', score: 95, grade: 'A+', max: 100 },
+                ],
+                attendanceData: { present: 17, absent: 3, total: 20 },
+                activities: [
+                    { icon: 'fa-check-circle', color: 'text-emerald-500', text: 'Submitted Math assignment', time: '2h ago' },
+                    { icon: 'fa-star', color: 'text-amber-500', text: 'Scored 95% in English test', time: '4h ago' },
+                    { icon: 'fa-clock', color: 'text-indigo-500', text: 'Attendance marked for today', time: '6h ago' },
+                ]
+            });
+        }
+
+        function applyStudentData(data) {
+            // Name
+            document.getElementById('student-name').textContent = data.name || 'Student';
+
+            // Stats
+            document.getElementById('gpa-display').textContent = data.gpa?.toFixed(1) || '—';
+            document.getElementById('attendance-display').textContent = (data.attendance || 0) + '%';
+            document.getElementById('assignments-display').textContent = data.pendingAssignments || 0;
+
+            // Next class
+            document.getElementById('next-class').textContent = data.nextClass || 'No class';
+            document.getElementById('next-class-time').textContent = data.nextClassTime || '';
+            const roomEl = document.querySelector('.subject-tag:first-child');
+            const teacherEl = document.querySelector('.subject-tag:last-child');
+            if (roomEl) roomEl.textContent = data.nextClassRoom || '—';
+            if (teacherEl) teacherEl.textContent = data.nextClassTeacher || '—';
+
+            // Grades
+            const gradesContainer = document.getElementById('grades-container');
+            if (data.grades && data.grades.length) {
+                gradesContainer.innerHTML = data.grades.map(g => `
+                    <div class="app-card p-3 flex items-center justify-between">
+                        <div>
+                            <p class="font-semibold text-gray-900 dark:text-white text-sm">${g.subject}</p>
+                            <p class="text-xs text-gray-500">Score: ${g.score}/${g.max}</p>
+                        </div>
+                        <span class="grade-chip">${g.grade}</span>
+                    </div>
+                `).join('');
+            } else {
+                gradesContainer.innerHTML = `
+                    <div class="app-card p-4 text-center text-gray-400 text-sm">
+                        <i class="fas fa-inbox text-2xl block mb-2"></i>
+                        No grades yet
+                    </div>
+                `;
+            }
+
+            // Attendance circle
+            const pct = data.attendance || 85;
+            const circumference = 263.89;
+            const offset = circumference - (pct / 100) * circumference;
+            document.getElementById('attendance-circle').setAttribute('stroke-dashoffset', offset);
+            document.getElementById('attendance-percent').textContent = pct + '%';
+
+            if (data.attendanceData) {
+                document.getElementById('present-days').textContent = data.attendanceData.present || 0;
+                document.getElementById('absent-days').textContent = data.attendanceData.absent || 0;
+                document.getElementById('total-days').textContent = data.attendanceData.total || 0;
+            }
+
+            // Activities
+            const activityContainer = document.getElementById('activity-container');
+            if (data.activities && data.activities.length) {
+                activityContainer.innerHTML = data.activities.map(a => `
+                    <div class="app-card p-3 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center ${a.color} text-sm">
+                            <i class="fas ${a.icon}"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-800 dark:text-gray-200">${a.text}</p>
+                            <p class="text-xs text-gray-400">${a.time}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                activityContainer.innerHTML = `
+                    <div class="app-card p-4 text-center text-gray-400 text-sm">
+                        <i class="fas fa-clock text-2xl block mb-2"></i>
+                        No recent activity
+                    </div>
+                `;
+            }
+        }
+
+        // ----- BOTTOM NAV INTERACTION -----
+        function setupNav() {
+            const items = document.querySelectorAll('.nav-item');
+            items.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    items.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    const tab = item.dataset.tab;
+                    // Simulate tab switching – in a real app, you'd route to different views
+                    if (tab === 'home') {
+                        // stay
+                    } else {
+                        alert(`📱 ${tab.charAt(0).toUpperCase() + tab.slice(1)} tab – coming soon!`);
+                        // revert active to home
+                        items.forEach(i => i.classList.remove('active'));
+                        document.querySelector('[data-tab="home"]').classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // ----- INIT -----
+        (async () => {
+            await loadStudentData();
+            observeFade();
+            setupNav();
+            hideLoader();
+        })();
+    </script>
+
+    <!-- Ensure loader hides even if JS fails -->
+    <script nomodule>
+        setTimeout(() => {
+            document.getElementById('global-loader').style.display = 'none';
+        }, 3000);
+    </script>
 </body>
 </html>
