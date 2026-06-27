@@ -15,36 +15,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
 
   <style>
-    * {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    body {
-      background: #f2f4f9;
-      padding-bottom: 80px;
-      transition: background 0.3s ease;
-    }
-    /* Dark mode body override */
-    body.dark {
-      background: #0d0d1a;
-    }
+    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background: #f2f4f9; padding-bottom: 80px; transition: background 0.3s ease; }
+    body.dark { background: #0d0d1a; }
 
-    /* Scrollbar styling */
-    ::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #c4c8d4;
-      border-radius: 100px;
-    }
-    .dark ::-webkit-scrollbar-thumb {
-      background: #3b3b5c;
-    }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #c4c8d4; border-radius: 100px; }
+    .dark ::-webkit-scrollbar-thumb { background: #3b3b5c; }
 
-    /* Glass cards */
     .glass-card {
       background: rgba(255, 255, 255, 0.75);
       backdrop-filter: blur(20px);
@@ -58,15 +37,9 @@
       border-color: rgba(255, 255, 255, 0.06);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     }
-    .glass-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 16px 48px rgba(79, 70, 229, 0.08);
-    }
-    .dark .glass-card:hover {
-      box-shadow: 0 16px 48px rgba(99, 102, 241, 0.06);
-    }
+    .glass-card:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(79, 70, 229, 0.08); }
+    .dark .glass-card:hover { box-shadow: 0 16px 48px rgba(99, 102, 241, 0.06); }
 
-    /* Gradient header */
     .gradient-header {
       background: linear-gradient(145deg, #4f46e5, #7c3aed);
       border-radius: 0 0 40px 40px;
@@ -84,12 +57,10 @@
       border-radius: 50%;
     }
 
-    /* Avatar ring */
     .avatar-ring {
       box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25), 0 8px 24px rgba(79, 70, 229, 0.2);
     }
 
-    /* Bottom Navigation (iOS style) */
     .bottom-nav {
       position: fixed;
       bottom: 16px;
@@ -133,19 +104,10 @@
       background: transparent;
       border: none;
     }
-    .nav-item i {
-      font-size: 20px;
-      transition: all 0.2s ease;
-    }
-    .nav-item.active {
-      color: #4f46e5;
-    }
-    .dark .nav-item.active {
-      color: #818cf8;
-    }
-    .nav-item.active i {
-      transform: translateY(-2px);
-    }
+    .nav-item i { font-size: 20px; transition: all 0.2s ease; }
+    .nav-item.active { color: #4f46e5; }
+    .dark .nav-item.active { color: #818cf8; }
+    .nav-item.active i { transform: translateY(-2px); }
     .nav-item.active::after {
       content: '';
       position: absolute;
@@ -157,130 +119,57 @@
       background: #4f46e5;
       border-radius: 4px;
     }
-    .dark .nav-item.active::after {
-      background: #818cf8;
-    }
-    .nav-item:active {
-      transform: scale(0.92);
-    }
+    .dark .nav-item.active::after { background: #818cf8; }
+    .nav-item:active { transform: scale(0.92); }
 
-    /* Tabs content */
-    .tab-content {
-      display: none;
-      animation: fadeUp 0.4s ease forwards;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(16px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    .tab-content { display: none; animation: fadeUp 0.4s ease forwards; }
+    .tab-content.active { display: block; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Skeleton loading */
     .skeleton {
       background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
       border-radius: 8px;
     }
-    .dark .skeleton {
-      background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-    }
-    @keyframes shimmer {
-      0% {
-        background-position: 200% 0;
-      }
-      100% {
-        background-position: -200% 0;
-      }
-    }
+    .dark .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-    .skeleton-text {
-      height: 12px;
-      margin-bottom: 8px;
-    }
-    .skeleton-circle {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-    }
-    .skeleton-card {
-      padding: 16px;
-      border-radius: 16px;
-    }
+    .skeleton-text { height: 12px; margin-bottom: 8px; }
+    .skeleton-circle { width: 48px; height: 48px; border-radius: 50%; }
+    .skeleton-card { padding: 16px; border-radius: 16px; }
 
-    /* Status chips */
     .status-chip {
       padding: 4px 14px;
       border-radius: 100px;
       font-size: 12px;
       font-weight: 600;
     }
-    .status-chip.paid {
-      background: #dcfce7;
-      color: #16a34a;
-    }
-    .status-chip.pending {
-      background: #fef3c7;
-      color: #d97706;
-    }
-    .status-chip.overdue {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-    .dark .status-chip.paid {
-      background: rgba(34, 197, 94, 0.15);
-      color: #4ade80;
-    }
-    .dark .status-chip.pending {
-      background: rgba(234, 179, 8, 0.15);
-      color: #fbbf24;
-    }
-    .dark .status-chip.overdue {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-    }
+    .status-chip.paid { background: #dcfce7; color: #16a34a; }
+    .status-chip.pending { background: #fef3c7; color: #d97706; }
+    .status-chip.overdue { background: #fee2e2; color: #dc2626; }
+    .dark .status-chip.paid { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+    .dark .status-chip.pending { background: rgba(234, 179, 8, 0.15); color: #fbbf24; }
+    .dark .status-chip.overdue { background: rgba(239, 68, 68, 0.15); color: #f87171; }
 
-    /* Feed item */
     .feed-item {
       border-left: 4px solid transparent;
       transition: background 0.2s ease;
     }
-    .feed-item.notice {
-      border-left-color: #3b82f6;
-    }
-    .feed-item.note {
-      border-left-color: #22c55e;
-    }
-    .feed-item.assignment {
-      border-left-color: #f59e0b;
-    }
-    .feed-item:hover {
-      background: rgba(79, 70, 229, 0.04);
-    }
-    .dark .feed-item:hover {
-      background: rgba(99, 102, 241, 0.06);
-    }
+    .feed-item.notice { border-left-color: #3b82f6; }
+    .feed-item.note { border-left-color: #22c55e; }
+    .feed-item.assignment { border-left-color: #f59e0b; }
+    .feed-item:hover { background: rgba(79, 70, 229, 0.04); }
+    .dark .feed-item:hover { background: rgba(99, 102, 241, 0.06); }
 
-    /* Dark mode toggle */
     .theme-toggle {
       background: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.2);
       transition: all 0.2s ease;
     }
-    .theme-toggle:hover {
-      background: rgba(255, 255, 255, 0.25);
-    }
+    .theme-toggle:hover { background: rgba(255, 255, 255, 0.25); }
 
-    /* Line clamp */
     .line-clamp-2 {
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -288,16 +177,27 @@
       overflow: hidden;
     }
 
-    /* Safe area for notched phones */
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
       .bottom-nav {
         padding-bottom: calc(6px + env(safe-area-inset-bottom));
         bottom: calc(16px + env(safe-area-inset-bottom));
       }
-      body {
-        padding-bottom: calc(80px + env(safe-area-inset-bottom));
-      }
+      body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
     }
+
+    /* Profile detail rows */
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .dark .profile-row { border-bottom-color: rgba(255,255,255,0.06); }
+    .profile-row:last-child { border-bottom: none; }
+    .profile-label { color: #6b7280; font-weight: 500; font-size: 0.875rem; }
+    .dark .profile-label { color: #9ca3af; }
+    .profile-value { color: #1f2937; font-weight: 600; font-size: 0.875rem; word-break: break-word; text-align: right; max-width: 60%; }
+    .dark .profile-value { color: #f3f4f6; }
   </style>
 </head>
 <body>
@@ -333,7 +233,6 @@
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <!-- Dark mode toggle -->
             <button id="themeToggle" class="theme-toggle w-10 h-10 rounded-full flex items-center justify-center text-white/80 hover:text-white text-sm transition">
               <i class="fas fa-moon" id="themeIcon"></i>
             </button>
@@ -512,7 +411,7 @@
         </div>
       </div>
 
-      <!-- ===== TAB: PROFILE ===== -->
+      <!-- ===== TAB: PROFILE (All DB fields) ===== -->
       <div class="tab-content" id="tab-profile">
         <div class="glass-card p-5 rounded-2xl">
           <div class="flex items-center gap-3 mb-5">
@@ -521,10 +420,11 @@
             </div>
             <div>
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">My Profile</h2>
-              <p class="text-xs text-gray-400">Personal details & settings</p>
+              <p class="text-xs text-gray-400">All details from your record</p>
             </div>
           </div>
-          <div class="space-y-4" id="profileContainer">
+          <div id="profileContainer" class="space-y-2">
+            <!-- Skeleton -->
             <div class="skeleton-card space-y-3">
               <div class="skeleton skeleton-text w-1/4"></div>
               <div class="skeleton skeleton-text w-1/2"></div>
@@ -614,8 +514,6 @@
     // ========== THEME TOGGLE ==========
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
-    const htmlElement = document.documentElement;
-
     function setTheme(dark) {
       if (dark) {
         document.body.classList.add('dark');
@@ -626,7 +524,6 @@
       }
       localStorage.setItem('theme', dark ? 'dark' : 'light');
     }
-
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') setTheme(true);
     else if (savedTheme === 'light') setTheme(false);
@@ -648,10 +545,8 @@
     navItems.forEach(item => {
       item.addEventListener('click', () => {
         const tab = item.dataset.tab;
-        // Update nav
         navItems.forEach(n => n.classList.remove('active'));
         item.classList.add('active');
-        // Update content
         Object.keys(tabContents).forEach(key => {
           tabContents[key].classList.toggle('active', key === tab);
         });
@@ -680,7 +575,7 @@
         document.getElementById('studentSchoolId').textContent = schoolId;
         document.getElementById('avatarInitial').textContent = getInitials(displayName);
 
-        // ---- 1. Fetch student profile ----
+        // ---- 1. Fetch student profile (ALL FIELDS) ----
         const studentSnap = await getDoc(doc(db, 'students', user.uid));
         const studentData = studentSnap.exists() ? studentSnap.data() : null;
 
@@ -699,33 +594,60 @@
         document.getElementById('cardSection').textContent = section;
         document.getElementById('cardFeeStatus').innerHTML = getStatusChip(feeStatus);
 
-        // ---- Profile tab ----
-        profileContainer.innerHTML = `
-          <div class="flex flex-col gap-2 text-sm">
-            <div class="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
-              <span class="text-gray-500 dark:text-gray-400">Full Name</span>
-              <span class="font-semibold text-gray-800 dark:text-white">${displayName}</span>
-            </div>
-            <div class="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
-              <span class="text-gray-500 dark:text-gray-400">School ID</span>
-              <span class="font-mono text-gray-800 dark:text-white">${schoolId}</span>
-            </div>
-            <div class="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
-              <span class="text-gray-500 dark:text-gray-400">Grade</span>
-              <span class="font-semibold text-gray-800 dark:text-white">${grade}</span>
-            </div>
-            <div class="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
-              <span class="text-gray-500 dark:text-gray-400">Section</span>
-              <span class="font-semibold text-gray-800 dark:text-white">${section}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500 dark:text-gray-400">Fee Status</span>
-              <span>${getStatusChip(feeStatus)}</span>
-            </div>
-          </div>
-        `;
+        // ---- Profile tab: display ALL fields dynamically ----
+        if (studentData) {
+          // Define a list of fields you want to display (and their nice labels)
+          const fieldMap = {
+            'name': 'Full Name',
+            'grade': 'Grade',
+            'section': 'Section',
+            'feeStatus': 'Fee Status',
+            'parentName': 'Parent/Guardian',
+            'parentContact': 'Parent Contact',
+            'address': 'Address',
+            'dob': 'Date of Birth',
+            'email': 'Email',
+            'phone': 'Phone',
+            'admissionDate': 'Admission Date',
+            'rollNumber': 'Roll Number',
+            'nationality': 'Nationality',
+            'religion': 'Religion',
+            'gender': 'Gender'
+          };
 
-        // ---- 2. Fetch data in parallel ----
+          let profileHTML = '';
+          // Loop through defined fields and show if they exist in studentData
+          for (const [key, label] of Object.entries(fieldMap)) {
+            if (studentData[key] !== undefined && studentData[key] !== null && studentData[key] !== '') {
+              let value = studentData[key];
+              // Special formatting for dates
+              if (key === 'dob' || key === 'admissionDate') {
+                value = formatDate(value);
+              }
+              // For feeStatus, use chip
+              if (key === 'feeStatus') {
+                value = getStatusChip(value);
+              }
+              profileHTML += `
+                <div class="profile-row">
+                  <span class="profile-label">${label}</span>
+                  <span class="profile-value">${value}</span>
+                </div>
+              `;
+            }
+          }
+
+          // If no fields displayed, show a message
+          if (!profileHTML) {
+            profileHTML = `<p class="text-center text-gray-500 dark:text-gray-400">No additional details available.</p>`;
+          }
+
+          profileContainer.innerHTML = profileHTML;
+        } else {
+          profileContainer.innerHTML = `<p class="text-center text-gray-500 dark:text-gray-400">No student record found.</p>`;
+        }
+
+        // ---- 2. Fetch data in parallel (notices, notes, assignments, events) ----
         const gradeFilter = (grade !== '—' && grade !== '') ? grade : '';
         const sectionFilter = (section !== '—' && section !== '') ? section : 'A';
 
