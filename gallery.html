@@ -1,128 +1,385 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gallery | Springdale International Academy</title>
-  <meta name="description" content="Photo gallery of Springdale's campus and events." />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="/assets/css/style.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gallery | Springdale International Academy</title>
+    <meta name="description" content="Photo gallery of Springdale's campus and events." />
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js">
+    </script>
+
+    <style>
+        /* ── image wrapper & fallback ── */
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            background: #f3f4f6;
+            aspect-ratio: 4 / 3;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .gallery-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.10);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+        .gallery-item:hover img {
+            transform: scale(1.04);
+        }
+        .gallery-item .fallback-icon {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #d1d5db;
+            background: #f9fafb;
+        }
+        .gallery-item .badge-loading {
+            position: absolute;
+            bottom: 0.75rem;
+            right: 0.75rem;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.7rem;
+            border-radius: 999px;
+            letter-spacing: 0.3px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .gallery-item.loading .badge-loading {
+            opacity: 1;
+        }
+
+        /* ── skeleton shimmer ── */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.6s infinite;
+            border-radius: 1rem;
+            aspect-ratio: 4 / 3;
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        /* ── empty state ── */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 1rem;
+            color: #9ca3af;
+        }
+        .empty-state i {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: block;
+            opacity: 0.5;
+        }
+
+        /* ── responsive tweaks ── */
+        @media (max-width: 640px) {
+            .gallery-item {
+                aspect-ratio: 1 / 1;
+            }
+        }
+    </style>
 </head>
 <body class="bg-white font-sans antialiased">
 
-  <!-- Navbar (gallery active) -->
-  <nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
-      <a href="/" class="flex items-center gap-2">
-        <img src="/assets/images/logo.png" alt="Logo" class="h-10 site-logo" data-setting="logo_url" />
-        <span class="text-xl font-bold text-gray-900" data-setting="school_name">Springdale</span>
-      </a>
-      <div class="hidden md:flex space-x-8">
-        <a href="/about.html" class="text-gray-700 hover:text-indigo-600 font-medium">About</a>
-        <a href="/academics.html" class="text-gray-700 hover:text-indigo-600 font-medium">Academics</a>
-        <a href="/admission.html" class="text-gray-700 hover:text-indigo-600 font-medium">Admission</a>
-        <a href="/student-life.html" class="text-gray-700 hover:text-indigo-600 font-medium">Student Life</a>
-        <a href="/gallery.html" class="text-indigo-600 font-medium">Gallery</a>
-        <a href="/contact.html" class="text-gray-700 hover:text-indigo-600 font-medium">Contact</a>
-      </div>
-      <div class="md:hidden">
-        <button id="menu-toggle" class="text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
-      </div>
-    </div>
-    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
-      <a href="/about.html" class="block px-6 py-3 hover:bg-gray-50">About</a>
-      <a href="/academics.html" class="block px-6 py-3 hover:bg-gray-50">Academics</a>
-      <a href="/admission.html" class="block px-6 py-3 hover:bg-gray-50">Admission</a>
-      <a href="/student-life.html" class="block px-6 py-3 hover:bg-gray-50">Student Life</a>
-      <a href="/gallery.html" class="block px-6 py-3 text-indigo-600 font-semibold">Gallery</a>
-      <a href="/contact.html" class="block px-6 py-3 hover:bg-gray-50">Contact</a>
-    </div>
-  </nav>
-
-  <section class="pt-28 pb-20">
-    <div class="max-w-7xl mx-auto px-4">
-      <h1 class="text-5xl font-bold text-center text-gray-900 mb-16">Our Gallery</h1>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="galleryGrid">
-        <p class="col-span-full text-center text-gray-500">Loading gallery...</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="bg-gray-900 text-white py-12">
-    <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
-      <div>
-        <h3 class="text-2xl font-bold mb-4" data-setting="school_name">Springdale Academy</h3>
-        <p data-setting="address">123 Learning Lane, Knowledge City</p>
-        <p><a data-setting="phone" href="tel:+15550000000">+1 (555) 000-0000</a></p>
-        <p><a data-setting="email" href="mailto:info@school.edu">info@school.edu</a></p>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">Quick Links</h4>
-        <ul class="space-y-2">
-          <li><a href="/about.html" class="text-gray-400 hover:text-white">About</a></li>
-          <li><a href="/academics.html" class="text-gray-400 hover:text-white">Academics</a></li>
-          <li><a href="/admission.html" class="text-gray-400 hover:text-white">Admission</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">Follow Us</h4>
-        <div class="flex space-x-4 text-2xl">
-          <a href="#" class="hover:text-indigo-400"><i class="fab fa-facebook"></i></a>
-          <a href="#" class="hover:text-indigo-400"><i class="fab fa-instagram"></i></a>
-          <a href="#" class="hover:text-indigo-400"><i class="fab fa-youtube"></i></a>
+    <!-- Navbar (gallery active) -->
+    <nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
+            <a href="/" class="flex items-center gap-2">
+                <img src="/assets/images/logo.png" alt="Logo" class="h-10 site-logo" data-setting="logo_url" />
+                <span class="text-xl font-bold text-gray-900" data-setting="school_name">Springdale</span>
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="/about.html" class="text-gray-700 hover:text-indigo-600 font-medium">About</a>
+                <a href="/academics.html" class="text-gray-700 hover:text-indigo-600 font-medium">Academics</a>
+                <a href="/admission.html" class="text-gray-700 hover:text-indigo-600 font-medium">Admission</a>
+                <a href="/student-life.html" class="text-gray-700 hover:text-indigo-600 font-medium">Student Life</a>
+                <a href="/gallery.html" class="text-indigo-600 font-medium">Gallery</a>
+                <a href="/contact.html" class="text-gray-700 hover:text-indigo-600 font-medium">Contact</a>
+            </div>
+            <div class="md:hidden">
+                <button id="menu-toggle" class="text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
+            </div>
         </div>
-      </div>
-    </div>
-    <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500 text-sm">
-      &copy; <span data-setting="school_name">Springdale International Academy</span>. All rights reserved.
-    </div>
-  </footer>
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+            <a href="/about.html" class="block px-6 py-3 hover:bg-gray-50">About</a>
+            <a href="/academics.html" class="block px-6 py-3 hover:bg-gray-50">Academics</a>
+            <a href="/admission.html" class="block px-6 py-3 hover:bg-gray-50">Admission</a>
+            <a href="/student-life.html" class="block px-6 py-3 hover:bg-gray-50">Student Life</a>
+            <a href="/gallery.html" class="block px-6 py-3 text-indigo-600 font-semibold">Gallery</a>
+            <a href="/contact.html" class="block px-6 py-3 hover:bg-gray-50">Contact</a>
+        </div>
+    </nav>
 
-  <script src="/assets/js/main.js"></script>
-  <script src="/assets/js/animations.js"></script>
-  <script type="module">
-    import { loadSiteSettings } from "/assets/js/site-settings.js";
-    import { db } from "/assets/js/firebase-config.js";
-    import { collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <!-- Gallery Section -->
+    <section class="pt-28 pb-20">
+        <div class="max-w-7xl mx-auto px-4">
+            <h1 class="text-5xl font-bold text-center text-gray-900 mb-4">Our Gallery</h1>
+            <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
+                Glimpses of life, learning, and community at Springdale.
+            </p>
 
-    loadSiteSettings();
+            <!-- Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" id="galleryGrid">
+                <!-- Skeletons will be injected by JS -->
+            </div>
+        </div>
+    </section>
 
-    async function loadGallery() {
-      const grid = document.getElementById('galleryGrid');
-      try {
-        const q = query(collection(db, 'media'), orderBy('createdAt', 'desc'));
-        const snap = await getDocs(q);
-        grid.innerHTML = '';
-        if (!snap.empty) {
-          snap.forEach(doc => {
-            const data = doc.data();
-            grid.innerHTML += `
-              <div class="overflow-hidden rounded-xl shadow-lg fade-up">
-                <img src="${data.url}" class="w-full h-48 object-cover hover:scale-105 transition" />
-              </div>`;
-          });
-        } else {
-          // Placeholder images if no media
-          const placeholders = [
-            'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80',
-            'https://images.unsplash.com/photo-1523050854058-8df90910e4f6?w=600&q=80',
-            'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=600&q=80',
-            'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=600&q=80'
-          ];
-          grid.innerHTML = placeholders.map(url => `
-            <div class="overflow-hidden rounded-xl shadow-lg fade-up">
-              <img src="${url}" class="w-full h-48 object-cover hover:scale-105 transition" />
-            </div>`).join('');
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+            <div>
+                <h3 class="text-2xl font-bold mb-4" data-setting="school_name"> Academy</h3>
+                <p data-setting="address">123 Learning Lane, Knowledge City</p>
+                <p><a data-setting="phone" href="tel:+15550000000">+1 (555) 000-0000</a></p>
+                <p><a data-setting="email" href="mailto:info@school.edu">info@school.edu</a></p>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                    <li><a href="/about.html" class="text-gray-400 hover:text-white">About</a></li>
+                    <li><a href="/academics.html" class="text-gray-400 hover:text-white">Academics</a></li>
+                    <li><a href="/admission.html" class="text-gray-400 hover:text-white">Admission</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-4">Follow Us</h4>
+                <div class="flex space-x-4 text-2xl">
+                    <a href="#" class="hover:text-indigo-400"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="hover:text-indigo-400"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="hover:text-indigo-400"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500 text-sm">
+            &copy; <span data-setting="school_name"> International Academy</span>. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="/assets/js/main.js">
+    </script>
+    <script src="/assets/js/animations.js">
+    </script>
+
+    <!-- ─── MAIN GALLERY SCRIPT ─── -->
+    <script type="module">
+        import { loadSiteSettings } from "/assets/js/site-settings.js";
+        import { db } from "/assets/js/firebase-config.js";
+        import { collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        // Import Storage helpers
+        import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+        loadSiteSettings();
+
+        const grid = document.getElementById('galleryGrid');
+
+        // ── show skeleton loaders ──
+        function showSkeletons(count = 8) {
+            grid.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const div = document.createElement('div');
+                div.className = 'shimmer';
+                grid.appendChild(div);
+            }
         }
-      } catch (err) {
-        grid.innerHTML = '<p class="col-span-full text-center text-red-500">Unable to load gallery.</p>';
-      }
-    }
-    loadGallery();
-  </script>
+        showSkeletons(8);
+
+        // ── resolve a Firebase Storage path to a download URL ──
+        async function resolveStorageUrl(url) {
+            // Already a full http(s) URL → return as-is
+            if (/^https?:\/\//i.test(url)) return url;
+
+            // gs:// bucket path → resolve via Firebase Storage
+            if (url.startsWith('gs://')) {
+                try {
+                    const storage = getStorage();
+                    const path = url.replace(/^gs:\/\/[^/]+\//, '');
+                    const storageRef = ref(storage, path);
+                    return await getDownloadURL(storageRef);
+                } catch (err) {
+                    console.warn('Failed to resolve gs:// URL:', url, err);
+                    return null;
+                }
+            }
+
+            // Relative path like /images/photo.jpg → assume served from the same origin
+            if (url.startsWith('/') || !url.includes('://')) {
+                // If it's a relative path, we'll try it as-is; but we can't resolve it further.
+                // The browser will load it relative to the current page.
+                return url;
+            }
+
+            // Unknown format – return as-is and hope for the best
+            return url;
+        }
+
+        // ── render a single gallery item ──
+        function renderItem(url, alt = 'Gallery image') {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'gallery-item loading';
+
+            const img = document.createElement('img');
+            img.loading = 'lazy';
+            img.alt = alt;
+
+            // Badge
+            const badge = document.createElement('span');
+            badge.className = 'badge-loading';
+            badge.textContent = 'loading…';
+            wrapper.appendChild(badge);
+
+            // On successful load
+            img.onload = () => {
+                wrapper.classList.remove('loading');
+                badge.textContent = '✓';
+                setTimeout(() => { badge.style.opacity = '0'; }, 600);
+            };
+
+            // On error → show fallback icon
+            img.onerror = () => {
+                wrapper.classList.remove('loading');
+                badge.textContent = '✗';
+                // Remove the broken img and show a fallback icon
+                if (img.parentNode) img.remove();
+                const fallback = document.createElement('div');
+                fallback.className = 'fallback-icon';
+                fallback.innerHTML = `<i class="fas fa-image"></i>`;
+                wrapper.appendChild(fallback);
+                // also remove badge after a moment
+                setTimeout(() => { badge.style.opacity = '0'; }, 800);
+            };
+
+            img.src = url;
+            wrapper.appendChild(img);
+            return wrapper;
+        }
+
+        // ── main load function ──
+        async function loadGallery() {
+            try {
+                const q = query(collection(db, 'media'), orderBy('createdAt', 'desc'));
+                const snap = await getDocs(q);
+
+                // Clear skeletons
+                grid.innerHTML = '';
+
+                if (!snap.empty) {
+                    const items = [];
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        if (data.url) {
+                            items.push({
+                                url: data.url,
+                                alt: data.title || data.alt || 'Gallery image'
+                            });
+                        }
+                    });
+
+                    if (items.length === 0) {
+                        showEmptyState('No images found in the gallery.');
+                        return;
+                    }
+
+                    // Resolve each URL and render
+                    for (const item of items) {
+                        const resolved = await resolveStorageUrl(item.url);
+                        if (resolved) {
+                            const el = renderItem(resolved, item.alt);
+                            grid.appendChild(el);
+                        } else {
+                            // URL couldn't be resolved – show a placeholder
+                            const placeholder = document.createElement('div');
+                            placeholder.className = 'gallery-item';
+                            placeholder.innerHTML = `
+                                <div class="fallback-icon">
+                                    <i class="fas fa-exclamation-triangle" style="color:#f59e0b; font-size:2rem;"></i>
+                                </div>
+                                <div style="position:absolute;bottom:0.5rem;left:0.5rem;background:rgba(0,0,0,0.6);color:#fff;font-size:0.65rem;padding:0.15rem 0.6rem;border-radius:999px;">
+                                    broken link
+                                </div>
+                            `;
+                            grid.appendChild(placeholder);
+                        }
+                    }
+                } else {
+                    // No documents → show fallback placeholders from Unsplash
+                    showFallbackPlaceholders();
+                }
+            } catch (err) {
+                console.error('Gallery load error:', err);
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle text-red-400"></i>
+                        <p class="text-red-500 font-medium">Unable to load gallery.</p>
+                        <p class="text-sm text-gray-400 mt-1">${err.message || 'Please try again later.'}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ── fallback: Unsplash placeholders ──
+        function showFallbackPlaceholders() {
+            const fallbacks = [
+                'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80',
+                'https://images.unsplash.com/photo-1523050854058-8df90910e4f6?w=600&q=80',
+                'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=600&q=80',
+                'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=600&q=80',
+                'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&q=80',
+                'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&q=80',
+                'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=600&q=80',
+                'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&q=80'
+            ];
+            grid.innerHTML = '';
+            fallbacks.forEach(url => {
+                const el = renderItem(url, 'Campus scene');
+                grid.appendChild(el);
+            });
+            // add a note
+            const note = document.createElement('p');
+            note.className = 'col-span-full text-center text-sm text-gray-400 mt-6';
+            note.textContent = '📸 Sample images — upload your own to replace them.';
+            grid.appendChild(note);
+        }
+
+        function showEmptyState(msg) {
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-images"></i>
+                    <p class="text-gray-500">${msg}</p>
+                    <p class="text-sm text-gray-400 mt-1">Upload images via the admin panel.</p>
+                </div>
+            `;
+        }
+
+        // ── GO ──
+        loadGallery();
+    </script>
 </body>
 </html>
