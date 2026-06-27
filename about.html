@@ -1,296 +1,366 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>About Us – Monastic International Academy Estd. 2076</title>
-    <meta name="description" content="Learn more about Monastic International Academy Estd. 2076 – our history, mission, and dedicated teachers." />
-    <link rel="icon" href="/assets/images/favicon.ico" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us – Monastic International Academy Estd. 2076</title>
+  <meta name="description" content="Learn more about Monastic International Academy Estd. 2076 – our history, mission, and dedicated teachers." />
+  <link rel="icon" href="/assets/images/favicon.ico" />
 
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com">
-    </script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/assets/css/style.css" />
-    <!-- GSAP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js">
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js">
-    </script>
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-    <style>
-        .fade-up {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease;
-        }
-        .fade-up.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        /* Loading overlay */
-        #global-loader {
-            position: fixed;
-            inset: 0;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-        #global-loader.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
+  <!-- Firebase SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js">
+  </script>
 
-        /* ✅ FIX: constrain logo height so it never overlaps the navbar links */
-        .site-logo {
-            height: 2.5rem;
-            /* 40px – perfect for a navbar */
-            width: auto;
-            /* keep aspect ratio */
-            flex-shrink: 0;
-            /* prevent shrinking if navbar is tight */
-        }
-    </style>
+  <style>
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #global-loader {
+      position: fixed;
+      inset: 0;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    #global-loader.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .site-logo {
+      height: 2.5rem;
+      width: auto;
+      flex-shrink: 0;
+    }
+  </style>
 </head>
 <body class="font-sans antialiased">
 
-    <!-- ===== LOADING OVERLAY ===== -->
-    <div id="global-loader">
-        <div class="text-center">
-            <i class="fas fa-spinner fa-spin text-5xl text-indigo-600 mb-4"></i>
-            <p class="text-gray-600 text-lg">Loading about us…</p>
-        </div>
+  <!-- LOADING OVERLAY -->
+  <div id="global-loader">
+    <div class="text-center">
+      <i class="fas fa-spinner fa-spin text-5xl text-indigo-600 mb-4"></i>
+      <p class="text-gray-600 text-lg">Loading about us…</p>
     </div>
+  </div>
 
-    <!-- ===== NAVBAR ===== -->
-    <nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 shadow-sm" id="navbar">
-        <div class="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
-            <a href="/" class="flex items-center gap-2">
-                <img src="/assets/images/logo.png" alt="Logo" class="site-logo" data-setting="logo_url" />
-                <span class="text-xl font-bold text-gray-900" data-setting="school_name">Monastic International Academy</span>
-            </a>
-            <div class="hidden md:flex space-x-8">
-                <a href="/about.html" class="text-indigo-600 font-medium">About</a>
-                <a href="/academics.html" class="text-gray-700 hover:text-indigo-600 font-medium">Academics</a>
-                <a href="/admission.html" class="text-gray-700 hover:text-indigo-600 font-medium">Admission</a>
-                <a href="/student-life.html" class="text-gray-700 hover:text-indigo-600 font-medium">Student Life</a>
-                <a href="/gallery.html" class="text-gray-700 hover:text-indigo-600 font-medium">Gallery</a>
-                <a href="/contact.html" class="text-gray-700 hover:text-indigo-600 font-medium">Contact</a>
-            </div>
-            <div class="md:hidden">
-                <button id="menu-toggle" class="text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
-            <a href="/about.html" class="block px-6 py-3 text-indigo-600 font-semibold">About</a>
-            <a href="/academics.html" class="block px-6 py-3 hover:bg-gray-50">Academics</a>
-            <a href="/admission.html" class="block px-6 py-3 hover:bg-gray-50">Admission</a>
-            <a href="/student-life.html" class="block px-6 py-3 hover:bg-gray-50">Student Life</a>
-            <a href="/gallery.html" class="block px-6 py-3 hover:bg-gray-50">Gallery</a>
-            <a href="/contact.html" class="block px-6 py-3 hover:bg-gray-50">Contact</a>
-        </div>
-    </nav>
+  <!-- NAVBAR -->
+  <nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 shadow-sm" id="navbar">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
+      <a href="/" class="flex items-center gap-2">
+        <img src="/assets/images/logo.png" alt="Logo" class="site-logo" />
+        <span class="text-xl font-bold text-gray-900">Monastic International Academy</span>
+      </a>
+      <div class="hidden md:flex space-x-8">
+        <a href="/about.html" class="text-indigo-600 font-medium">About</a>
+        <a href="/academics.html" class="text-gray-700 hover:text-indigo-600 font-medium">Academics</a>
+        <a href="/admission.html" class="text-gray-700 hover:text-indigo-600 font-medium">Admission</a>
+        <a href="/student-life.html" class="text-gray-700 hover:text-indigo-600 font-medium">Student Life</a>
+        <a href="/gallery.html" class="text-gray-700 hover:text-indigo-600 font-medium">Gallery</a>
+        <a href="/contact.html" class="text-gray-700 hover:text-indigo-600 font-medium">Contact</a>
+      </div>
+      <div class="md:hidden">
+        <button id="menu-toggle" class="text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <a href="/about.html" class="block px-6 py-3 text-indigo-600 font-semibold">About</a>
+      <a href="/academics.html" class="block px-6 py-3 hover:bg-gray-50">Academics</a>
+      <a href="/admission.html" class="block px-6 py-3 hover:bg-gray-50">Admission</a>
+      <a href="/student-life.html" class="block px-6 py-3 hover:bg-gray-50">Student Life</a>
+      <a href="/gallery.html" class="block px-6 py-3 hover:bg-gray-50">Gallery</a>
+      <a href="/contact.html" class="block px-6 py-3 hover:bg-gray-50">Contact</a>
+    </div>
+  </nav>
 
-    <!-- ===== HERO (simple gradient) ===== -->
-    <section class="pt-28 pb-16 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <h1 class="text-5xl font-bold mb-4">About <span data-setting="school_name">Monastic International Academy Estd. 2076</span></h1>
-            <p class="text-xl opacity-90">Discover our story, our values, and the people who make us great.</p>
-        </div>
-    </section>
+  <!-- HERO -->
+  <section class="pt-28 pb-16 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <h1 class="text-5xl font-bold mb-4">About Monastic International Academy Estd. 2076</h1>
+      <p class="text-xl opacity-90">Discover our story, our values, and the people who make us great.</p>
+    </div>
+  </section>
 
-    <!-- ===== ABOUT TEXT & ADDRESS ===== -->
-    <section class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-            <div class="fade-up">
-                <h2 class="text-4xl font-bold text-gray-900 mb-6">Welcome to <span data-setting="school_name">Monastic International Academy Estd. 2076</span></h2>
-                <div id="about-text" class="text-lg text-gray-600 space-y-4"></div>
-                <div class="mt-8 flex flex-col gap-2 text-gray-700">
-                    <p><i class="fas fa-map-marker-alt w-6 text-indigo-600"></i> <span data-setting="address">Gaur 5, Rautahat</span></p>
-                    <p><i class="fas fa-phone w-6 text-indigo-600"></i> <a data-setting="phone" href="tel:+977-9800000000">+977-9800000000</a></p>
-                    <p><i class="fas fa-envelope w-6 text-indigo-600"></i> <a data-setting="email" href="mailto:info@gsstar.edu.np">info@gsstar.edu.np</a></p>
-                </div>
-            </div>
-            <div class="fade-up">
-                <img src="https://images.unsplash.com/photo-1541339907198-e1689bb996bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="School building" class="rounded-2xl shadow-2xl w-full" />
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== MISSION & VISION (static) ===== -->
-    <section class="py-20 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="grid md:grid-cols-2 gap-12">
-                <div class="fade-up bg-white p-8 rounded-2xl shadow-lg">
-                    <h3 class="text-2xl font-bold text-indigo-600 mb-4">🎯 Our Mission</h3>
-                    <p class="text-gray-600">To provide a transformative education that fosters intellectual curiosity, ethical character, and global citizenship.</p>
-                </div>
-                <div class="fade-up bg-white p-8 rounded-2xl shadow-lg">
-                    <h3 class="text-2xl font-bold text-indigo-600 mb-4">🔭 Our Vision</h3>
-                    <p class="text-gray-600">A vibrant learning community where every student is empowered to shape a better world.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== HISTORY TIMELINE ===== -->
-    <section class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4">
-            <h2 class="text-4xl font-bold text-center text-gray-900 mb-16">Our Journey</h2>
-            <div class="space-y-12">
-                <div class="flex flex-col md:flex-row gap-8 items-center fade-up">
-                    <div class="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center text-3xl font-bold text-indigo-600">2065</div>
-                    <div class="flex-1">
-                        <h3 class="text-2xl font-semibold">Founded</h3>
-                        <p class="text-gray-600">Monastic International Academy began with 50 students and a vision for excellence.</p>
-                    </div>
-                </div>
-                <div class="flex flex-col md:flex-row gap-8 items-center fade-up">
-                    <div class="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center text-3xl font-bold text-indigo-600">2065</div>
-                    <div class="flex-1">
-                        <h3 class="text-2xl font-semibold">First SEE Batch</h3>
-                        <p class="text-gray-600">Our first cohort achieved 100% pass rate.</p>
-                    </div>
-                </div>
-                <div class="flex flex-col md:flex-row gap-8 items-center fade-up">
-                    <div class="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center text-3xl font-bold text-indigo-600">2024</div>
-                    <div class="flex-1">
-                        <h3 class="text-2xl font-semibold">Campus Expansion</h3>
-                        <p class="text-gray-600">Added new science labs and a sports complex.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== TEACHERS SECTION (dynamic) ===== -->
-    <section class="py-20 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4">
-            <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">Meet Our Teachers</h2>
-            <div id="teachers-container" class="grid md:grid-cols-3 gap-8">
-                <p class="col-span-full text-center text-gray-500">Loading teachers…</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== FOOTER (dynamic) ===== -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
-            <div>
-                <h3 class="text-2xl font-bold mb-4" data-setting="school_name">Monastic International Academy</h3>
-                <p data-setting="address">Gaur 5, Rautahat</p>
-                <p><a data-setting="phone" href="tel:+977-9800000000">+977-9800000000</a></p>
-                <p><a data-setting="email" href="mailto:info@gsstar.edu.np">info@gsstar.edu.np</a></p>
-            </div>
-            <div>
-                <h4 class="font-semibold mb-4">Quick Links</h4>
-                <ul class="space-y-2">
-                    <li><a href="/about.html" class="text-gray-400 hover:text-white">About</a></li>
-                    <li><a href="/academics.html" class="text-gray-400 hover:text-white">Academics</a></li>
-                    <li><a href="/admission.html" class="text-gray-400 hover:text-white">Admission</a></li>
-                    <li><a href="/contact.html" class="text-gray-400 hover:text-white">Contact</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-semibold mb-4">Follow Us</h4>
-                <div class="flex space-x-4 text-2xl">
-                    <a href="#" id="fb-link" class="hover:text-indigo-400"><i class="fab fa-facebook"></i></a>
-                    <a href="#" id="ig-link" class="hover:text-indigo-400"><i class="fab fa-instagram"></i></a>
-                    <a href="#" id="yt-link" class="hover:text-indigo-400"><i class="fab fa-youtube"></i></a>
-                </div>
-            </div>
-        </div>
-        <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500 text-sm">
-            &copy; <span data-setting="school_name">Monastic International Academy Estd. 2076</span>. All rights reserved.
-        </div>
-    </footer>
-
-    <!-- ===== SCRIPTS ===== -->
-    <script src="/assets/js/main.js">
-    </script>
-
-    <script type="module">
-        import { loadSiteSettings } from "/assets/js/site-settings.js";
-        import { db } from "/assets/js/firebase-config.js";
-        import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-        // Animation observer
-        function refreshAnimations() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.15 });
-            document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-        }
-
-        function hideLoader() {
-            const loader = document.getElementById('global-loader');
-            if (loader) {
-                loader.classList.add('hidden');
-                setTimeout(() => loader.remove(), 600);
-            }
-        }
-
-        const safetyTimer = setTimeout(hideLoader, 10000);
-
-        try {
-            const settings = await loadSiteSettings();
-
-            // About text
-            const aboutDiv = document.getElementById('about-text');
-            if (settings && settings.about_text) {
-                aboutDiv.innerHTML = `<p>${settings.about_text}</p>`;
-            } else {
-                aboutDiv.innerHTML = `
+  <!-- ABOUT TEXT & ADDRESS -->
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
+      <div class="fade-up">
+        <h2 class="text-4xl font-bold text-gray-900 mb-6">Welcome to Monastic International Academy Estd. 2076</h2>
+        <div class="text-lg text-gray-600 space-y-4">
           <p>Monastic International Academy Estd. 2076 was founded with a dream: to provide quality education in a nurturing environment. Over the years, we have grown into a family of dedicated teachers, enthusiastic students, and supportive parents.</p>
           <p>We believe that education goes beyond textbooks – it’s about building character, creativity, and confidence. Our campus is a safe, inclusive space where every child can discover their potential.</p>
-          <p>Join us as we continue to shape future leaders with values and vision.</p>`;
-            }
+          <p>Join us as we continue to shape future leaders with values and vision.</p>
+        </div>
+        <div class="mt-8 flex flex-col gap-2 text-gray-700">
+          <p><i class="fas fa-map-marker-alt w-6 text-indigo-600"></i> Gaur 5, Rautahat</p>
+          <p><i class="fas fa-phone w-6 text-indigo-600"></i> <a href="tel:+977-9800000000">+977-9800000000</a></p>
+          <p><i class="fas fa-envelope w-6 text-indigo-600"></i> <a href="mailto:info@monastic.edu.np">info@monastic.edu.np</a></p>
+        </div>
+      </div>
+      <div class="fade-up">
+        <img src="https://images.unsplash.com/photo-1541339907198-e1689bb996bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="School building" class="rounded-2xl shadow-2xl w-full" />
+      </div>
+    </div>
+  </section>
 
-            await loadTeachers();
-            refreshAnimations();
+  <!-- MISSION & VISION -->
+  <section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid md:grid-cols-2 gap-12">
+        <div class="fade-up bg-white p-8 rounded-2xl shadow-lg">
+          <h3 class="text-2xl font-bold text-indigo-600 mb-4">🎯 Our Mission</h3>
+          <p class="text-gray-600">To provide a transformative education that fosters intellectual curiosity, ethical character, and global citizenship.</p>
+        </div>
+        <div class="fade-up bg-white p-8 rounded-2xl shadow-lg">
+          <h3 class="text-2xl font-bold text-indigo-600 mb-4">🔭 Our Vision</h3>
+          <p class="text-gray-600">A vibrant learning community where every student is empowered to shape a better world.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTORY TIMELINE -->
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+      <h2 class="text-4xl font-bold text-center text-gray-900 mb-16">Our Journey</h2>
+      <div class="space-y-12">
+        <div class="flex flex-col md:flex-row gap-8 items-center fade-up">
+          <div class="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center text-3xl font-bold text-indigo-600">2076</div>
+          <div class="flex-1">
+            <h3 class="text-2xl font-semibold">Founded</h3>
+            <p class="text-gray-600">Monastic International Academy began with 50 students and a vision for excellence.</p>
+          </div>
+        </div>
+        <div class="flex flex-col md:flex-row gap-8 items-center fade-up">
+          <div class="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center text-3xl font-bold text-indigo-600">2078</div>
+          <div class="flex-1">
+            <h3 class="text-2xl font-semibold">First SEE Batch</h3>
+            <p class="text-gray-600">Our first cohort achieved 100% pass rate.</p>
+          </div>
+        </div>
+        <div class="flex flex-col md:flex-row gap-8 items-center fade-up">
+          <div class="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center text-3xl font-bold text-indigo-600">2081</div>
+          <div class="flex-1">
+            <h3 class="text-2xl font-semibold">Campus Expansion</h3>
+            <p class="text-gray-600">Added new science labs and a sports complex.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEACHERS – dynamically loaded from Firestore -->
+  <section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">Meet Our Teachers</h2>
+      <div id="teachers-container" class="grid md:grid-cols-3 gap-8">
+        <p class="col-span-full text-center text-gray-500">Loading teachers…</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-gray-900 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+      <div>
+        <h3 class="text-2xl font-bold mb-4">Monastic International Academy</h3>
+        <p>Gaur 5, Rautahat</p>
+        <p><a href="tel:+977-9800000000">+977-9800000000</a></p>
+        <p><a href="mailto:info@monastic.edu.np">info@monastic.edu.np</a></p>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Quick Links</h4>
+        <ul class="space-y-2">
+          <li><a href="/about.html" class="text-gray-400 hover:text-white">About</a></li>
+          <li><a href="/academics.html" class="text-gray-400 hover:text-white">Academics</a></li>
+          <li><a href="/admission.html" class="text-gray-400 hover:text-white">Admission</a></li>
+          <li><a href="/contact.html" class="text-gray-400 hover:text-white">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">Follow Us</h4>
+        <div class="flex space-x-4 text-2xl">
+          <a href="#" class="hover:text-indigo-400"><i class="fab fa-facebook"></i></a>
+          <a href="#" class="hover:text-indigo-400"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="hover:text-indigo-400"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500 text-sm">
+      &copy; Monastic International Academy Estd. 2076. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      // ============================================================
+      // 1. LOAD FIREBASE CONFIG FROM EXTERNAL FILE
+      // ============================================================
+      let firebaseConfig = null;
+      let configLoaded = false;
+
+      // Create a script element to load assets/js/firebase-config.js
+      const script = document.createElement('script');
+      script.src = '/assets/js/firebase-config.js';
+      script.onload = function() {
+        // The file should define window.firebaseConfig
+        if (window.firebaseConfig) {
+          firebaseConfig = window.firebaseConfig;
+          console.log('Firebase config loaded from external file.');
+        } else {
+          console.warn('firebase-config.js did not set window.firebaseConfig.');
+        }
+        configLoaded = true;
+        tryInit();
+      };
+      script.onerror = function() {
+        console.warn('Failed to load firebase-config.js. Using fallback config.');
+        configLoaded = true;
+        tryInit();
+      };
+      document.head.appendChild(script);
+
+      // ============================================================
+      // 2. FALLBACK CONFIG (hardcoded – replace with your own if needed)
+      // ============================================================
+      const fallbackConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+      };
+
+      // ============================================================
+      // 3. HIDE LOADER (always happens after 3s max)
+      // ============================================================
+      let loaderHidden = false;
+      const hideLoader = () => {
+        if (loaderHidden) return;
+        loaderHidden = true;
+        const loader = document.getElementById('global-loader');
+        if (loader) {
+          loader.classList.add('hidden');
+          setTimeout(() => loader.remove(), 600);
+        }
+      };
+      setTimeout(hideLoader, 3000);
+
+      // ============================================================
+      // 4. INITIALIZE FIREBASE & FETCH TEACHERS
+      // ============================================================
+      const container = document.getElementById('teachers-container');
+
+      function showFallbackTeachers() {
+        container.innerHTML = `
+          <div class="bg-white p-6 rounded-2xl shadow fade-up text-center">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Mr. Sharma" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover" />
+            <h3 class="text-xl font-semibold">Mr. Rajesh Sharma</h3>
+            <p class="text-indigo-600 font-medium">Mathematics</p>
+            <p class="text-gray-600 mt-3 text-sm">15 years of experience, passionate about problem-solving.</p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow fade-up text-center">
+            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Ms. Poudel" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover" />
+            <h3 class="text-xl font-semibold">Ms. Sita Poudel</h3>
+            <p class="text-indigo-600 font-medium">English Literature</p>
+            <p class="text-gray-600 mt-3 text-sm">Loves poetry and encourages creative writing.</p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow fade-up text-center">
+            <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Mr. Thapa" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover" />
+            <h3 class="text-xl font-semibold">Mr. Karan Thapa</h3>
+            <p class="text-indigo-600 font-medium">Science</p>
+            <p class="text-gray-600 mt-3 text-sm">Makes complex concepts fun with hands-on experiments.</p>
+          </div>
+        `;
+        document.querySelectorAll('.fade-up').forEach(el => el.classList.add('visible'));
+        hideLoader();
+      }
+
+      function tryInit() {
+        // Wait for config to be loaded (either from file or fallback)
+        if (!configLoaded) return;
+
+        const config = firebaseConfig || fallbackConfig;
+        // Validate config (simple check)
+        if (!config.apiKey || config.apiKey === 'YOUR_API_KEY') {
+          console.warn('Firebase config missing or still placeholder. Using fallback teachers.');
+          showFallbackTeachers();
+          return;
+        }
+
+        try {
+          firebase.initializeApp(config);
+          const db = firebase.firestore();
+
+          db.collection('teachers').get()
+            .then((snapshot) => {
+              container.innerHTML = '';
+              if (snapshot.empty) {
+                container.innerHTML = '<p class="col-span-full text-center text-gray-500">No teachers listed yet.</p>';
+                hideLoader();
+                return;
+              }
+              snapshot.forEach((doc) => {
+                const t = doc.data();
+                const card = document.createElement('div');
+                card.className = 'bg-white p-6 rounded-2xl shadow fade-up text-center';
+                card.innerHTML = `
+                  <img src="${t.image || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="${t.name || 'Teacher'}" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover" />
+                  <h3 class="text-xl font-semibold">${t.name || 'Unknown'}</h3>
+                  <p class="text-indigo-600 font-medium">${t.subject || 'Teacher'}</p>
+                  ${t.bio ? `<p class="text-gray-600 mt-3 text-sm">${t.bio}</p>` : ''}
+                `;
+                container.appendChild(card);
+              });
+              document.querySelectorAll('.fade-up').forEach(el => el.classList.add('visible'));
+              hideLoader();
+            })
+            .catch((err) => {
+              console.warn('Firestore fetch failed, using fallback teachers:', err);
+              showFallbackTeachers();
+            });
         } catch (err) {
-            console.error('Error loading about page:', err);
-        } finally {
-            clearTimeout(safetyTimer);
-            hideLoader();
+          console.warn('Firebase init error, using fallback teachers:', err);
+          showFallbackTeachers();
         }
+      }
 
-        async function loadTeachers() {
-            const container = document.getElementById('teachers-container');
-            try {
-                const snap = await getDocs(collection(db, 'teachers'));
-                container.innerHTML = '';
-                if (snap.empty) {
-                    container.innerHTML = '<p class="col-span-full text-center text-gray-500">No teachers listed yet.</p>';
-                    return;
-                }
-                snap.forEach(doc => {
-                    const t = doc.data();
-                    const card = document.createElement('div');
-                    card.className = 'bg-white p-6 rounded-2xl shadow fade-up text-center';
-                    card.innerHTML = `
-                <img src="${t.image || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="${t.name}" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover" />
-                <h3 class="text-xl font-semibold">${t.name}</h3>
-                <p class="text-indigo-600 font-medium">${t.subject || 'Teacher'}</p>
-                ${t.bio ? `<p class="text-gray-600 mt-3 text-sm">${t.bio}</p>` : ''}
-              `;
-                    container.appendChild(card);
-                });
-                refreshAnimations();
-            } catch (err) {
-                container.innerHTML = '<p class="col-span-full text-center text-red-500">Failed to load teachers.</p>';
-            }
-        }
-    </script>
+      // ============================================================
+      // 5. MOBILE MENU TOGGLE & OTHER UI
+      // ============================================================
+      const toggle = document.getElementById('menu-toggle');
+      const menu = document.getElementById('mobile-menu');
+      if (toggle && menu) {
+        toggle.addEventListener('click', () => menu.classList.toggle('hidden'));
+      }
+
+      // Intersection Observer for fade-up (covers initial visible items)
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    })();
+  </script>
 </body>
 </html>
