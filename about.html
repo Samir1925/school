@@ -3,20 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About Us – Monastic International Academy Estd. 2076</title>
-  <meta name="description" content="Learn more about Monastic International Academy Estd. 2076 – our history, mission, and dedicated teachers." />
+  <title>About | <span data-setting="school_name">Monastic International Academy</span></title>
+  <meta name="description" content="Learn about our school – history, mission, and teachers." />
   <link rel="icon" href="/assets/images/favicon.ico" />
 
-  <!-- Tailwind -->
+  <!-- Tailwind & Font Awesome -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-  <!-- Firebase SDK (compat) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
-  </script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js">
-  </script>
+  <!-- Firebase compat SDK (needed for Firestore) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <style>
     .fade-up {
@@ -60,11 +57,11 @@
   </div>
 
   <!-- ===== NAVBAR ===== -->
-  <nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 shadow-sm" id="navbar">
+  <nav class="bg-white/90 backdrop-blur-md fixed w-full z-50 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
       <a href="/" class="flex items-center gap-2">
-        <img src="/assets/images/logo.png" alt="Logo" id="nav-logo" class="site-logo" />
-        <span class="text-xl font-bold text-gray-900" id="nav-school-name">Monastic International Academy</span>
+        <img src="/assets/images/logo.png" alt="Logo" class="site-logo" data-setting="logo_url" />
+        <span class="text-xl font-bold text-gray-900" data-setting="school_name">Monastic International Academy</span>
       </a>
       <div class="hidden md:flex space-x-8">
         <a href="/about.html" class="text-indigo-600 font-medium">About</a>
@@ -91,7 +88,7 @@
   <!-- ===== HERO ===== -->
   <section class="pt-28 pb-16 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
     <div class="max-w-7xl mx-auto px-4 text-center">
-      <h1 class="text-5xl font-bold mb-4" id="hero-title">About Monastic International Academy Estd. 2076</h1>
+      <h1 class="text-5xl font-bold mb-4">About <span data-setting="school_name">Monastic International Academy</span></h1>
       <p class="text-xl opacity-90">Discover our story, our values, and the people who make us great.</p>
     </div>
   </section>
@@ -100,23 +97,23 @@
   <section class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
       <div class="fade-up">
-        <h2 class="text-4xl font-bold text-gray-900 mb-6" id="about-heading">Welcome to Monastic International Academy Estd. 2076</h2>
+        <h2 class="text-4xl font-bold text-gray-900 mb-6">Welcome to <span data-setting="school_name">Monastic International Academy</span></h2>
         <div id="about-text" class="text-lg text-gray-600 space-y-4">
-          <!-- Will be filled by Firestore -->
+          <!-- Filled by Firestore or fallback -->
         </div>
         <div class="mt-8 flex flex-col gap-2 text-gray-700">
-          <p><i class="fas fa-map-marker-alt w-6 text-indigo-600"></i> <span id="address">Gaur 5, Rautahat</span></p>
-          <p><i class="fas fa-phone w-6 text-indigo-600"></i> <a id="phone" href="tel:+977-9800000000">+977-9800000000</a></p>
-          <p><i class="fas fa-envelope w-6 text-indigo-600"></i> <a id="email" href="mailto:info@monastic.edu.np">info@monastic.edu.np</a></p>
+          <p><i class="fas fa-map-marker-alt w-6 text-indigo-600"></i> <span data-setting="address">Gaur 5, Rautahat</span></p>
+          <p><i class="fas fa-phone w-6 text-indigo-600"></i> <a data-setting="phone" href="tel:+977-9800000000">+977-9800000000</a></p>
+          <p><i class="fas fa-envelope w-6 text-indigo-600"></i> <a data-setting="email" href="mailto:info@monastic.edu.np">info@monastic.edu.np</a></p>
         </div>
       </div>
       <div class="fade-up">
-        <img id="about-image" src="https://images.unsplash.com/photo-1541339907198-e1689bb996bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="School building" class="rounded-2xl shadow-2xl w-full" />
+        <img id="about-image" src="https://images.unsplash.com/photo-1541339907198-e1689bb996bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="School building" class="rounded-2xl shadow-2xl w-full" data-setting="about_image" />
       </div>
     </div>
   </section>
 
-  <!-- ===== MISSION & VISION ===== -->
+  <!-- ===== MISSION & VISION (static) ===== -->
   <section class="py-20 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4">
       <div class="grid md:grid-cols-2 gap-12">
@@ -162,7 +159,7 @@
     </div>
   </section>
 
-  <!-- ===== TEACHERS ===== -->
+  <!-- ===== TEACHERS (dynamic) ===== -->
   <section class="py-20 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4">
       <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">Meet Our Teachers</h2>
@@ -176,10 +173,10 @@
   <footer class="bg-gray-900 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
       <div>
-        <h3 class="text-2xl font-bold mb-4" id="footer-school-name">Monastic International Academy</h3>
-        <p id="footer-address">Gaur 5, Rautahat</p>
-        <p><a id="footer-phone" href="tel:+977-9800000000">+977-9800000000</a></p>
-        <p><a id="footer-email" href="mailto:info@monastic.edu.np">info@monastic.edu.np</a></p>
+        <h3 class="text-2xl font-bold mb-4" data-setting="school_name">Monastic International Academy</h3>
+        <p data-setting="address">Gaur 5, Rautahat</p>
+        <p><a data-setting="phone" href="tel:+977-9800000000">+977-9800000000</a></p>
+        <p><a data-setting="email" href="mailto:info@monastic.edu.np">info@monastic.edu.np</a></p>
       </div>
       <div>
         <h4 class="font-semibold mb-4">Quick Links</h4>
@@ -193,59 +190,82 @@
       <div>
         <h4 class="font-semibold mb-4">Follow Us</h4>
         <div class="flex space-x-4 text-2xl">
-          <a href="#" id="fb-link" class="hover:text-indigo-400"><i class="fab fa-facebook"></i></a>
-          <a href="#" id="ig-link" class="hover:text-indigo-400"><i class="fab fa-instagram"></i></a>
-          <a href="#" id="yt-link" class="hover:text-indigo-400"><i class="fab fa-youtube"></i></a>
+          <a href="#" data-setting="facebook" class="hover:text-indigo-400"><i class="fab fa-facebook"></i></a>
+          <a href="#" data-setting="instagram" class="hover:text-indigo-400"><i class="fab fa-instagram"></i></a>
+          <a href="#" data-setting="youtube" class="hover:text-indigo-400"><i class="fab fa-youtube"></i></a>
         </div>
       </div>
     </div>
-    <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500 text-sm" id="footer-copyright">
+    <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500 text-sm" data-setting="copyright">
       &copy; Monastic International Academy Estd. 2076. All rights reserved.
     </div>
   </footer>
 
+  <!-- ============================================================ -->
+  <!-- SCRIPT – loads config from /assets/js/firebase-config.js      -->
+  <!-- ============================================================ -->
   <script>
     (function() {
-      // ============================================================
-      // 1. LOAD FIREBASE CONFIG FROM EXTERNAL FILE
-      // ============================================================
+      // ------------------------------------------------------------
+      // 1. LOAD YOUR FIREBASE CONFIG (using dynamic import)
+      // ------------------------------------------------------------
+      // We'll try to import the config from your ES module.
+      // Your firebase-config.js must export the config object.
+      // If it doesn't, we'll fall back to the hardcoded values below.
+      // ------------------------------------------------------------
+
       let firebaseConfig = null;
       let configLoaded = false;
 
-      const configScript = document.createElement('script');
-      configScript.src = '/assets/js/firebase-config.js';
-      configScript.onload = function() {
-        if (window.firebaseConfig) {
-          firebaseConfig = window.firebaseConfig;
-          console.log('Firebase config loaded from external file.');
-        } else {
-          console.warn('firebase-config.js did not set window.firebaseConfig.');
-        }
-        configLoaded = true;
-        tryInit();
-      };
-      configScript.onerror = function() {
-        console.warn('Failed to load firebase-config.js. Using fallback config.');
-        configLoaded = true;
-        tryInit();
-      };
-      document.head.appendChild(configScript);
+      // Try to load the config dynamically
+      import('/assets/js/firebase-config.js')
+        .then(module => {
+          // The module exports auth, db, storage, studentAuth
+          // We need the config – if it's not exported, we'll use a fallback
+          // Check if the module has a named export 'firebaseConfig' or 'config'
+          if (module.firebaseConfig) {
+            firebaseConfig = module.firebaseConfig;
+          } else if (module.config) {
+            firebaseConfig = module.config;
+          } else {
+            // If not exported, try to see if window.firebaseConfig was set by the module
+            if (window.firebaseConfig) {
+              firebaseConfig = window.firebaseConfig;
+            } else {
+              console.warn('Config not exported from firebase-config.js. Using fallback.');
+              firebaseConfig = getFallbackConfig();
+            }
+          }
+          configLoaded = true;
+          tryInit();
+        })
+        .catch(err => {
+          console.warn('Failed to import firebase-config.js:', err);
+          // Fallback: try to see if window.firebaseConfig exists (if user added it)
+          if (window.firebaseConfig) {
+            firebaseConfig = window.firebaseConfig;
+          } else {
+            firebaseConfig = getFallbackConfig();
+          }
+          configLoaded = true;
+          tryInit();
+        });
 
-      // ============================================================
-      // 2. FALLBACK CONFIG (hardcoded – replace if needed)
-      // ============================================================
-      const fallbackConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
-      };
+      // Fallback config – replace with your own values if needed
+      function getFallbackConfig() {
+        return {
+          apiKey: "AIzaSyCbTfB_VxZosV15LUdgyoUrHL6-dz6FohM",
+          authDomain: "school-cf387.firebaseapp.com",
+          projectId: "school-cf387",
+          storageBucket: "school-cf387.firebasestorage.app",
+          messagingSenderId: "594859618434",
+          appId: "1:594859618434:web:065c17831015ca0073049b"
+        };
+      }
 
-      // ============================================================
-      // 3. HIDE LOADER (safety timeout)
-      // ============================================================
+      // ------------------------------------------------------------
+      // 2. LOADER – hides after 4s max
+      // ------------------------------------------------------------
       let loaderHidden = false;
       const hideLoader = () => {
         if (loaderHidden) return;
@@ -256,89 +276,73 @@
           setTimeout(() => loader.remove(), 600);
         }
       };
-      setTimeout(hideLoader, 4000); // 4s max
+      setTimeout(hideLoader, 4000);
 
-      // ============================================================
-      // 4. DOM ELEMENTS
-      // ============================================================
-      const navLogo = document.getElementById('nav-logo');
-      const navSchoolName = document.getElementById('nav-school-name');
-      const heroTitle = document.getElementById('hero-title');
-      const aboutHeading = document.getElementById('about-heading');
-      const aboutText = document.getElementById('about-text');
-      const addressEl = document.getElementById('address');
-      const phoneEl = document.getElementById('phone');
-      const emailEl = document.getElementById('email');
-      const aboutImage = document.getElementById('about-image');
-      const footerSchoolName = document.getElementById('footer-school-name');
-      const footerAddress = document.getElementById('footer-address');
-      const footerPhone = document.getElementById('footer-phone');
-      const footerEmail = document.getElementById('footer-email');
-      const fbLink = document.getElementById('fb-link');
-      const igLink = document.getElementById('ig-link');
-      const ytLink = document.getElementById('yt-link');
-      const footerCopyright = document.getElementById('footer-copyright');
-      const teachersContainer = document.getElementById('teachers-container');
-
-      // ============================================================
-      // 5. DEFAULT FALLBACK VALUES (used if Firestore not available)
-      // ============================================================
-      const defaults = {
-        school_name: 'Monastic International Academy Estd. 2076',
-        logo_url: '/assets/images/logo.png',
-        address: 'Gaur 5, Rautahat',
-        phone: '+977-9800000000',
-        email: 'info@monastic.edu.np',
-        about_text: `<p>Monastic International Academy Estd. 2076 was founded with a dream: to provide quality education in a nurturing environment. Over the years, we have grown into a family of dedicated teachers, enthusiastic students, and supportive parents.</p><p>We believe that education goes beyond textbooks – it’s about building character, creativity, and confidence. Our campus is a safe, inclusive space where every child can discover their potential.</p><p>Join us as we continue to shape future leaders with values and vision.</p>`,
-        about_image: 'https://images.unsplash.com/photo-1541339907198-e1689bb996bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        facebook: '#',
-        instagram: '#',
-        youtube: '#',
-        copyright: 'Monastic International Academy Estd. 2076. All rights reserved.'
-      };
-
-      // ============================================================
-      // 6. APPLY SETTINGS TO DOM
-      // ============================================================
+      // ------------------------------------------------------------
+      // 3. UTILITY: apply data‑setting attributes from an object
+      // ------------------------------------------------------------
       function applySettings(settings) {
-        const s = settings || defaults;
-        // Nav
-        navSchoolName.textContent = s.school_name || defaults.school_name;
-        if (s.logo_url) navLogo.src = s.logo_url;
-        // Hero
-        heroTitle.textContent = 'About ' + (s.school_name || defaults.school_name);
-        // About heading
-        aboutHeading.textContent = 'Welcome to ' + (s.school_name || defaults.school_name);
-        // About text
-        aboutText.innerHTML = s.about_text || defaults.about_text;
-        // Address
-        addressEl.textContent = s.address || defaults.address;
-        phoneEl.textContent = s.phone || defaults.phone;
-        phoneEl.href = 'tel:' + (s.phone || defaults.phone);
-        emailEl.textContent = s.email || defaults.email;
-        emailEl.href = 'mailto:' + (s.email || defaults.email);
-        // About image
-        if (s.about_image) aboutImage.src = s.about_image;
-        // Footer
-        footerSchoolName.textContent = s.school_name || defaults.school_name;
-        footerAddress.textContent = s.address || defaults.address;
-        footerPhone.textContent = s.phone || defaults.phone;
-        footerPhone.href = 'tel:' + (s.phone || defaults.phone);
-        footerEmail.textContent = s.email || defaults.email;
-        footerEmail.href = 'mailto:' + (s.email || defaults.email);
-        // Social
-        if (s.facebook) fbLink.href = s.facebook;
-        if (s.instagram) igLink.href = s.instagram;
-        if (s.youtube) ytLink.href = s.youtube;
-        // Copyright
-        footerCopyright.innerHTML = '&copy; ' + (s.copyright || defaults.copyright);
+        document.querySelectorAll('[data-setting]').forEach(el => {
+          const key = el.getAttribute('data-setting');
+          const val = settings[key];
+          if (val !== undefined && val !== null && val !== '') {
+            if (el.tagName === 'IMG') {
+              el.src = val;
+            } else if (el.tagName === 'A' && (key === 'facebook' || key === 'instagram' || key === 'youtube')) {
+              el.href = val;
+            } else {
+              el.textContent = val;
+            }
+          }
+        });
+        // Special handling for about_text (HTML)
+        if (settings.about_text) {
+          document.getElementById('about-text').innerHTML = settings.about_text;
+        }
+        // Copyright may contain HTML
+        const copyrightEl = document.querySelector('[data-setting="copyright"]');
+        if (copyrightEl && settings.copyright) {
+          copyrightEl.innerHTML = settings.copyright;
+        }
+        // Phone and email links
+        const phone = document.querySelector('[data-setting="phone"]');
+        if (phone && settings.phone) {
+          phone.href = 'tel:' + settings.phone;
+        }
+        const email = document.querySelector('[data-setting="email"]');
+        if (email && settings.email) {
+          email.href = 'mailto:' + settings.email;
+        }
       }
 
-      // ============================================================
-      // 7. FALLBACK TEACHERS (static)
-      // ============================================================
+      // ------------------------------------------------------------
+      // 4. TEACHERS – render from Firestore or fallback
+      // ------------------------------------------------------------
+      function renderTeachers(snapshot) {
+        const container = document.getElementById('teachers-container');
+        container.innerHTML = '';
+        if (snapshot.empty) {
+          container.innerHTML = '<p class="col-span-full text-center text-gray-500">No teachers listed yet.</p>';
+          return;
+        }
+        snapshot.forEach(doc => {
+          const t = doc.data();
+          const card = document.createElement('div');
+          card.className = 'bg-white p-6 rounded-2xl shadow fade-up text-center';
+          card.innerHTML = `
+            <img src="${t.image || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="${t.name || 'Teacher'}" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover" />
+            <h3 class="text-xl font-semibold">${t.name || 'Unknown'}</h3>
+            <p class="text-indigo-600 font-medium">${t.subject || 'Teacher'}</p>
+            ${t.bio ? `<p class="text-gray-600 mt-3 text-sm">${t.bio}</p>` : ''}
+          `;
+          container.appendChild(card);
+        });
+        document.querySelectorAll('.fade-up').forEach(el => el.classList.add('visible'));
+      }
+
       function showFallbackTeachers() {
-        teachersContainer.innerHTML = `
+        const container = document.getElementById('teachers-container');
+        container.innerHTML = `
           <div class="bg-white p-6 rounded-2xl shadow fade-up text-center">
             <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Mr. Sharma" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover" />
             <h3 class="text-xl font-semibold">Mr. Rajesh Sharma</h3>
@@ -361,66 +365,55 @@
         document.querySelectorAll('.fade-up').forEach(el => el.classList.add('visible'));
       }
 
-      // ============================================================
-      // 8. RENDER TEACHERS FROM FIRESTORE
-      // ============================================================
-      function renderTeachers(snapshot) {
-        teachersContainer.innerHTML = '';
-        if (snapshot.empty) {
-          teachersContainer.innerHTML = '<p class="col-span-full text-center text-gray-500">No teachers listed yet.</p>';
-          return;
-        }
-        snapshot.forEach((doc) => {
-          const t = doc.data();
-          const card = document.createElement('div');
-          card.className = 'bg-white p-6 rounded-2xl shadow fade-up text-center';
-          card.innerHTML = `
-            <img src="${t.image || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="${t.name || 'Teacher'}" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover" />
-            <h3 class="text-xl font-semibold">${t.name || 'Unknown'}</h3>
-            <p class="text-indigo-600 font-medium">${t.subject || 'Teacher'}</p>
-            ${t.bio ? `<p class="text-gray-600 mt-3 text-sm">${t.bio}</p>` : ''}
-          `;
-          teachersContainer.appendChild(card);
-        });
-        // trigger fade-in for new cards
-        document.querySelectorAll('.fade-up').forEach(el => el.classList.add('visible'));
-      }
-
-      // ============================================================
-      // 9. MAIN INIT FUNCTION
-      // ============================================================
+      // ------------------------------------------------------------
+      // 5. MAIN INIT – fetch settings & teachers from Firestore
+      // ------------------------------------------------------------
       let initDone = false;
 
       function tryInit() {
         if (!configLoaded || initDone) return;
         initDone = true;
 
-        const config = firebaseConfig || fallbackConfig;
+        const config = firebaseConfig || getFallbackConfig();
+        // Validate
         if (!config.apiKey || config.apiKey === 'YOUR_API_KEY') {
-          console.warn('Firebase config missing or placeholder. Using fallback data.');
-          applySettings(defaults);
+          console.warn('Firebase config missing. Using static fallback data.');
+          const staticSettings = {
+            school_name: 'Monastic International Academy Estd. 2076',
+            logo_url: '/assets/images/logo.png',
+            address: 'Gaur 5, Rautahat',
+            phone: '+977-9800000000',
+            email: 'info@monastic.edu.np',
+            about_text: `<p>Monastic International Academy Estd. 2076 was founded with a dream: to provide quality education in a nurturing environment. Over the years, we have grown into a family of dedicated teachers, enthusiastic students, and supportive parents.</p><p>We believe that education goes beyond textbooks – it’s about building character, creativity, and confidence. Our campus is a safe, inclusive space where every child can discover their potential.</p><p>Join us as we continue to shape future leaders with values and vision.</p>`,
+            about_image: 'https://images.unsplash.com/photo-1541339907198-e1689bb996bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            facebook: '#',
+            instagram: '#',
+            youtube: '#',
+            copyright: '&copy; Monastic International Academy Estd. 2076. All rights reserved.'
+          };
+          applySettings(staticSettings);
           showFallbackTeachers();
           hideLoader();
           return;
         }
 
         try {
+          // Initialize Firebase compat with the config
           firebase.initializeApp(config);
           const db = firebase.firestore();
 
-          // Fetch site settings (assuming a document with ID "main" in "site_settings")
+          // Fetch site settings from document 'main' in 'site_settings'
           const settingsPromise = db.collection('site_settings').doc('main').get()
             .then(doc => {
               if (doc.exists) {
                 applySettings(doc.data());
               } else {
-                console.warn('No site_settings document found, using defaults.');
-                applySettings(defaults);
+                console.warn('No site_settings document. Using HTML defaults.');
+                // Keep static content from HTML
               }
             })
             .catch(err => {
               console.warn('Error fetching site settings:', err);
-              applySettings(defaults);
             });
 
           // Fetch teachers
@@ -433,36 +426,30 @@
               showFallbackTeachers();
             });
 
-          // Wait for both, then hide loader
           Promise.all([settingsPromise, teachersPromise])
             .then(() => {
-              // re-run animations for any newly added items
               document.querySelectorAll('.fade-up').forEach(el => el.classList.add('visible'));
               hideLoader();
             })
             .catch(() => {
-              // still hide loader after a delay
               setTimeout(hideLoader, 1000);
             });
 
         } catch (err) {
           console.warn('Firebase init error:', err);
-          applySettings(defaults);
-          showFallbackTeachers();
           hideLoader();
         }
       }
 
-      // ============================================================
-      // 10. MOBILE MENU & SCROLL ANIMATIONS (initial)
-      // ============================================================
+      // ------------------------------------------------------------
+      // 6. MOBILE MENU & SCROLL ANIMATIONS
+      // ------------------------------------------------------------
       const toggle = document.getElementById('menu-toggle');
       const menu = document.getElementById('mobile-menu');
       if (toggle && menu) {
         toggle.addEventListener('click', () => menu.classList.toggle('hidden'));
       }
 
-      // Observe .fade-up elements that are already in the DOM
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
