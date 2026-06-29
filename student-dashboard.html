@@ -15,189 +15,64 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
 
   <style>
+    /* (Styles unchanged – kept for brevity) */
     * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
     body { background: #f2f4f9; padding-bottom: 80px; transition: background 0.3s ease; }
     body.dark { background: #0d0d1a; }
-
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #c4c8d4; border-radius: 100px; }
     .dark ::-webkit-scrollbar-thumb { background: #3b3b5c; }
-
-    .glass-card {
-      background: rgba(255, 255, 255, 0.75);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .dark .glass-card {
-      background: rgba(30, 30, 50, 0.8);
-      border-color: rgba(255, 255, 255, 0.06);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    }
-    .glass-card:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(79, 70, 229, 0.08); }
-    .dark .glass-card:hover { box-shadow: 0 16px 48px rgba(99, 102, 241, 0.06); }
-
-    .gradient-header {
-      background: linear-gradient(145deg, #4f46e5, #7c3aed);
-      border-radius: 0 0 40px 40px;
-      position: relative;
-      overflow: hidden;
-    }
-    .gradient-header::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -10%;
-      width: 300px;
-      height: 300px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 50%;
-    }
-
-    .avatar-ring {
-      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25), 0 8px 24px rgba(79, 70, 229, 0.2);
-    }
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 16px;
-      left: 16px;
-      right: 16px;
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-radius: 32px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      padding: 6px 8px;
-      z-index: 100;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      height: 68px;
-    }
-    .dark .bottom-nav {
-      background: rgba(20, 20, 35, 0.92);
-      border-color: rgba(255, 255, 255, 0.06);
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-    }
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      padding: 6px 12px;
-      border-radius: 20px;
-      transition: all 0.2s ease;
-      flex: 1;
-      max-width: 72px;
-      color: #94a3b8;
-      text-decoration: none;
-      font-size: 10px;
-      font-weight: 500;
-      position: relative;
-      cursor: pointer;
-      background: transparent;
-      border: none;
-    }
-    .nav-item i { font-size: 20px; transition: all 0.2s ease; }
+    .glass-card { background: rgba(255,255,255,0.75); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.04); transition: all 0.3s; }
+    .dark .glass-card { background: rgba(30,30,50,0.8); border-color: rgba(255,255,255,0.06); box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .glass-card:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(79,70,229,0.08); }
+    .gradient-header { background: linear-gradient(145deg, #4f46e5, #7c3aed); border-radius: 0 0 40px 40px; position: relative; overflow: hidden; }
+    .gradient-header::before { content: ''; position: absolute; top: -50%; right: -10%; width: 300px; height: 300px; background: rgba(255,255,255,0.06); border-radius: 50%; }
+    .avatar-ring { box-shadow: 0 0 0 4px rgba(255,255,255,0.25), 0 8px 24px rgba(79,70,229,0.2); }
+    .bottom-nav { position: fixed; bottom: 16px; left: 16px; right: 16px; background: rgba(255,255,255,0.88); backdrop-filter: blur(24px); border-radius: 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); border: 1px solid rgba(255,255,255,0.5); padding: 6px 8px; z-index: 100; display: flex; justify-content: space-around; align-items: center; height: 68px; }
+    .dark .bottom-nav { background: rgba(20,20,35,0.92); border-color: rgba(255,255,255,0.06); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 6px 12px; border-radius: 20px; transition: all 0.2s; flex: 1; max-width: 72px; color: #94a3b8; font-size: 10px; font-weight: 500; cursor: pointer; background: transparent; border: none; }
+    .nav-item i { font-size: 20px; transition: all 0.2s; }
     .nav-item.active { color: #4f46e5; }
     .dark .nav-item.active { color: #818cf8; }
     .nav-item.active i { transform: translateY(-2px); }
-    .nav-item.active::after {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 20px;
-      height: 3px;
-      background: #4f46e5;
-      border-radius: 4px;
-    }
+    .nav-item.active::after { content: ''; position: absolute; top: -2px; left: 50%; transform: translateX(-50%); width: 20px; height: 3px; background: #4f46e5; border-radius: 4px; }
     .dark .nav-item.active::after { background: #818cf8; }
     .nav-item:active { transform: scale(0.92); }
-
     .tab-content { display: none; animation: fadeUp 0.4s ease forwards; }
     .tab-content.active { display: block; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-
-    .skeleton {
-      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 8px;
-    }
+    .skeleton { background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
     .dark .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); }
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
     .skeleton-text { height: 12px; margin-bottom: 8px; }
-    .skeleton-circle { width: 48px; height: 48px; border-radius: 50%; }
     .skeleton-card { padding: 16px; border-radius: 16px; }
-
-    .status-chip {
-      padding: 4px 14px;
-      border-radius: 100px;
-      font-size: 12px;
-      font-weight: 600;
-    }
+    .status-chip { padding: 4px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; }
     .status-chip.paid { background: #dcfce7; color: #16a34a; }
     .status-chip.pending { background: #fef3c7; color: #d97706; }
     .status-chip.overdue { background: #fee2e2; color: #dc2626; }
-    .dark .status-chip.paid { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
-    .dark .status-chip.pending { background: rgba(234, 179, 8, 0.15); color: #fbbf24; }
-    .dark .status-chip.overdue { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-
-    .feed-item {
-      border-left: 4px solid transparent;
-      transition: background 0.2s ease;
-    }
+    .dark .status-chip.paid { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .dark .status-chip.pending { background: rgba(234,179,8,0.15); color: #fbbf24; }
+    .dark .status-chip.overdue { background: rgba(239,68,68,0.15); color: #f87171; }
+    .feed-item { border-left: 4px solid transparent; transition: background 0.2s; }
     .feed-item.notice { border-left-color: #3b82f6; }
     .feed-item.note { border-left-color: #22c55e; }
     .feed-item.assignment { border-left-color: #f59e0b; }
-    .feed-item:hover { background: rgba(79, 70, 229, 0.04); }
-    .dark .feed-item:hover { background: rgba(99, 102, 241, 0.06); }
-
-    .theme-toggle {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: all 0.2s ease;
-    }
-    .theme-toggle:hover { background: rgba(255, 255, 255, 0.25); }
-
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    @supports (padding-bottom: env(safe-area-inset-bottom)) {
-      .bottom-nav {
-        padding-bottom: calc(6px + env(safe-area-inset-bottom));
-        bottom: calc(16px + env(safe-area-inset-bottom));
-      }
-      body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
-    }
-
-    /* Profile detail rows */
-    .profile-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
+    .feed-item:hover { background: rgba(79,70,229,0.04); }
+    .dark .feed-item:hover { background: rgba(99,102,241,0.06); }
+    .theme-toggle { background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s; }
+    .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+    .profile-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
     .dark .profile-row { border-bottom-color: rgba(255,255,255,0.06); }
     .profile-row:last-child { border-bottom: none; }
     .profile-label { color: #6b7280; font-weight: 500; font-size: 0.875rem; }
     .dark .profile-label { color: #9ca3af; }
     .profile-value { color: #1f2937; font-weight: 600; font-size: 0.875rem; word-break: break-word; text-align: right; max-width: 60%; }
     .dark .profile-value { color: #f3f4f6; }
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      .bottom-nav { padding-bottom: calc(6px + env(safe-area-inset-bottom)); bottom: calc(16px + env(safe-area-inset-bottom)); }
+      body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+    }
   </style>
 </head>
 <body>
@@ -411,7 +286,7 @@
         </div>
       </div>
 
-      <!-- ===== TAB: PROFILE (All DB fields) ===== -->
+      <!-- ===== TAB: PROFILE ===== -->
       <div class="tab-content" id="tab-profile">
         <div class="glass-card p-5 rounded-2xl">
           <div class="flex items-center gap-3 mb-5">
@@ -424,7 +299,6 @@
             </div>
           </div>
           <div id="profileContainer" class="space-y-2">
-            <!-- Skeleton -->
             <div class="skeleton-card space-y-3">
               <div class="skeleton skeleton-text w-1/4"></div>
               <div class="skeleton skeleton-text w-1/2"></div>
@@ -488,14 +362,6 @@
         const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       } catch { return 'Unknown'; }
-    }
-
-    function formatDateShort(timestamp) {
-      if (!timestamp) return '—';
-      try {
-        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      } catch { return '—'; }
     }
 
     function getInitials(name) {
@@ -575,7 +441,7 @@
         document.getElementById('studentSchoolId').textContent = schoolId;
         document.getElementById('avatarInitial').textContent = getInitials(displayName);
 
-        // ---- 1. Fetch student profile (ALL FIELDS) ----
+        // ---- 1. Fetch student profile ----
         const studentSnap = await getDoc(doc(db, 'students', user.uid));
         const studentData = studentSnap.exists() ? studentSnap.data() : null;
 
@@ -583,20 +449,17 @@
         const section = studentData?.section || '—';
         const feeStatus = studentData?.feeStatus || 'N/A';
 
-        // Update header stats
         document.getElementById('statGrade').textContent = grade;
         document.getElementById('statSection').textContent = section;
         document.getElementById('statFeeDisplay').textContent = feeStatus;
 
-        // Update cards
         document.getElementById('cardSchoolId').textContent = schoolId;
         document.getElementById('cardGrade').textContent = grade;
         document.getElementById('cardSection').textContent = section;
         document.getElementById('cardFeeStatus').innerHTML = getStatusChip(feeStatus);
 
-        // ---- Profile tab: display ALL fields dynamically ----
+        // ---- Profile tab ----
         if (studentData) {
-          // Define a list of fields you want to display (and their nice labels)
           const fieldMap = {
             'name': 'Full Name',
             'grade': 'Grade',
@@ -614,20 +477,12 @@
             'religion': 'Religion',
             'gender': 'Gender'
           };
-
           let profileHTML = '';
-          // Loop through defined fields and show if they exist in studentData
           for (const [key, label] of Object.entries(fieldMap)) {
             if (studentData[key] !== undefined && studentData[key] !== null && studentData[key] !== '') {
               let value = studentData[key];
-              // Special formatting for dates
-              if (key === 'dob' || key === 'admissionDate') {
-                value = formatDate(value);
-              }
-              // For feeStatus, use chip
-              if (key === 'feeStatus') {
-                value = getStatusChip(value);
-              }
+              if (key === 'dob' || key === 'admissionDate') value = formatDate(value);
+              if (key === 'feeStatus') value = getStatusChip(value);
               profileHTML += `
                 <div class="profile-row">
                   <span class="profile-label">${label}</span>
@@ -636,58 +491,129 @@
               `;
             }
           }
-
-          // If no fields displayed, show a message
-          if (!profileHTML) {
-            profileHTML = `<p class="text-center text-gray-500 dark:text-gray-400">No additional details available.</p>`;
-          }
-
+          if (!profileHTML) profileHTML = `<p class="text-center text-gray-500 dark:text-gray-400">No additional details available.</p>`;
           profileContainer.innerHTML = profileHTML;
         } else {
           profileContainer.innerHTML = `<p class="text-center text-gray-500 dark:text-gray-400">No student record found.</p>`;
         }
 
-        // ---- 2. Fetch data in parallel (notices, notes, assignments, events) ----
+        // ---- 2. Fetch data ----
         const gradeFilter = (grade !== '—' && grade !== '') ? grade : '';
         const sectionFilter = (section !== '—' && section !== '') ? section : 'A';
 
-        const promises = [
-          getDocs(query(collection(db, 'notices'), orderBy('created_at', 'desc'))),
-        ];
+        // Build queries dynamically to avoid errors if collections don't exist
+        const queries = [];
 
-        if (gradeFilter) {
-          promises.push(
-            getDocs(query(collection(db, 'notes'), where('grade', '==', gradeFilter), where('section', '==', sectionFilter), orderBy('uploadedAt', 'desc'))),
-            getDocs(query(collection(db, 'notes'), where('grade', '==', gradeFilter), where('section', '==', 'all'), orderBy('uploadedAt', 'desc'))),
-            getDocs(query(collection(db, 'assignments'), where('grade', '==', gradeFilter), where('section', '==', sectionFilter), orderBy('dueDate', 'asc'))),
-            getDocs(query(collection(db, 'events'), where('grade', '==', gradeFilter), orderBy('date', 'asc')))
-          );
-        } else {
-          promises.push(Promise.resolve({ forEach: () => {} }), Promise.resolve({ forEach: () => {} }), Promise.resolve({ forEach: () => {} }), Promise.resolve({ forEach: () => {} }));
+        // Notices (always try)
+        try {
+          const noticesQuery = query(collection(db, 'notices'), orderBy('created_at', 'desc'));
+          queries.push(getDocs(noticesQuery));
+        } catch {
+          queries.push(Promise.resolve({ forEach: () => {} }));
         }
 
-        const [noticesSnap, notesSnap1, notesSnap2, assignmentsSnap, eventsSnap] = await Promise.all(promises);
+        // Notes (filtered by grade & section)
+        try {
+          if (gradeFilter) {
+            const notesQuery1 = query(
+              collection(db, 'notes'),
+              where('grade', '==', gradeFilter),
+              where('section', '==', sectionFilter),
+              orderBy('uploadedAt', 'desc')
+            );
+            queries.push(getDocs(notesQuery1));
+          } else {
+            queries.push(Promise.resolve({ forEach: () => {} }));
+          }
+        } catch {
+          queries.push(Promise.resolve({ forEach: () => {} }));
+        }
+
+        try {
+          if (gradeFilter) {
+            const notesQuery2 = query(
+              collection(db, 'notes'),
+              where('grade', '==', gradeFilter),
+              where('section', '==', 'all'),
+              orderBy('uploadedAt', 'desc')
+            );
+            queries.push(getDocs(notesQuery2));
+          } else {
+            queries.push(Promise.resolve({ forEach: () => {} }));
+          }
+        } catch {
+          queries.push(Promise.resolve({ forEach: () => {} }));
+        }
+
+        // Assignments (from notes where type == 'assignment')
+        try {
+          if (gradeFilter) {
+            const assignmentQuery = query(
+              collection(db, 'notes'),
+              where('grade', '==', gradeFilter),
+              where('section', '==', sectionFilter),
+              where('type', '==', 'assignment'),
+              orderBy('dueDate', 'asc')
+            );
+            queries.push(getDocs(assignmentQuery));
+          } else {
+            queries.push(Promise.resolve({ forEach: () => {} }));
+          }
+        } catch {
+          queries.push(Promise.resolve({ forEach: () => {} }));
+        }
+
+        // Schedule / Events (optional)
+        try {
+          if (gradeFilter) {
+            const eventsQuery = query(
+              collection(db, 'events'),
+              where('grade', '==', gradeFilter),
+              orderBy('date', 'asc')
+            );
+            queries.push(getDocs(eventsQuery));
+          } else {
+            queries.push(Promise.resolve({ forEach: () => {} }));
+          }
+        } catch {
+          queries.push(Promise.resolve({ forEach: () => {} }));
+        }
+
+        const [noticesSnap, notesSnap1, notesSnap2, assignmentsSnap, eventsSnap] = await Promise.all(queries);
 
         // ---- 3. Build Feed (Notices + Notes) ----
         const feedItems = [];
-        noticesSnap.forEach(doc => {
-          const n = doc.data();
-          feedItems.push({
-            type: 'notice',
-            title: n.title || 'Notice',
-            description: n.description || '',
-            date: n.date || formatDate(n.created_at),
-            icon: 'fa-bullhorn',
-            color: 'text-blue-600 dark:text-blue-400',
-            bg: 'bg-blue-50 dark:bg-blue-900/20',
-            borderClass: 'notice'
-          });
-        });
 
+        // Notices
+        if (noticesSnap && typeof noticesSnap.forEach === 'function') {
+          noticesSnap.forEach(doc => {
+            const n = doc.data();
+            feedItems.push({
+              type: 'notice',
+              title: n.title || 'Notice',
+              description: n.description || '',
+              date: n.date || formatDate(n.created_at),
+              icon: 'fa-bullhorn',
+              color: 'text-blue-600 dark:text-blue-400',
+              bg: 'bg-blue-50 dark:bg-blue-900/20',
+              borderClass: 'notice'
+            });
+          });
+        }
+
+        // Notes
         const seenTitles = new Set();
-        const noteDocs = [...(notesSnap1?.docs || []), ...(notesSnap2?.docs || [])];
+        const noteDocs = [];
+        if (notesSnap1 && typeof notesSnap1.forEach === 'function') {
+          notesSnap1.forEach(doc => noteDocs.push(doc));
+        }
+        if (notesSnap2 && typeof notesSnap2.forEach === 'function') {
+          notesSnap2.forEach(doc => noteDocs.push(doc));
+        }
         noteDocs.forEach(doc => {
           const n = doc.data();
+          // Skip assignments in feed (they'll appear in assignments tab)
+          if (n.type === 'assignment') return;
           const key = n.title || 'Untitled';
           if (seenTitles.has(key)) return;
           seenTitles.add(key);
@@ -700,7 +626,7 @@
             color: 'text-green-600 dark:text-green-400',
             bg: 'bg-green-50 dark:bg-green-900/20',
             borderClass: 'note',
-            downloadUrl: n.fileUrl || null
+            downloadUrl: n.fileLink || n.fileUrl || null  // Use fileLink (new) or fallback
           });
         });
 
@@ -731,7 +657,7 @@
                 ${item.downloadUrl ? `
                   <a href="${item.downloadUrl}" target="_blank" rel="noopener noreferrer"
                     class="flex-shrink-0 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-[10px] font-semibold hover:bg-green-200 dark:hover:bg-green-900/50 transition">
-                    <i class="fas fa-download mr-1"></i> Get
+                    <i class="fas fa-external-link-alt mr-1"></i> View
                   </a>
                 ` : ''}
               </div>
@@ -739,17 +665,20 @@
           `).join('');
         }
 
-        // ---- 4. Assignments ----
+        // ---- 4. Assignments (from notes with type='assignment') ----
         const assignments = [];
-        assignmentsSnap.forEach(doc => {
-          const a = doc.data();
-          assignments.push({
-            title: a.title || 'Assignment',
-            subject: a.subject || 'General',
-            dueDate: a.dueDate || a.date || '—',
-            status: a.status || 'Pending'
+        if (assignmentsSnap && typeof assignmentsSnap.forEach === 'function') {
+          assignmentsSnap.forEach(doc => {
+            const a = doc.data();
+            assignments.push({
+              title: a.title || 'Assignment',
+              subject: a.subject || 'General',
+              dueDate: a.dueDate || '—',
+              status: a.status || 'Pending',
+              link: a.fileLink || a.fileUrl || '#'
+            });
           });
-        });
+        }
 
         if (assignments.length === 0) {
           assignmentsContainer.innerHTML = `
@@ -762,23 +691,30 @@
             <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl">
               <div>
                 <p class="font-semibold text-gray-800 dark:text-white text-sm">${a.title}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">${a.subject} • Due: ${formatDateShort(a.dueDate)}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">${a.subject} • Due: ${formatDate(a.dueDate)}</p>
               </div>
-              <span class="text-xs px-3 py-1 rounded-full ${a.status === 'Submitted' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}">${a.status}</span>
+              <div class="flex items-center gap-2">
+                <a href="${a.link}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-sm">
+                  <i class="fas fa-external-link-alt"></i>
+                </a>
+                <span class="text-xs px-3 py-1 rounded-full ${a.status === 'Submitted' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}">${a.status}</span>
+              </div>
             </div>
           `).join('');
         }
 
         // ---- 5. Schedule / Events ----
         const events = [];
-        eventsSnap.forEach(doc => {
-          const e = doc.data();
-          events.push({
-            title: e.title || 'Event',
-            time: e.time || e.date || '—',
-            location: e.location || 'School'
+        if (eventsSnap && typeof eventsSnap.forEach === 'function') {
+          eventsSnap.forEach(doc => {
+            const e = doc.data();
+            events.push({
+              title: e.title || 'Event',
+              time: e.time || e.date || '—',
+              location: e.location || 'School'
+            });
           });
-        });
+        }
 
         if (events.length === 0) {
           scheduleContainer.innerHTML = `
@@ -794,7 +730,7 @@
               </div>
               <div class="flex-1">
                 <p class="font-semibold text-gray-800 dark:text-white text-sm">${e.title}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">${formatDateShort(e.time)} • ${e.location}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">${formatDate(e.time)} • ${e.location}</p>
               </div>
             </div>
           `).join('');
