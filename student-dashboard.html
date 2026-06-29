@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
 
   <style>
-    /* (Styles unchanged – kept for brevity) */
+    /* (Same styles as before – kept for brevity) */
     * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
     body { background: #f2f4f9; padding-bottom: 80px; transition: background 0.3s ease; }
     body.dark { background: #0d0d1a; }
@@ -25,7 +25,6 @@
     .dark ::-webkit-scrollbar-thumb { background: #3b3b5c; }
     .glass-card { background: rgba(255,255,255,0.75); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.04); transition: all 0.3s; }
     .dark .glass-card { background: rgba(30,30,50,0.8); border-color: rgba(255,255,255,0.06); box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
-    .glass-card:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(79,70,229,0.08); }
     .gradient-header { background: linear-gradient(145deg, #4f46e5, #7c3aed); border-radius: 0 0 40px 40px; position: relative; overflow: hidden; }
     .gradient-header::before { content: ''; position: absolute; top: -50%; right: -10%; width: 300px; height: 300px; background: rgba(255,255,255,0.06); border-radius: 50%; }
     .avatar-ring { box-shadow: 0 0 0 4px rgba(255,255,255,0.25), 0 8px 24px rgba(79,70,229,0.2); }
@@ -35,9 +34,7 @@
     .nav-item i { font-size: 20px; transition: all 0.2s; }
     .nav-item.active { color: #4f46e5; }
     .dark .nav-item.active { color: #818cf8; }
-    .nav-item.active i { transform: translateY(-2px); }
     .nav-item.active::after { content: ''; position: absolute; top: -2px; left: 50%; transform: translateX(-50%); width: 20px; height: 3px; background: #4f46e5; border-radius: 4px; }
-    .dark .nav-item.active::after { background: #818cf8; }
     .nav-item:active { transform: scale(0.92); }
     .tab-content { display: none; animation: fadeUp 0.4s ease forwards; }
     .tab-content.active { display: block; }
@@ -67,8 +64,10 @@
     .profile-row:last-child { border-bottom: none; }
     .profile-label { color: #6b7280; font-weight: 500; font-size: 0.875rem; }
     .dark .profile-label { color: #9ca3af; }
-    .profile-value { color: #1f2937; font-weight: 600; font-size: 0.875rem; word-break: break-word; text-align: right; max-width: 60%; }
+    .profile-value { color: #1f2937; font-weight: 600; font-size: 0.875rem; text-align: right; max-width: 60%; }
     .dark .profile-value { color: #f3f4f6; }
+    .debug-box { background: #1e293b; color: #e2e8f0; padding: 12px; border-radius: 12px; font-size: 12px; font-family: monospace; white-space: pre-wrap; max-height: 200px; overflow-y: auto; margin-top: 12px; }
+    .dark .debug-box { background: #0f172a; color: #94a3b8; }
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
       .bottom-nav { padding-bottom: calc(6px + env(safe-area-inset-bottom)); bottom: calc(16px + env(safe-area-inset-bottom)); }
       body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
@@ -138,6 +137,15 @@
     <!-- ===== MAIN CONTENT WITH TABS ===== -->
     <main class="max-w-7xl mx-auto px-4 -mt-4 relative z-10 pb-4">
 
+      <!-- Debug Panel (visible only when needed) -->
+      <div id="debugPanel" class="glass-card p-3 rounded-xl mb-4 hidden">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">🔍 Debug Log</span>
+          <button onclick="document.getElementById('debugPanel').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+        <div id="debugContent" class="debug-box"></div>
+      </div>
+
       <!-- ===== TAB: HOME ===== -->
       <div class="tab-content active" id="tab-home">
         <!-- Stats Grid -->
@@ -203,7 +211,6 @@
             <span class="text-xs text-gray-400" id="feedCount">0 items</span>
           </div>
           <div id="combinedFeed" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-            <!-- Skeleton -->
             <div class="skeleton-card space-y-2">
               <div class="skeleton skeleton-text w-1/3"></div>
               <div class="skeleton skeleton-text w-full"></div>
@@ -346,6 +353,8 @@
     const assignmentsContainer = document.getElementById('assignmentsContainer');
     const scheduleContainer = document.getElementById('scheduleContainer');
     const profileContainer = document.getElementById('profileContainer');
+    const debugPanel = document.getElementById('debugPanel');
+    const debugContent = document.getElementById('debugContent');
 
     // ========== HELPERS ==========
     function hideLoader() {
@@ -375,6 +384,21 @@
       const map = { 'paid': 'paid', 'Paid': 'paid', 'PAID': 'paid', 'pending': 'pending', 'Pending': 'pending', 'overdue': 'overdue', 'Overdue': 'overdue' };
       const key = map[status] || 'pending';
       return `<span class="status-chip ${key}">${status || 'Pending'}</span>`;
+    }
+
+    // Debug logger
+    function debugLog(message, data) {
+      const panel = document.getElementById('debugPanel');
+      panel.classList.remove('hidden');
+      const content = document.getElementById('debugContent');
+      const timestamp = new Date().toLocaleTimeString();
+      let line = `[${timestamp}] ${message}`;
+      if (data !== undefined) {
+        line += `\n${JSON.stringify(data, null, 2)}`;
+      }
+      content.textContent += line + '\n\n';
+      content.scrollTop = content.scrollHeight;
+      console.log(`[Debug] ${message}`, data || '');
     }
 
     // ========== THEME TOGGLE ==========
@@ -423,6 +447,7 @@
     const safetyTimer = setTimeout(() => {
       console.warn('⚠️ Safety timeout – forcing dashboard display');
       hideLoader();
+      debugLog('⚠️ Safety timeout triggered', {});
     }, 12000);
 
     // ========== AUTH GUARD ==========
@@ -432,7 +457,7 @@
         return;
       }
 
-      console.log('✅ User logged in:', user.uid, user.email);
+      debugLog('✅ User logged in', { uid: user.uid, email: user.email });
 
       try {
         const schoolId = user.email?.split('@')[0] || 'Unknown';
@@ -443,9 +468,11 @@
         document.getElementById('studentSchoolId').textContent = schoolId;
         document.getElementById('avatarInitial').textContent = getInitials(displayName);
 
-        // ---- 1. Fetch student profile from Firestore ----
+        // ---- 1. Fetch student profile ----
+        debugLog('🔍 Fetching student profile for UID: ' + user.uid);
         const studentRef = doc(db, 'students', user.uid);
         const studentSnap = await getDoc(studentRef);
+        debugLog('📄 Student document exists? ' + studentSnap.exists(), studentSnap.exists() ? studentSnap.data() : 'No document');
 
         let grade = '—';
         let section = '—';
@@ -456,10 +483,9 @@
           grade = data.grade || '—';
           section = data.section || '—';
           feeStatus = data.feeStatus || 'N/A';
-          console.log('✅ Student profile loaded:', data);
         } else {
-          console.warn('⚠️ No student document found for UID:', user.uid);
-          // Optionally, you could create one here or show a message.
+          // Try to create a default student record? No, just show a warning.
+          debugLog('⚠️ No student document found for this UID. Please create one in Firestore.');
         }
 
         // Update header stats
@@ -521,87 +547,67 @@
         const gradeFilter = (grade !== '—' && grade !== '') ? grade : '';
         const sectionFilter = (section !== '—' && section !== '') ? section : 'A';
 
-        console.log(`📌 Fetching data for Grade: ${gradeFilter}, Section: ${sectionFilter}`);
+        debugLog(`📌 Fetching data for Grade: ${gradeFilter}, Section: ${sectionFilter}`);
 
-        // Build queries dynamically
+        // Queries
         const queries = {};
 
         // Notices
         try {
+          debugLog('🔍 Fetching notices...');
           queries.notices = getDocs(query(collection(db, 'notices'), orderBy('created_at', 'desc')));
         } catch (e) {
-          console.warn('Notices collection may not exist:', e);
+          debugLog('⚠️ Notices query error', e.message);
           queries.notices = Promise.resolve({ forEach: () => {} });
         }
 
-        // Notes (only if grade is provided)
+        // Notes: fetch all notes for grade and section (including assignments)
         if (gradeFilter) {
           try {
-            queries.notes1 = getDocs(query(
+            debugLog('🔍 Fetching notes for grade and section...');
+            queries.notes = getDocs(query(
               collection(db, 'notes'),
               where('grade', '==', gradeFilter),
-              where('section', '==', sectionFilter),
+              where('section', 'in', [sectionFilter, 'all']), // match section or 'all'
               orderBy('uploadedAt', 'desc')
             ));
           } catch (e) {
-            console.warn('Notes query 1 failed:', e);
-            queries.notes1 = Promise.resolve({ forEach: () => {} });
+            debugLog('⚠️ Notes query error', e.message);
+            queries.notes = Promise.resolve({ forEach: () => {} });
           }
+        } else {
+          queries.notes = Promise.resolve({ forEach: () => {} });
+        }
 
+        // Events (optional)
+        if (gradeFilter) {
           try {
-            queries.notes2 = getDocs(query(
-              collection(db, 'notes'),
-              where('grade', '==', gradeFilter),
-              where('section', '==', 'all'),
-              orderBy('uploadedAt', 'desc')
-            ));
-          } catch (e) {
-            console.warn('Notes query 2 failed:', e);
-            queries.notes2 = Promise.resolve({ forEach: () => {} });
-          }
-
-          // Assignments (type == 'assignment')
-          try {
-            queries.assignments = getDocs(query(
-              collection(db, 'notes'),
-              where('grade', '==', gradeFilter),
-              where('section', '==', sectionFilter),
-              where('type', '==', 'assignment'),
-              orderBy('dueDate', 'asc')
-            ));
-          } catch (e) {
-            console.warn('Assignments query failed:', e);
-            queries.assignments = Promise.resolve({ forEach: () => {} });
-          }
-
-          // Events (optional)
-          try {
+            debugLog('🔍 Fetching events...');
             queries.events = getDocs(query(
               collection(db, 'events'),
               where('grade', '==', gradeFilter),
               orderBy('date', 'asc')
             ));
           } catch (e) {
-            console.warn('Events query failed:', e);
+            debugLog('⚠️ Events query error', e.message);
             queries.events = Promise.resolve({ forEach: () => {} });
           }
         } else {
-          queries.notes1 = Promise.resolve({ forEach: () => {} });
-          queries.notes2 = Promise.resolve({ forEach: () => {} });
-          queries.assignments = Promise.resolve({ forEach: () => {} });
           queries.events = Promise.resolve({ forEach: () => {} });
         }
 
-        // Wait for all queries
-        const [noticesSnap, notesSnap1, notesSnap2, assignmentsSnap, eventsSnap] = await Promise.all([
+        // Wait for all
+        const [noticesSnap, notesSnap, eventsSnap] = await Promise.all([
           queries.notices,
-          queries.notes1,
-          queries.notes2,
-          queries.assignments,
+          queries.notes,
           queries.events
         ]);
 
-        // ---- 3. Build Feed (Notices + Notes) ----
+        debugLog('📊 Notices count', noticesSnap ? noticesSnap.size : 0);
+        debugLog('📊 Notes count', notesSnap ? notesSnap.size : 0);
+        debugLog('📊 Events count', eventsSnap ? eventsSnap.size : 0);
+
+        // ---- 3. Build Feed (Notices + Notes that are not assignments) ----
         const feedItems = [];
 
         // Notices
@@ -621,20 +627,24 @@
           });
         }
 
-        // Notes (excluding assignments)
-        const seenTitles = new Set();
-        const noteDocs = [];
-        if (notesSnap1 && typeof notesSnap1.forEach === 'function') {
-          notesSnap1.forEach(doc => noteDocs.push(doc));
-        }
-        if (notesSnap2 && typeof notesSnap2.forEach === 'function') {
-          notesSnap2.forEach(doc => noteDocs.push(doc));
+        // Notes (filter out assignments for feed, but keep for assignments tab)
+        const allNotes = [];
+        if (notesSnap && typeof notesSnap.forEach === 'function') {
+          notesSnap.forEach(doc => {
+            allNotes.push({ id: doc.id, ...doc.data() });
+          });
         }
 
-        noteDocs.forEach(doc => {
-          const n = doc.data();
-          // Skip if it's an assignment (they go to the assignments tab)
-          if (n.type === 'assignment') return;
+        // Separate notes (non-assignment) and assignments
+        const notes = allNotes.filter(item => item.type !== 'assignment');
+        const assignments = allNotes.filter(item => item.type === 'assignment');
+
+        debugLog('📘 Notes (non-assignment)', notes.length);
+        debugLog('📝 Assignments', assignments.length);
+
+        // Add notes to feed
+        const seenTitles = new Set();
+        notes.forEach(n => {
           const key = n.title || 'Untitled';
           if (seenTitles.has(key)) return;
           seenTitles.add(key);
@@ -688,20 +698,6 @@
         }
 
         // ---- 4. Assignments ----
-        const assignments = [];
-        if (assignmentsSnap && typeof assignmentsSnap.forEach === 'function') {
-          assignmentsSnap.forEach(doc => {
-            const a = doc.data();
-            assignments.push({
-              title: a.title || 'Assignment',
-              subject: a.subject || 'General',
-              dueDate: a.dueDate || '—',
-              status: a.status || 'Pending',
-              link: a.fileLink || a.fileUrl || '#'
-            });
-          });
-        }
-
         if (assignments.length === 0) {
           assignmentsContainer.innerHTML = `
             <div class="text-center py-6 text-gray-400 text-sm">
@@ -713,13 +709,13 @@
             <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl">
               <div>
                 <p class="font-semibold text-gray-800 dark:text-white text-sm">${a.title}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">${a.subject} • Due: ${formatDate(a.dueDate)}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">${a.subject || 'General'} • Due: ${formatDate(a.dueDate)}</p>
               </div>
               <div class="flex items-center gap-2">
-                <a href="${a.link}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-sm">
+                <a href="${a.fileLink || a.fileUrl || '#'}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-sm">
                   <i class="fas fa-external-link-alt"></i>
                 </a>
-                <span class="text-xs px-3 py-1 rounded-full ${a.status === 'Submitted' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}">${a.status}</span>
+                <span class="text-xs px-3 py-1 rounded-full ${a.status === 'Submitted' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}">${a.status || 'Pending'}</span>
               </div>
             </div>
           `).join('');
@@ -761,9 +757,11 @@
         // ---- DONE ----
         clearTimeout(safetyTimer);
         hideLoader();
+        debugLog('✅ Dashboard loaded successfully');
 
       } catch (err) {
         console.error('❌ Dashboard error:', err);
+        debugLog('❌ Fatal error', err.message);
         feedContainer.innerHTML = `
           <div class="text-center py-8 text-red-500">
             <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
