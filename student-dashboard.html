@@ -333,7 +333,7 @@
 
   <!-- ===== SCRIPTS ===== -->
   <script type="module">
-    // ----- FIREBASE -----
+    // ----- FIREBASE IMPORTS -----
     import { auth, db } from "/assets/js/firebase-config.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { doc, getDoc, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -432,6 +432,8 @@
         return;
       }
 
+      console.log('✅ User logged in:', user.uid, user.email);
+
       try {
         const schoolId = user.email?.split('@')[0] || 'Unknown';
         const displayName = user.displayName || schoolId;
@@ -441,14 +443,26 @@
         document.getElementById('studentSchoolId').textContent = schoolId;
         document.getElementById('avatarInitial').textContent = getInitials(displayName);
 
-        // ---- 1. Fetch student profile ----
-        const studentSnap = await getDoc(doc(db, 'students', user.uid));
-        const studentData = studentSnap.exists() ? studentSnap.data() : null;
+        // ---- 1. Fetch student profile from Firestore ----
+        const studentRef = doc(db, 'students', user.uid);
+        const studentSnap = await getDoc(studentRef);
 
-        const grade = studentData?.grade || '—';
-        const section = studentData?.section || '—';
-        const feeStatus = studentData?.feeStatus || 'N/A';
+        let grade = '—';
+        let section = '—';
+        let feeStatus = 'N/A';
 
+        if (studentSnap.exists()) {
+          const data = studentSnap.data();
+          grade = data.grade || '—';
+          section = data.section || '—';
+          feeStatus = data.feeStatus || 'N/A';
+          console.log('✅ Student profile loaded:', data);
+        } else {
+          console.warn('⚠️ No student document found for UID:', user.uid);
+          // Optionally, you could create one here or show a message.
+        }
+
+        // Update header stats
         document.getElementById('statGrade').textContent = grade;
         document.getElementById('statSection').textContent = section;
         document.getElementById('statFeeDisplay').textContent = feeStatus;
@@ -459,7 +473,8 @@
         document.getElementById('cardFeeStatus').innerHTML = getStatusChip(feeStatus);
 
         // ---- Profile tab ----
-        if (studentData) {
+        if (studentSnap.exists()) {
+          const studentData = studentSnap.data();
           const fieldMap = {
             'name': 'Full Name',
             'grade': 'Grade',
@@ -491,95 +506,100 @@
               `;
             }
           }
-          if (!profileHTML) profileHTML = `<p class="text-center text-gray-500 dark:text-gray-400">No additional details available.</p>`;
+          if (!profileHTML) {
+            profileHTML = `<p class="text-center text-gray-500 dark:text-gray-400">No additional details available.</p>`;
+          }
           profileContainer.innerHTML = profileHTML;
         } else {
-          profileContainer.innerHTML = `<p class="text-center text-gray-500 dark:text-gray-400">No student record found.</p>`;
+          profileContainer.innerHTML = `
+            <p class="text-center text-amber-500 dark:text-amber-400">
+              <i class="fas fa-exclamation-triangle mr-2"></i> No student profile found. Please contact the school.
+            </p>`;
         }
 
-        // ---- 2. Fetch data ----
+        // ---- 2. Fetch data based on student's grade & section ----
         const gradeFilter = (grade !== '—' && grade !== '') ? grade : '';
         const sectionFilter = (section !== '—' && section !== '') ? section : 'A';
 
-        // Build queries dynamically to avoid errors if collections don't exist
-        const queries = [];
+        console.log(`📌 Fetching data for Grade: ${gradeFilter}, Section: ${sectionFilter}`);
 
-        // Notices (always try)
+        // Build queries dynamically
+        const queries = {};
+
+        // Notices
         try {
-          const noticesQuery = query(collection(db, 'notices'), orderBy('created_at', 'desc'));
-          queries.push(getDocs(noticesQuery));
-        } catch {
-          queries.push(Promise.resolve({ forEach: () => {} }));
+          queries.notices = getDocs(query(collection(db, 'notices'), orderBy('created_at', 'desc')));
+        } catch (e) {
+          console.warn('Notices collection may not exist:', e);
+          queries.notices = Promise.resolve({ forEach: () => {} });
         }
 
-        // Notes (filtered by grade & section)
-        try {
-          if (gradeFilter) {
-            const notesQuery1 = query(
+        // Notes (only if grade is provided)
+        if (gradeFilter) {
+          try {
+            queries.notes1 = getDocs(query(
               collection(db, 'notes'),
               where('grade', '==', gradeFilter),
               where('section', '==', sectionFilter),
               orderBy('uploadedAt', 'desc')
-            );
-            queries.push(getDocs(notesQuery1));
-          } else {
-            queries.push(Promise.resolve({ forEach: () => {} }));
+            ));
+          } catch (e) {
+            console.warn('Notes query 1 failed:', e);
+            queries.notes1 = Promise.resolve({ forEach: () => {} });
           }
-        } catch {
-          queries.push(Promise.resolve({ forEach: () => {} }));
-        }
 
-        try {
-          if (gradeFilter) {
-            const notesQuery2 = query(
+          try {
+            queries.notes2 = getDocs(query(
               collection(db, 'notes'),
               where('grade', '==', gradeFilter),
               where('section', '==', 'all'),
               orderBy('uploadedAt', 'desc')
-            );
-            queries.push(getDocs(notesQuery2));
-          } else {
-            queries.push(Promise.resolve({ forEach: () => {} }));
+            ));
+          } catch (e) {
+            console.warn('Notes query 2 failed:', e);
+            queries.notes2 = Promise.resolve({ forEach: () => {} });
           }
-        } catch {
-          queries.push(Promise.resolve({ forEach: () => {} }));
-        }
 
-        // Assignments (from notes where type == 'assignment')
-        try {
-          if (gradeFilter) {
-            const assignmentQuery = query(
+          // Assignments (type == 'assignment')
+          try {
+            queries.assignments = getDocs(query(
               collection(db, 'notes'),
               where('grade', '==', gradeFilter),
               where('section', '==', sectionFilter),
               where('type', '==', 'assignment'),
               orderBy('dueDate', 'asc')
-            );
-            queries.push(getDocs(assignmentQuery));
-          } else {
-            queries.push(Promise.resolve({ forEach: () => {} }));
+            ));
+          } catch (e) {
+            console.warn('Assignments query failed:', e);
+            queries.assignments = Promise.resolve({ forEach: () => {} });
           }
-        } catch {
-          queries.push(Promise.resolve({ forEach: () => {} }));
-        }
 
-        // Schedule / Events (optional)
-        try {
-          if (gradeFilter) {
-            const eventsQuery = query(
+          // Events (optional)
+          try {
+            queries.events = getDocs(query(
               collection(db, 'events'),
               where('grade', '==', gradeFilter),
               orderBy('date', 'asc')
-            );
-            queries.push(getDocs(eventsQuery));
-          } else {
-            queries.push(Promise.resolve({ forEach: () => {} }));
+            ));
+          } catch (e) {
+            console.warn('Events query failed:', e);
+            queries.events = Promise.resolve({ forEach: () => {} });
           }
-        } catch {
-          queries.push(Promise.resolve({ forEach: () => {} }));
+        } else {
+          queries.notes1 = Promise.resolve({ forEach: () => {} });
+          queries.notes2 = Promise.resolve({ forEach: () => {} });
+          queries.assignments = Promise.resolve({ forEach: () => {} });
+          queries.events = Promise.resolve({ forEach: () => {} });
         }
 
-        const [noticesSnap, notesSnap1, notesSnap2, assignmentsSnap, eventsSnap] = await Promise.all(queries);
+        // Wait for all queries
+        const [noticesSnap, notesSnap1, notesSnap2, assignmentsSnap, eventsSnap] = await Promise.all([
+          queries.notices,
+          queries.notes1,
+          queries.notes2,
+          queries.assignments,
+          queries.events
+        ]);
 
         // ---- 3. Build Feed (Notices + Notes) ----
         const feedItems = [];
@@ -601,7 +621,7 @@
           });
         }
 
-        // Notes
+        // Notes (excluding assignments)
         const seenTitles = new Set();
         const noteDocs = [];
         if (notesSnap1 && typeof notesSnap1.forEach === 'function') {
@@ -610,9 +630,10 @@
         if (notesSnap2 && typeof notesSnap2.forEach === 'function') {
           notesSnap2.forEach(doc => noteDocs.push(doc));
         }
+
         noteDocs.forEach(doc => {
           const n = doc.data();
-          // Skip assignments in feed (they'll appear in assignments tab)
+          // Skip if it's an assignment (they go to the assignments tab)
           if (n.type === 'assignment') return;
           const key = n.title || 'Untitled';
           if (seenTitles.has(key)) return;
@@ -626,7 +647,7 @@
             color: 'text-green-600 dark:text-green-400',
             bg: 'bg-green-50 dark:bg-green-900/20',
             borderClass: 'note',
-            downloadUrl: n.fileLink || n.fileUrl || null  // Use fileLink (new) or fallback
+            downloadUrl: n.fileLink || n.fileUrl || null
           });
         });
 
@@ -637,7 +658,8 @@
           feedContainer.innerHTML = `
             <div class="text-center py-8">
               <i class="fas fa-inbox text-3xl text-gray-300 dark:text-gray-600 mb-2"></i>
-              <p class="text-gray-500 dark:text-gray-400 font-medium">No notices or materials</p>
+              <p class="text-gray-500 dark:text-gray-400 font-medium">No notices or materials found for your class.</p>
+              <p class="text-xs text-gray-400 mt-1">Check back later.</p>
             </div>`;
         } else {
           feedContainer.innerHTML = feedItems.map(item => `
@@ -665,7 +687,7 @@
           `).join('');
         }
 
-        // ---- 4. Assignments (from notes with type='assignment') ----
+        // ---- 4. Assignments ----
         const assignments = [];
         if (assignmentsSnap && typeof assignmentsSnap.forEach === 'function') {
           assignmentsSnap.forEach(doc => {
@@ -720,7 +742,7 @@
           scheduleContainer.innerHTML = `
             <div class="text-center py-6 text-gray-400 text-sm">
               <i class="fas fa-calendar-check text-2xl mb-2 text-blue-400"></i>
-              <p>No upcoming events scheduled.</p>
+              <p>No upcoming events scheduled for your class.</p>
             </div>`;
         } else {
           scheduleContainer.innerHTML = events.map(e => `
@@ -741,12 +763,12 @@
         hideLoader();
 
       } catch (err) {
-        console.error('Dashboard error:', err);
+        console.error('❌ Dashboard error:', err);
         feedContainer.innerHTML = `
           <div class="text-center py-8 text-red-500">
             <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
             <p class="font-medium">Failed to load data</p>
-            <p class="text-xs text-gray-400 mt-1">Please refresh</p>
+            <p class="text-xs text-gray-400 mt-1">${err.message || 'Please refresh'}</p>
           </div>`;
         clearTimeout(safetyTimer);
         hideLoader();
