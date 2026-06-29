@@ -620,11 +620,10 @@
           `;
         }
 
-        // ---- 2. Fetch data based on student's grade & section ----
+        // ---- 2. Fetch data ----
         const gradeFilter = (grade !== '—' && grade !== '') ? grade : '';
-        const sectionFilter = (section !== '—' && section !== '') ? section : 'A';
 
-        console.log(`📌 Fetching data for Grade: ${gradeFilter}, Section: ${sectionFilter}`);
+        console.log(`📌 Fetching data for Grade: ${gradeFilter}, Section (optional): ${section}`);
 
         // Helper to safely fetch
         async function safeFetch(queryFn, label) {
@@ -644,14 +643,13 @@
           'notices'
         );
 
-        // Notes (including assignments)
+        // Notes – only filter by grade (section is optional, we'll filter client-side)
         let allNotes = [];
         if (gradeFilter) {
           const notesSnap = await safeFetch(
             () => getDocs(query(
               collection(db, 'notes'),
               where('grade', '==', gradeFilter),
-              where('section', 'in', [sectionFilter, 'all']),
               orderBy('uploadedAt', 'desc')
             )),
             'notes'
@@ -659,6 +657,8 @@
           if (notesSnap && typeof notesSnap.forEach === 'function') {
             notesSnap.forEach(doc => allNotes.push({ id: doc.id, ...doc.data() }));
           }
+        } else {
+          console.warn('⚠️ No grade provided – skipping notes');
         }
 
         // Events
@@ -670,7 +670,26 @@
           );
         }
 
-        // ---- 3. Build Feed ----
+        // ---- Filter notes by section (optional) ----
+        // If student has a section, show notes with section == student section OR section == 'all' OR no section field
+        const sectionFilter = (section !== '—' && section !== '') ? section : '';
+        const filteredNotes = allNotes.filter(n => {
+          // If note has no section field, treat as 'all'
+          const noteSection = n.section || 'all';
+          // If student has no section, show all notes (since section is optional)
+          if (!sectionFilter) return true;
+          return noteSection === sectionFilter || noteSection === 'all';
+        });
+
+        console.log(`📘 Total notes after section filter: ${filteredNotes.length} (from ${allNotes.length} total)`);
+
+        // ---- Separate notes and assignments ----
+        const notes = filteredNotes.filter(item => item.type !== 'assignment');
+        const assignments = filteredNotes.filter(item => item.type === 'assignment');
+
+        console.log(`📘 Notes: ${notes.length}, 📝 Assignments: ${assignments.length}`);
+
+        // ---- 3. Build Feed (Notices + Notes) ----
         const feedItems = [];
 
         // Notices
@@ -690,10 +709,7 @@
           });
         }
 
-        // Notes (non-assignment)
-        const notes = allNotes.filter(item => item.type !== 'assignment');
-        const assignments = allNotes.filter(item => item.type === 'assignment');
-
+        // Notes
         notes.forEach(n => {
           feedItems.push({
             type: 'note',
