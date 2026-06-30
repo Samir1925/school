@@ -176,25 +176,6 @@
     .profile-value { color: #1f2937; font-weight: 600; font-size: 0.875rem; text-align: right; max-width: 60%; }
     .dark .profile-value { color: #f3f4f6; }
 
-    .debug-box {
-      background: #1e293b;
-      color: #e2e8f0;
-      padding: 12px;
-      border-radius: 12px;
-      font-family: monospace;
-      font-size: 11px;
-      max-height: 200px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      line-height: 1.6;
-      margin-top: 8px;
-    }
-    .dark .debug-box { background: #0f172a; color: #94a3b8; }
-    .debug-box .success { color: #4ade80; }
-    .debug-box .error { color: #f87171; }
-    .debug-box .warning { color: #fbbf24; }
-    .debug-box .info { color: #60a5fa; }
-
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
       .bottom-nav { padding-bottom: calc(6px + env(safe-area-inset-bottom)); bottom: calc(16px + env(safe-area-inset-bottom)); }
       body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
@@ -264,17 +245,6 @@
     <!-- ===== MAIN CONTENT ===== -->
     <main class="max-w-7xl mx-auto px-4 -mt-4 relative z-10 pb-4">
 
-      <!-- ===== DEBUG PANEL (toggleable) ===== -->
-      <div class="glass-card p-3 rounded-xl mb-4">
-        <div class="flex justify-between items-center">
-          <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">🔍 Debug Info</span>
-          <button onclick="document.getElementById('debugContent').classList.toggle('hidden')" class="text-gray-400 hover:text-gray-600 text-xs">
-            <i class="fas fa-chevron-down" id="debugToggle"></i>
-          </button>
-        </div>
-        <div id="debugContent" class="debug-box hidden"></div>
-      </div>
-
       <!-- ===== TAB: HOME ===== -->
       <div class="tab-content active" id="tab-home">
         <!-- Stats Grid -->
@@ -325,7 +295,7 @@
           </div>
         </div>
 
-        <!-- Feed -->
+        <!-- Feed (Notices + Notes) -->
         <section class="glass-card p-5 rounded-2xl mb-6">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -340,6 +310,7 @@
             <span class="text-xs text-gray-400" id="feedCount">0 items</span>
           </div>
           <div id="combinedFeed" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+            <!-- Skeleton -->
             <div class="skeleton-card space-y-2">
               <div class="skeleton skeleton-text w-1/3"></div>
               <div class="skeleton skeleton-text w-full"></div>
@@ -360,19 +331,19 @@
             </div>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <a href="/gallery.html" class="p-3 bg-amber-50 dark:bg-amber-900/10 rounded-xl text-center hover:bg-amber-100 dark:hover:bg-amber-900/20 transition">
+            <a href="/gallery.html" class="quick-tile p-3 bg-amber-50 dark:bg-amber-900/10 rounded-xl text-center hover:bg-amber-100 dark:hover:bg-amber-900/20 transition">
               <i class="fas fa-images text-xl text-amber-600 dark:text-amber-400 mb-1"></i>
               <p class="text-xs font-medium text-gray-700 dark:text-gray-300">Gallery</p>
             </a>
-            <a href="/contact.html" class="p-3 bg-purple-50 dark:bg-purple-900/10 rounded-xl text-center hover:bg-purple-100 dark:hover:bg-purple-900/20 transition">
+            <a href="/contact.html" class="quick-tile p-3 bg-purple-50 dark:bg-purple-900/10 rounded-xl text-center hover:bg-purple-100 dark:hover:bg-purple-900/20 transition">
               <i class="fas fa-envelope text-xl text-purple-600 dark:text-purple-400 mb-1"></i>
               <p class="text-xs font-medium text-gray-700 dark:text-gray-300">Contact</p>
             </a>
-            <a href="/about.html" class="p-3 bg-green-50 dark:bg-green-900/10 rounded-xl text-center hover:bg-green-100 dark:hover:bg-green-900/20 transition">
+            <a href="/about.html" class="quick-tile p-3 bg-green-50 dark:bg-green-900/10 rounded-xl text-center hover:bg-green-100 dark:hover:bg-green-900/20 transition">
               <i class="fas fa-info-circle text-xl text-green-600 dark:text-green-400 mb-1"></i>
               <p class="text-xs font-medium text-gray-700 dark:text-gray-300">About</p>
             </a>
-            <a href="/student-life.html" class="p-3 bg-pink-50 dark:bg-pink-900/10 rounded-xl text-center hover:bg-pink-100 dark:hover:bg-pink-900/20 transition">
+            <a href="/student-life.html" class="quick-tile p-3 bg-pink-50 dark:bg-pink-900/10 rounded-xl text-center hover:bg-pink-100 dark:hover:bg-pink-900/20 transition">
               <i class="fas fa-star text-xl text-pink-600 dark:text-pink-400 mb-1"></i>
               <p class="text-xs font-medium text-gray-700 dark:text-gray-300">Activities</p>
             </a>
@@ -459,7 +430,7 @@
   <script type="module">
     import { auth, db } from "/assets/js/firebase-config.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { doc, getDoc, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // DOM REFS
     const loader = document.getElementById('global-loader');
@@ -469,23 +440,6 @@
     const assignmentsContainer = document.getElementById('assignmentsContainer');
     const scheduleContainer = document.getElementById('scheduleContainer');
     const profileContainer = document.getElementById('profileContainer');
-    const debugContent = document.getElementById('debugContent');
-
-    // Helper: Add debug message
-    function debugLog(message, type = 'info', data = null) {
-      const time = new Date().toLocaleTimeString();
-      const emojis = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
-      const classes = { success: 'success', error: 'error', warning: 'warning', info: 'info' };
-      const cls = classes[type] || 'info';
-      const emoji = emojis[type] || 'ℹ️';
-      let line = `<span class="${cls}">${emoji} [${time}]</span> ${message}`;
-      if (data !== null) {
-        line += `\n  ${JSON.stringify(data, null, 2)}`;
-      }
-      debugContent.innerHTML += line + '\n\n';
-      debugContent.scrollTop = debugContent.scrollHeight;
-      console.log(`[${type.toUpperCase()}] ${message}`, data || '');
-    }
 
     function hideLoader() {
       if (loader) {
@@ -567,8 +521,6 @@
         return;
       }
 
-      debugLog('User logged in', 'success', { uid: user.uid, email: user.email });
-
       try {
         const schoolId = user.email?.split('@')[0] || 'Unknown';
         const displayName = user.displayName || schoolId;
@@ -591,10 +543,9 @@
           grade = studentData.grade || '—';
           section = studentData.section || '—';
           feeStatus = studentData.feeStatus || 'N/A';
-          debugLog('Student profile loaded', 'success', studentData);
         } else {
-          debugLog('No student document found – using defaults', 'warning', null);
-          grade = '6'; // Default for testing
+          console.warn('⚠️ No student document found – using defaults (Grade 6, Section B)');
+          grade = '6';
           section = 'B';
           feeStatus = 'Pending';
         }
@@ -636,79 +587,55 @@
           profileContainer.innerHTML = `
             <p class="text-center text-amber-500 dark:text-amber-400">
               <i class="fas fa-exclamation-triangle mr-2"></i> No student profile found. Please contact the school.
-            </p>`;
+            </p>
+          `;
         }
 
         // ---- 2. Fetch data ----
         const gradeFilter = (grade !== '—' && grade !== '') ? grade : '';
         const sectionFilter = (section !== '—' && section !== '') ? section : '';
 
-        debugLog(`📌 Fetching data for Grade: "${gradeFilter}", Section (optional): "${sectionFilter}"`, 'info');
+        console.log(`📌 Fetching data for Grade: "${gradeFilter}", Section (optional): "${sectionFilter}"`);
 
         // Helper to safely fetch
         async function safeFetch(queryFn, label) {
           try {
             const result = await queryFn();
-            const count = result.size || result.length || 0;
-            debugLog(`✅ ${label} fetched: ${count} items`, 'success');
+            console.log(`✅ ${label} fetched: ${result.size || result.length || 0} items`);
             return result;
           } catch (err) {
-            debugLog(`❌ Error fetching ${label}: ${err.message}`, 'error');
+            console.warn(`⚠️ Error fetching ${label}:`, err.message);
             return { forEach: () => {} };
           }
         }
 
-        // Notices
+        // Notices – with orderBy (notices collection is small and typically has an index)
         const noticesSnap = await safeFetch(
           () => getDocs(query(collection(db, 'notices'), orderBy('created_at', 'desc'))),
           'notices'
         );
 
-        // Notes – ONLY filter by grade (NO orderBy to avoid index issues)
+        // Notes – only filter by grade (NO orderBy to avoid index issues)
         let allNotes = [];
         if (gradeFilter) {
-          debugLog(`🔍 Querying notes for grade: "${gradeFilter}" (no orderBy)`, 'info');
           const notesSnap = await safeFetch(
-            () => getDocs(query(
-              collection(db, 'notes'),
-              where('grade', '==', gradeFilter)
-            )),
+            () => getDocs(query(collection(db, 'notes'), where('grade', '==', gradeFilter))),
             'notes (grade filter)'
           );
           if (notesSnap && typeof notesSnap.forEach === 'function') {
             notesSnap.forEach(doc => allNotes.push({ id: doc.id, ...doc.data() }));
           }
-          debugLog(`📘 Raw notes (grade filter): ${allNotes.length} items`, 'info', allNotes.map(n => ({ title: n.title, grade: n.grade, section: n.section, type: n.type })));
         } else {
-          debugLog('⚠️ No grade provided – skipping notes', 'warning');
+          console.warn('⚠️ No grade provided – skipping notes');
         }
 
-        // If no notes found with grade filter, try fetching all notes (for debugging)
-        if (allNotes.length === 0 && gradeFilter) {
-          debugLog('🔍 No notes found with grade filter – fetching all notes to check data', 'info');
-          const allSnap = await safeFetch(
-            () => getDocs(query(collection(db, 'notes'))),
-            'all notes (no filter)'
-          );
-          if (allSnap && typeof allSnap.forEach === 'function') {
-            const allData = [];
-            allSnap.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
-            debugLog(`📘 All notes in database: ${allData.length} items`, 'info', allData.map(n => ({ title: n.title, grade: n.grade, section: n.section, type: n.type })));
-          }
-        }
-
-        // Events (skip if errors)
+        // Events – only filter by grade (NO orderBy)
         let eventsSnap = { forEach: () => {} };
         if (gradeFilter) {
-          try {
-            eventsSnap = await getDocs(query(
-              collection(db, 'events'),
-              where('grade', '==', gradeFilter)
-            ));
-            debugLog(`✅ events fetched: ${eventsSnap.size} items`, 'success');
-          } catch (err) {
-            debugLog(`⚠️ Events error (skipping): ${err.message}`, 'warning');
-          }
+          eventsSnap = await safeFetch(
+            () => getDocs(query(collection(db, 'events'), where('grade', '==', gradeFilter))),
+            'events'
+          );
         }
 
         // ---- Filter notes by section (optional) ----
@@ -718,15 +645,11 @@
           return noteSection === sectionFilter || noteSection === 'all';
         });
 
-        debugLog(`📘 Notes after section filter: ${filteredNotes.length} (from ${allNotes.length} total)`, 'info');
-
         // Separate notes and assignments
         const notes = filteredNotes.filter(item => item.type !== 'assignment');
         const assignments = filteredNotes.filter(item => item.type === 'assignment');
 
-        debugLog(`📘 Notes: ${notes.length}, 📝 Assignments: ${assignments.length}`, 'info');
-
-        // ---- 3. Build Feed ----
+        // ---- 3. Build Feed (Notices + Notes) ----
         const feedItems = [];
 
         if (noticesSnap && typeof noticesSnap.forEach === 'function') {
@@ -854,18 +777,16 @@
         }
 
         // ---- DONE ----
-        debugLog('Dashboard loaded successfully!', 'success');
         clearTimeout(safetyTimer);
         hideLoader();
 
       } catch (err) {
         console.error('❌ Dashboard error:', err);
-        debugLog(`Fatal error: ${err.message}`, 'error');
         feedContainer.innerHTML = `
           <div class="text-center py-8 text-red-500">
             <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
             <p class="font-medium">Failed to load data</p>
-            <p class="text-xs text-gray-400 mt-1">${err.message || 'Please refresh'}</p>
+            <p class="text-xs text-gray-400 mt-1">Please refresh</p>
           </div>`;
         clearTimeout(safetyTimer);
         hideLoader();
