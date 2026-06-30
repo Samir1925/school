@@ -9,22 +9,19 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <!-- Google Font (Inter) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
 
   <style>
-    /* ===== STYLES (unchanged) ===== */
+    /* (Styles unchanged – kept for brevity) */
     * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
     body { background: #f2f4f9; padding-bottom: 80px; transition: background 0.3s ease; }
     body.dark { background: #0d0d1a; }
-
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #c4c8d4; border-radius: 100px; }
     .dark ::-webkit-scrollbar-thumb { background: #3b3b5c; }
-
     .glass-card {
       background: rgba(255,255,255,0.75);
       backdrop-filter: blur(20px);
@@ -169,6 +166,21 @@
     .profile-value { color: #1f2937; font-weight: 600; font-size: 0.875rem; text-align: right; max-width: 60%; }
     .dark .profile-value { color: #f3f4f6; }
 
+    /* Debug info box */
+    .debug-info {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 12px;
+      font-family: monospace;
+      font-size: 12px;
+      margin-top: 12px;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .dark .debug-info { background: #0f172a; color: #94a3b8; }
+
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
       .bottom-nav { padding-bottom: calc(6px + env(safe-area-inset-bottom)); bottom: calc(16px + env(safe-area-inset-bottom)); }
       body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
@@ -188,7 +200,7 @@
   <!-- ===== MAIN APP ===== -->
   <div id="app" style="display:none;">
 
-    <!-- ===== HEADER ===== -->
+    <!-- ===== HEADER (unchanged) ===== -->
     <header class="gradient-header text-white px-5 pt-6 pb-8 relative">
       <div class="relative z-10 max-w-7xl mx-auto">
         <div class="flex items-center justify-between">
@@ -235,8 +247,19 @@
       </div>
     </header>
 
-    <!-- ===== MAIN CONTENT WITH TABS ===== -->
+    <!-- ===== MAIN CONTENT ===== -->
     <main class="max-w-7xl mx-auto px-4 -mt-4 relative z-10 pb-4">
+
+      <!-- ===== DEBUG INFO BOX (toggleable) ===== -->
+      <div class="glass-card p-3 rounded-xl mb-4">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">🔍 Debug Info (console also)</span>
+          <button onclick="document.getElementById('debugContent').classList.toggle('hidden')" class="text-gray-400 hover:text-gray-600 text-xs">
+            <i class="fas fa-chevron-down" id="debugToggle"></i>
+          </button>
+        </div>
+        <div id="debugContent" class="debug-info hidden"></div>
+      </div>
 
       <!-- ===== TAB: HOME ===== -->
       <div class="tab-content active" id="tab-home">
@@ -288,7 +311,7 @@
           </div>
         </div>
 
-        <!-- Feed (Notices + Notes) -->
+        <!-- Feed -->
         <section class="glass-card p-5 rounded-2xl mb-6">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -303,7 +326,6 @@
             <span class="text-xs text-gray-400" id="feedCount">0 items</span>
           </div>
           <div id="combinedFeed" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-            <!-- Skeleton -->
             <div class="skeleton-card space-y-2">
               <div class="skeleton skeleton-text w-1/3"></div>
               <div class="skeleton skeleton-text w-full"></div>
@@ -411,34 +433,21 @@
     </main>
   </div>
 
-  <!-- ===== BOTTOM NAVIGATION ===== -->
+  <!-- ===== BOTTOM NAV ===== -->
   <nav class="bottom-nav" id="bottomNav">
-    <button class="nav-item active" data-tab="home">
-      <i class="fas fa-house"></i>
-      <span>Home</span>
-    </button>
-    <button class="nav-item" data-tab="assignments">
-      <i class="fas fa-pencil-alt"></i>
-      <span>Tasks</span>
-    </button>
-    <button class="nav-item" data-tab="schedule">
-      <i class="fas fa-calendar"></i>
-      <span>Schedule</span>
-    </button>
-    <button class="nav-item" data-tab="profile">
-      <i class="fas fa-user"></i>
-      <span>Profile</span>
-    </button>
+    <button class="nav-item active" data-tab="home"><i class="fas fa-house"></i><span>Home</span></button>
+    <button class="nav-item" data-tab="assignments"><i class="fas fa-pencil-alt"></i><span>Tasks</span></button>
+    <button class="nav-item" data-tab="schedule"><i class="fas fa-calendar"></i><span>Schedule</span></button>
+    <button class="nav-item" data-tab="profile"><i class="fas fa-user"></i><span>Profile</span></button>
   </nav>
 
   <!-- ===== SCRIPTS ===== -->
   <script type="module">
-    // ----- FIREBASE IMPORTS -----
     import { auth, db } from "/assets/js/firebase-config.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { doc, getDoc, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // ========== DOM REFS ==========
+    // DOM REFS
     const loader = document.getElementById('global-loader');
     const app = document.getElementById('app');
     const feedContainer = document.getElementById('combinedFeed');
@@ -446,8 +455,20 @@
     const assignmentsContainer = document.getElementById('assignmentsContainer');
     const scheduleContainer = document.getElementById('scheduleContainer');
     const profileContainer = document.getElementById('profileContainer');
+    const debugContent = document.getElementById('debugContent');
 
-    // ========== HELPERS ==========
+    // Helper: Add debug message
+    function debugLog(msg, data = null) {
+      const time = new Date().toLocaleTimeString();
+      let line = `[${time}] ${msg}`;
+      if (data !== null) {
+        line += `\n${JSON.stringify(data, null, 2)}`;
+      }
+      debugContent.innerHTML += line + '\n\n';
+      debugContent.scrollTop = debugContent.scrollHeight;
+      console.log(`[Debug] ${msg}`, data || '');
+    }
+
     function hideLoader() {
       if (loader) {
         loader.classList.add('opacity-0', 'pointer-events-none');
@@ -477,7 +498,7 @@
       return `<span class="status-chip ${key}">${status || 'Pending'}</span>`;
     }
 
-    // ========== THEME TOGGLE ==========
+    // Theme toggle
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     function setTheme(dark) {
@@ -494,12 +515,9 @@
     if (savedTheme === 'dark') setTheme(true);
     else if (savedTheme === 'light') setTheme(false);
     else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme(true);
+    themeToggle.addEventListener('click', () => setTheme(!document.body.classList.contains('dark')));
 
-    themeToggle.addEventListener('click', () => {
-      setTheme(!document.body.classList.contains('dark'));
-    });
-
-    // ========== TAB SWITCHING ==========
+    // Tab switching
     const navItems = document.querySelectorAll('.nav-item');
     const tabContents = {
       home: document.getElementById('tab-home'),
@@ -507,7 +525,6 @@
       schedule: document.getElementById('tab-schedule'),
       profile: document.getElementById('tab-profile')
     };
-
     navItems.forEach(item => {
       item.addEventListener('click', () => {
         const tab = item.dataset.tab;
@@ -519,31 +536,30 @@
       });
     });
 
-    // ========== SAFETY TIMER ==========
+    // Safety timer
     const safetyTimer = setTimeout(() => {
-      console.warn('⚠️ Safety timeout – forcing dashboard display');
+      console.warn('⚠️ Safety timeout – forcing display');
       hideLoader();
     }, 12000);
 
-    // ========== AUTH GUARD ==========
+    // ========== AUTH ==========
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = '/student-login.html';
         return;
       }
 
-      console.log('✅ User logged in:', user.uid, user.email);
+      debugLog('✅ User logged in', { uid: user.uid, email: user.email });
 
       try {
         const schoolId = user.email?.split('@')[0] || 'Unknown';
         const displayName = user.displayName || schoolId;
 
-        // ---- Update header ----
         document.getElementById('studentName').textContent = displayName;
         document.getElementById('studentSchoolId').textContent = schoolId;
         document.getElementById('avatarInitial').textContent = getInitials(displayName);
 
-        // ---- 1. Fetch student profile ----
+        // ---- 1. Student profile ----
         const studentRef = doc(db, 'students', user.uid);
         const studentSnap = await getDoc(studentRef);
 
@@ -557,42 +573,30 @@
           grade = studentData.grade || '—';
           section = studentData.section || '—';
           feeStatus = studentData.feeStatus || 'N/A';
-          console.log('✅ Student profile loaded:', studentData);
+          debugLog('✅ Student profile loaded', studentData);
         } else {
-          console.warn('⚠️ No student document found – using defaults (Grade 10, Section A)');
+          debugLog('⚠️ No student document found – using defaults (Grade 10, Section A)', null);
           grade = '10';
           section = 'A';
           feeStatus = 'Pending';
         }
 
-        // Update header stats
+        // Update header
         document.getElementById('statGrade').textContent = grade;
         document.getElementById('statSection').textContent = section;
         document.getElementById('statFeeDisplay').textContent = feeStatus;
-
         document.getElementById('cardSchoolId').textContent = schoolId;
         document.getElementById('cardGrade').textContent = grade;
         document.getElementById('cardSection').textContent = section;
         document.getElementById('cardFeeStatus').innerHTML = getStatusChip(feeStatus);
 
-        // ---- Profile tab ----
+        // Profile tab
         if (studentData) {
           const fieldMap = {
-            'name': 'Full Name',
-            'grade': 'Grade',
-            'section': 'Section',
-            'feeStatus': 'Fee Status',
-            'parentName': 'Parent/Guardian',
-            'parentContact': 'Parent Contact',
-            'address': 'Address',
-            'dob': 'Date of Birth',
-            'email': 'Email',
-            'phone': 'Phone',
-            'admissionDate': 'Admission Date',
-            'rollNumber': 'Roll Number',
-            'nationality': 'Nationality',
-            'religion': 'Religion',
-            'gender': 'Gender'
+            'name': 'Full Name', 'grade': 'Grade', 'section': 'Section', 'feeStatus': 'Fee Status',
+            'parentName': 'Parent/Guardian', 'parentContact': 'Parent Contact', 'address': 'Address',
+            'dob': 'Date of Birth', 'email': 'Email', 'phone': 'Phone', 'admissionDate': 'Admission Date',
+            'rollNumber': 'Roll Number', 'nationality': 'Nationality', 'religion': 'Religion', 'gender': 'Gender'
           };
           let profileHTML = '';
           for (const [key, label] of Object.entries(fieldMap)) {
@@ -608,9 +612,7 @@
               `;
             }
           }
-          if (!profileHTML) {
-            profileHTML = `<p class="text-center text-gray-500 dark:text-gray-400">No additional details available.</p>`;
-          }
+          if (!profileHTML) profileHTML = `<p class="text-center text-gray-500 dark:text-gray-400">No additional details available.</p>`;
           profileContainer.innerHTML = profileHTML;
         } else {
           profileContainer.innerHTML = `
@@ -622,17 +624,19 @@
 
         // ---- 2. Fetch data ----
         const gradeFilter = (grade !== '—' && grade !== '') ? grade : '';
+        const sectionFilter = (section !== '—' && section !== '') ? section : '';
 
-        console.log(`📌 Fetching data for Grade: ${gradeFilter}, Section (optional): ${section}`);
+        debugLog(`📌 Fetching data for Grade: "${gradeFilter}", Section (optional): "${sectionFilter}"`);
 
         // Helper to safely fetch
         async function safeFetch(queryFn, label) {
           try {
             const result = await queryFn();
-            console.log(`✅ ${label} fetched: ${result.size || result.length || 0} items`);
+            const count = result.size || result.length || 0;
+            debugLog(`✅ ${label} fetched: ${count} items`, null);
             return result;
           } catch (err) {
-            console.warn(`⚠️ Error fetching ${label}:`, err.message);
+            debugLog(`❌ Error fetching ${label}: ${err.message}`, null);
             return { forEach: () => {} };
           }
         }
@@ -652,13 +656,28 @@
               where('grade', '==', gradeFilter),
               orderBy('uploadedAt', 'desc')
             )),
-            'notes'
+            'notes (grade filter)'
           );
           if (notesSnap && typeof notesSnap.forEach === 'function') {
             notesSnap.forEach(doc => allNotes.push({ id: doc.id, ...doc.data() }));
           }
+          debugLog(`📘 Raw notes (grade filter): ${allNotes.length} items`, allNotes.map(n => ({ title: n.title, grade: n.grade, section: n.section, type: n.type })));
         } else {
-          console.warn('⚠️ No grade provided – skipping notes');
+          debugLog('⚠️ No grade provided – skipping notes', null);
+        }
+
+        // Fallback: if no notes found with grade filter, try fetching all notes (for debugging)
+        if (allNotes.length === 0 && gradeFilter) {
+          debugLog('🔍 No notes found with grade filter – fetching all notes to check data', null);
+          const allSnap = await safeFetch(
+            () => getDocs(query(collection(db, 'notes'), orderBy('uploadedAt', 'desc'))),
+            'all notes (no filter)'
+          );
+          if (allSnap && typeof allSnap.forEach === 'function') {
+            const allData = [];
+            allSnap.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
+            debugLog(`📘 All notes in database: ${allData.length} items`, allData.map(n => ({ title: n.title, grade: n.grade, section: n.section, type: n.type })));
+          }
         }
 
         // Events
@@ -671,28 +690,22 @@
         }
 
         // ---- Filter notes by section (optional) ----
-        // If student has a section, show notes with section == student section OR section == 'all' OR no section field
-        const sectionFilter = (section !== '—' && section !== '') ? section : '';
         const filteredNotes = allNotes.filter(n => {
-          // If note has no section field, treat as 'all'
           const noteSection = n.section || 'all';
-          // If student has no section, show all notes (since section is optional)
-          if (!sectionFilter) return true;
+          if (!sectionFilter) return true; // no section required
           return noteSection === sectionFilter || noteSection === 'all';
         });
 
-        console.log(`📘 Total notes after section filter: ${filteredNotes.length} (from ${allNotes.length} total)`);
+        debugLog(`📘 Notes after section filter: ${filteredNotes.length} (from ${allNotes.length} total)`, null);
 
-        // ---- Separate notes and assignments ----
+        // Separate notes and assignments
         const notes = filteredNotes.filter(item => item.type !== 'assignment');
         const assignments = filteredNotes.filter(item => item.type === 'assignment');
 
-        console.log(`📘 Notes: ${notes.length}, 📝 Assignments: ${assignments.length}`);
+        debugLog(`📘 Notes: ${notes.length}, 📝 Assignments: ${assignments.length}`, null);
 
-        // ---- 3. Build Feed (Notices + Notes) ----
+        // ---- 3. Build Feed ----
         const feedItems = [];
-
-        // Notices
         if (noticesSnap && typeof noticesSnap.forEach === 'function') {
           noticesSnap.forEach(doc => {
             const n = doc.data();
@@ -709,7 +722,6 @@
           });
         }
 
-        // Notes
         notes.forEach(n => {
           feedItems.push({
             type: 'note',
@@ -784,7 +796,7 @@
           `).join('');
         }
 
-        // ---- 5. Schedule / Events ----
+        // ---- 5. Schedule ----
         const events = [];
         if (eventsSnap && typeof eventsSnap.forEach === 'function') {
           eventsSnap.forEach(doc => {
@@ -818,23 +830,25 @@
         }
 
         // ---- DONE ----
+        debugLog('✅ Dashboard loaded successfully', null);
         clearTimeout(safetyTimer);
         hideLoader();
 
       } catch (err) {
         console.error('❌ Dashboard error:', err);
+        debugLog(`❌ Fatal error: ${err.message}`, null);
         feedContainer.innerHTML = `
           <div class="text-center py-8 text-red-500">
             <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
             <p class="font-medium">Failed to load data</p>
-            <p class="text-xs text-gray-400 mt-1">Please refresh</p>
+            <p class="text-xs text-gray-400 mt-1">${err.message || 'Please refresh'}</p>
           </div>`;
         clearTimeout(safetyTimer);
         hideLoader();
       }
     });
 
-    // ========== LOGOUT ==========
+    // Logout
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await signOut(auth);
       window.location.href = '/student-login.html';
