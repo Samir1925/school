@@ -15,7 +15,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
 
   <style>
-    /* ===== STYLES ===== */
     * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
     body { background: #f2f4f9; padding-bottom: 80px; transition: background 0.3s ease; }
     body.dark { background: #0d0d1a; }
@@ -148,6 +147,7 @@
     .feed-item {
       border-left: 4px solid transparent;
       transition: background 0.2s;
+      cursor: pointer;
     }
     .feed-item.notice { border-left-color: #3b82f6; }
     .feed-item.note { border-left-color: #22c55e; }
@@ -176,6 +176,51 @@
     .profile-value { color: #1f2937; font-weight: 600; font-size: 0.875rem; text-align: right; max-width: 60%; }
     .dark .profile-value { color: #f3f4f6; }
 
+    /* ===== FILE VIEWER MODAL ===== */
+    .viewer-overlay {
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      animation: fadeIn 0.3s ease;
+    }
+    .viewer-overlay.hidden { display: none; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .viewer-content {
+      animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+    }
+    .dark .viewer-content {
+      background: rgba(20,20,35,0.95);
+    }
+
+    .viewer-iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 500px;
+      border: none;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .dark .viewer-iframe {
+      background: #0f0f1a;
+    }
+
+    .viewer-close {
+      transition: all 0.2s;
+    }
+    .viewer-close:hover { transform: rotate(90deg); }
+
+    .viewer-download {
+      transition: all 0.2s;
+    }
+    .viewer-download:hover { transform: scale(1.05); }
+
+    /* Quick tile */
+    .quick-tile { transition: all 0.2s; }
+    .quick-tile:active { transform: scale(0.95); }
+
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
       .bottom-nav { padding-bottom: calc(6px + env(safe-area-inset-bottom)); bottom: calc(16px + env(safe-area-inset-bottom)); }
       body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
@@ -189,6 +234,47 @@
     <div class="text-center">
       <div class="w-16 h-16 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin mx-auto mb-4"></div>
       <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Loading your hub…</p>
+    </div>
+  </div>
+
+  <!-- ===== FILE VIEWER MODAL ===== -->
+  <div id="fileViewer" class="viewer-overlay hidden fixed inset-0 flex items-center justify-center p-4">
+    <div class="viewer-content w-full max-w-6xl max-h-[95vh] rounded-2xl p-4 md:p-6 overflow-hidden flex flex-col shadow-2xl">
+      <!-- Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 flex-shrink-0">
+            <i class="fas fa-file-alt text-lg"></i>
+          </div>
+          <div class="min-w-0">
+            <h3 id="viewerTitle" class="text-lg font-bold text-gray-900 dark:text-white truncate">File</h3>
+            <p id="viewerMeta" class="text-sm text-gray-500 dark:text-gray-400 truncate">Loading...</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button id="viewerDownload" class="viewer-download px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl font-semibold text-sm transition flex items-center gap-2">
+            <i class="fas fa-download"></i> Download
+          </button>
+          <button onclick="closeViewer()" class="viewer-close w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center text-gray-600 dark:text-gray-300 text-xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <!-- Iframe Body -->
+      <div class="flex-1 mt-4 min-h-[400px] md:min-h-[500px] bg-gray-50 dark:bg-gray-900 rounded-xl overflow-hidden relative">
+        <div id="viewerLoading" class="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+          <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-4xl text-indigo-500 mb-3"></i>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">Loading file preview...</p>
+          </div>
+        </div>
+        <iframe id="viewerIframe" class="viewer-iframe w-full h-full opacity-0 transition-opacity duration-300" allowfullscreen></iframe>
+      </div>
+      <!-- Footer -->
+      <div class="pt-3 text-xs text-gray-400 dark:text-gray-500 flex-shrink-0 flex justify-between">
+        <span id="viewerType">File type: Unknown</span>
+        <span>Google Drive embed</span>
+      </div>
     </div>
   </div>
 
@@ -309,7 +395,7 @@
             </div>
             <span class="text-xs text-gray-400" id="feedCount">0 items</span>
           </div>
-          <div id="combinedFeed" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+          <div id="combinedFeed" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
             <!-- Skeleton -->
             <div class="skeleton-card space-y-2">
               <div class="skeleton skeleton-text w-1/3"></div>
@@ -441,6 +527,129 @@
     const scheduleContainer = document.getElementById('scheduleContainer');
     const profileContainer = document.getElementById('profileContainer');
 
+    // Viewer DOM refs
+    const viewer = document.getElementById('fileViewer');
+    const viewerIframe = document.getElementById('viewerIframe');
+    const viewerLoading = document.getElementById('viewerLoading');
+    const viewerTitle = document.getElementById('viewerTitle');
+    const viewerMeta = document.getElementById('viewerMeta');
+    const viewerType = document.getElementById('viewerType');
+    const viewerDownload = document.getElementById('viewerDownload');
+
+    // ========== HELPER: Extract File ID from Google Drive URL ==========
+    function extractFileId(url) {
+      if (!url) return null;
+      // Pattern 1: /d/FILE_ID/
+      let match = url.match(/\/d\/([^\/]+)/);
+      if (match) return match[1];
+      // Pattern 2: id=FILE_ID
+      match = url.match(/[?&]id=([^&]+)/);
+      if (match) return match[1];
+      // Pattern 3: file/d/FILE_ID
+      match = url.match(/file\/d\/([^\/]+)/);
+      if (match) return match[1];
+      return null;
+    }
+
+    function getFileType(fileName) {
+      if (!fileName) return 'unknown';
+      const ext = fileName.split('.').pop().toLowerCase();
+      const types = {
+        'pdf': 'PDF Document',
+        'doc': 'Word Document',
+        'docx': 'Word Document',
+        'xls': 'Excel Spreadsheet',
+        'xlsx': 'Excel Spreadsheet',
+        'ppt': 'PowerPoint',
+        'pptx': 'PowerPoint',
+        'jpg': 'Image',
+        'jpeg': 'Image',
+        'png': 'Image',
+        'gif': 'Image',
+        'mp4': 'Video',
+        'mp3': 'Audio',
+        'txt': 'Text File'
+      };
+      return types[ext] || ext.toUpperCase() + ' File';
+    }
+
+    function getFileIcon(fileName) {
+      if (!fileName) return 'fa-file-alt';
+      const ext = fileName.split('.').pop().toLowerCase();
+      const icons = {
+        'pdf': 'fa-file-pdf',
+        'doc': 'fa-file-word',
+        'docx': 'fa-file-word',
+        'xls': 'fa-file-excel',
+        'xlsx': 'fa-file-excel',
+        'ppt': 'fa-file-powerpoint',
+        'pptx': 'fa-file-powerpoint',
+        'jpg': 'fa-file-image',
+        'jpeg': 'fa-file-image',
+        'png': 'fa-file-image',
+        'gif': 'fa-file-image',
+        'mp4': 'fa-file-video',
+        'mp3': 'fa-file-audio',
+        'txt': 'fa-file-alt'
+      };
+      return icons[ext] || 'fa-file-alt';
+    }
+
+    // ========== VIEWER FUNCTIONS ==========
+    function openViewer(item) {
+      const fileLink = item.fileLink || item.fileUrl || '#';
+      const fileId = extractFileId(fileLink);
+
+      if (!fileId) {
+        alert('Unable to open this file. The link may be invalid.');
+        return;
+      }
+
+      // Build embed URL
+      const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+
+      viewerTitle.textContent = item.title || 'Untitled';
+      viewerMeta.textContent = `${item.subject || 'General'} • ${item.grade ? 'Grade ' + item.grade : ''} ${item.section && item.section !== 'all' ? '• Section ' + item.section : ''}`;
+      viewerType.textContent = `File: ${getFileType(item.fileName || item.fileType || '')}`;
+
+      // Show iframe with embed
+      viewerLoading.classList.remove('hidden');
+      viewerIframe.style.opacity = '0';
+      viewerIframe.src = embedUrl;
+
+      viewerIframe.onload = () => {
+        viewerLoading.classList.add('hidden');
+        viewerIframe.style.opacity = '1';
+      };
+
+      // Set download link
+      viewerDownload.onclick = () => {
+        const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        window.open(downloadUrl, '_blank');
+      };
+
+      viewer.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    window.closeViewer = function() {
+      viewer.classList.add('hidden');
+      viewerIframe.src = '';
+      viewerIframe.style.opacity = '0';
+      document.body.style.overflow = '';
+    };
+
+    // Close on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeViewer();
+    });
+
+    // Close on backdrop click
+    viewer.addEventListener('click', (e) => {
+      if (e.target === viewer) closeViewer();
+    });
+
+    // ========== HELPERS ==========
     function hideLoader() {
       if (loader) {
         loader.classList.add('opacity-0', 'pointer-events-none');
@@ -544,7 +753,7 @@
           section = studentData.section || '—';
           feeStatus = studentData.feeStatus || 'N/A';
         } else {
-          console.warn('⚠️ No student document found – using defaults (Grade 6, Section B)');
+          console.warn('⚠️ No student document found – using defaults');
           grade = '6';
           section = 'B';
           feeStatus = 'Pending';
@@ -587,17 +796,15 @@
           profileContainer.innerHTML = `
             <p class="text-center text-amber-500 dark:text-amber-400">
               <i class="fas fa-exclamation-triangle mr-2"></i> No student profile found. Please contact the school.
-            </p>
-          `;
+            </p>`;
         }
 
         // ---- 2. Fetch data ----
         const gradeFilter = (grade !== '—' && grade !== '') ? grade : '';
         const sectionFilter = (section !== '—' && section !== '') ? section : '';
 
-        console.log(`📌 Fetching data for Grade: "${gradeFilter}", Section (optional): "${sectionFilter}"`);
+        console.log(`📌 Fetching data for Grade: "${gradeFilter}", Section: "${sectionFilter}"`);
 
-        // Helper to safely fetch
         async function safeFetch(queryFn, label) {
           try {
             const result = await queryFn();
@@ -609,13 +816,13 @@
           }
         }
 
-        // Notices – with orderBy (notices collection is small and typically has an index)
+        // Notices
         const noticesSnap = await safeFetch(
           () => getDocs(query(collection(db, 'notices'), orderBy('created_at', 'desc'))),
           'notices'
         );
 
-        // Notes – only filter by grade (NO orderBy to avoid index issues)
+        // Notes
         let allNotes = [];
         if (gradeFilter) {
           const notesSnap = await safeFetch(
@@ -625,11 +832,9 @@
           if (notesSnap && typeof notesSnap.forEach === 'function') {
             notesSnap.forEach(doc => allNotes.push({ id: doc.id, ...doc.data() }));
           }
-        } else {
-          console.warn('⚠️ No grade provided – skipping notes');
         }
 
-        // Events – only filter by grade (NO orderBy)
+        // Events
         let eventsSnap = { forEach: () => {} };
         if (gradeFilter) {
           eventsSnap = await safeFetch(
@@ -638,20 +843,20 @@
           );
         }
 
-        // ---- Filter notes by section (optional) ----
+        // Filter notes by section
         const filteredNotes = allNotes.filter(n => {
           const noteSection = n.section || 'all';
           if (!sectionFilter) return true;
           return noteSection === sectionFilter || noteSection === 'all';
         });
 
-        // Separate notes and assignments
         const notes = filteredNotes.filter(item => item.type !== 'assignment');
         const assignments = filteredNotes.filter(item => item.type === 'assignment');
 
-        // ---- 3. Build Feed (Notices + Notes) ----
+        // ---- 3. Build Feed ----
         const feedItems = [];
 
+        // Notices
         if (noticesSnap && typeof noticesSnap.forEach === 'function') {
           noticesSnap.forEach(doc => {
             const n = doc.data();
@@ -663,26 +868,35 @@
               icon: 'fa-bullhorn',
               color: 'text-blue-600 dark:text-blue-400',
               bg: 'bg-blue-50 dark:bg-blue-900/20',
-              borderClass: 'notice'
+              borderClass: 'notice',
+              isNotice: true
             });
           });
         }
 
+        // Notes (with file viewer)
         notes.forEach(n => {
           feedItems.push({
             type: 'note',
-            title: `📚 ${n.title || 'Untitled'}`,
-            description: `${n.subject || 'General'} • ${n.fileType?.toUpperCase() || 'PDF'}`,
+            title: n.title || 'Untitled',
+            description: `${n.subject || 'General'}`,
             date: formatDate(n.uploadedAt),
-            icon: 'fa-book',
+            icon: getFileIcon(n.fileName || n.fileType || ''),
             color: 'text-green-600 dark:text-green-400',
             bg: 'bg-green-50 dark:bg-green-900/20',
             borderClass: 'note',
-            downloadUrl: n.fileLink || n.fileUrl || null
+            fileLink: n.fileLink || n.fileUrl || null,
+            fileType: getFileType(n.fileName || n.fileType || ''),
+            subject: n.subject,
+            grade: n.grade,
+            section: n.section,
+            fileName: n.fileName || 'file.pdf',
+            isNote: true,
+            data: n
           });
         });
 
-        // Sort by date (newest first) – client-side
+        // Sort by date
         feedItems.sort((a, b) => new Date(b.date) - new Date(a.date));
         feedCount.textContent = `${feedItems.length} items`;
 
@@ -694,29 +908,58 @@
               <p class="text-xs text-gray-400 mt-1">Check back later.</p>
             </div>`;
         } else {
-          feedContainer.innerHTML = feedItems.map(item => `
-            <div class="feed-item ${item.borderClass} pl-3 py-2 pr-2 rounded-lg transition">
-              <div class="flex justify-between items-start gap-3">
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2 mb-0.5 flex-wrap">
-                    <span class="${item.bg} ${item.color} p-1 rounded-full inline-flex items-center justify-center w-6 h-6">
-                      <i class="fas ${item.icon} text-[10px]"></i>
-                    </span>
-                    <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400">${item.date}</span>
-                    <span class="text-[8px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">${item.type}</span>
+          feedContainer.innerHTML = feedItems.map(item => {
+            if (item.isNotice) {
+              return `
+                <div class="feed-item ${item.borderClass} pl-3 py-2 pr-2 rounded-lg transition">
+                  <div class="flex justify-between items-start gap-3">
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+                        <span class="${item.bg} ${item.color} p-1 rounded-full inline-flex items-center justify-center w-6 h-6">
+                          <i class="fas ${item.icon} text-[10px]"></i>
+                        </span>
+                        <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400">${item.date}</span>
+                        <span class="text-[8px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">${item.type}</span>
+                      </div>
+                      <h3 class="font-semibold text-gray-800 dark:text-white text-sm">${item.title}</h3>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${item.description}</p>
+                    </div>
                   </div>
-                  <h3 class="font-semibold text-gray-800 dark:text-white text-sm">${item.title}</h3>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${item.description}</p>
                 </div>
-                ${item.downloadUrl ? `
-                  <a href="${item.downloadUrl}" target="_blank" rel="noopener noreferrer"
-                    class="flex-shrink-0 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-[10px] font-semibold hover:bg-green-200 dark:hover:bg-green-900/50 transition">
-                    <i class="fas fa-external-link-alt mr-1"></i> View
-                  </a>
-                ` : ''}
-              </div>
-            </div>
-          `).join('');
+              `;
+            } else {
+              const hasFile = item.fileLink && extractFileId(item.fileLink);
+              return `
+                <div class="feed-item ${item.borderClass} pl-3 py-2 pr-2 rounded-lg transition ${hasFile ? 'cursor-pointer' : 'cursor-default'}"
+                     onclick="${hasFile ? `openViewer(${JSON.stringify(item.data).replace(/"/g, '&quot;')})` : ''}">
+                  <div class="flex justify-between items-start gap-3">
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+                        <span class="${item.bg} ${item.color} p-1 rounded-full inline-flex items-center justify-center w-6 h-6">
+                          <i class="fas ${item.icon} text-[10px]"></i>
+                        </span>
+                        <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400">${item.date}</span>
+                        <span class="text-[8px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">${item.type}</span>
+                        ${item.fileType ? `<span class="text-[8px] font-medium text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">${item.fileType}</span>` : ''}
+                      </div>
+                      <h3 class="font-semibold text-gray-800 dark:text-white text-sm">${item.title}</h3>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${item.description}</p>
+                    </div>
+                    ${hasFile ? `
+                      <div class="flex items-center gap-2 flex-shrink-0">
+                        <button class="px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-[10px] font-semibold hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition flex items-center gap-1"
+                                onclick="event.stopPropagation(); openViewer(${JSON.stringify(item.data).replace(/"/g, '&quot;')})">
+                          <i class="fas fa-eye"></i> View
+                        </button>
+                      </div>
+                    ` : `
+                      <span class="text-xs text-gray-400 flex-shrink-0">No file</span>
+                    `}
+                  </div>
+                </div>
+              `;
+            }
+          }).join('');
         }
 
         // ---- 4. Assignments ----
@@ -727,20 +970,28 @@
               <p>No pending assignments. Great job!</p>
             </div>`;
         } else {
-          assignmentsContainer.innerHTML = assignments.map(a => `
-            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl">
-              <div>
-                <p class="font-semibold text-gray-800 dark:text-white text-sm">${a.title}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">${a.subject || 'General'} • Due: ${formatDate(a.dueDate)}</p>
+          assignmentsContainer.innerHTML = assignments.map(a => {
+            const fileId = extractFileId(a.fileLink || a.fileUrl || '');
+            const hasFile = !!fileId;
+            return `
+              <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl">
+                <div>
+                  <p class="font-semibold text-gray-800 dark:text-white text-sm">${a.title}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">${a.subject || 'General'} • Due: ${formatDate(a.dueDate)}</p>
+                  <p class="text-xs text-gray-400">${a.section && a.section !== 'all' ? 'Section ' + a.section : 'All sections'}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  ${hasFile ? `
+                    <button class="px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-semibold hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition flex items-center gap-1"
+                            onclick="openViewer(${JSON.stringify(a).replace(/"/g, '&quot;')})">
+                      <i class="fas fa-eye"></i> View
+                    </button>
+                  ` : ''}
+                  <span class="text-xs px-3 py-1 rounded-full ${a.status === 'Submitted' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}">${a.status || 'Pending'}</span>
+                </div>
               </div>
-              <div class="flex items-center gap-2">
-                <a href="${a.fileLink || a.fileUrl || '#'}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 text-sm">
-                  <i class="fas fa-external-link-alt"></i>
-                </a>
-                <span class="text-xs px-3 py-1 rounded-full ${a.status === 'Submitted' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}">${a.status || 'Pending'}</span>
-              </div>
-            </div>
-          `).join('');
+            `;
+          }).join('');
         }
 
         // ---- 5. Schedule ----
